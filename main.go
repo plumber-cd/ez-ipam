@@ -64,8 +64,8 @@ func main() {
 		})
 	usagePanel.SetBorder(true).SetTitle("Usage")
 	barData := []pterm.Bar{
-		{Label: "A", Value: 10},
-		{Label: "B", Value: 20},
+		{Label: "A", Value: 4294967294},
+		{Label: "B", Value: 4294967294},
 		{Label: "C", Value: 30},
 		{Label: "D", Value: 40},
 		{Label: "E", Value: 50},
@@ -100,7 +100,7 @@ func main() {
 		for {
 			barData[0].Value = (barData[0].Value + 1) % 100
 			usagePanel.Clear()
-			_ = pterm.DefaultBarChart.WithBars(barData).WithHorizontal().WithWidth(pterm.GetTerminalWidth()/2 - 11).WithShowValue().WithWriter(tview.ANSIWriter(usagePanel)).Render()
+			_ = pterm.DefaultBarChart.WithBars(barData).WithHorizontal().WithWidth(pterm.GetTerminalWidth()/2 - 21).WithShowValue().WithWriter(tview.ANSIWriter(usagePanel)).Render()
 			time.Sleep(1 * time.Second)
 		}
 	}()
