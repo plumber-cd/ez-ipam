@@ -1,11 +1,17 @@
 package main
 
+import "slices"
+
 type MenuItem interface {
 	GetName() string
 	AsFolder() *MenuFolder
 	GetParentPath() string
 	GetParent() MenuItem
 	GetPath() string
+	Compare(MenuItem) int
+	OnChangedFunc()
+	OnSelectedFunc()
+	OnDoneFunc()
 }
 
 type MenuItems map[string]MenuItem
@@ -29,6 +35,10 @@ func (m MenuItems) GetChilds(parent MenuItem) []MenuItem {
 			childs = append(childs, menuItem)
 		}
 	}
+
+	slices.SortStableFunc(childs, func(left, right MenuItem) int {
+		return left.Compare(right)
+	})
 
 	return childs
 }

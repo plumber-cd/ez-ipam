@@ -1,12 +1,18 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
 const (
 	mainPage = "*main*"
+)
+
+var (
+	constantKeys = []string{"<q> Quit", "<ctrl+s> Save"}
 )
 
 var (
@@ -18,6 +24,7 @@ var (
 	navigationPanel *tview.List
 	detailsPanel    *tview.TextView
 	statusLine      *tview.TextView
+	keysLine        *tview.TextView
 )
 
 func main() {
@@ -38,13 +45,22 @@ func main() {
 	navigationPanel.SetBorder(true).SetTitle("Menu")
 	middleFlex.AddItem(navigationPanel, 0, 1, false)
 
-	detailsPanel = tview.NewTextView().SetText("Details")
+	detailsFlex := tview.NewFlex().SetDirection(tview.FlexRow)
+	middleFlex.AddItem(detailsFlex, 0, 5, false)
+
+	detailsPanel = tview.NewTextView()
 	detailsPanel.SetBorder(true).SetTitle("Details")
-	middleFlex.AddItem(detailsPanel, 0, 5, false)
+	detailsFlex.AddItem(detailsPanel, 0, 1, false)
+
+	keysLine = tview.NewTextView()
+	keysLine.SetBorder(false)
+	updateKeysLine([]string{})
+	rootFlex.AddItem(keysLine, 1, 1, false)
 
 	statusLine = tview.NewTextView()
 	statusLine.SetBorder(true)
-	rootFlex.AddItem(statusLine, 3, 1, false)
+	statusLine.SetTitle("Status")
+	detailsFlex.AddItem(statusLine, 3, 1, false)
 
 	positionLine.SetFocusFunc(func() {
 		app.SetFocus(navigationPanel)
@@ -59,43 +75,26 @@ func main() {
 	navigationPanel.SetChangedFunc(func(index int, mainText, secondaryText string, shortcut rune) {
 		selected := menuItems.GetByParentAndName(currentMenuItem, mainText)
 		if selected == nil {
-			statusLine.Clear()
-			statusLine.SetText("Failed to find currently changed menu item!")
-			return
+			panic("Failed to find currently changed menu item!")
 		}
 
-		detailsPanel.Clear()
-		detailsPanel.SetText("Details about " + selected.GetName())
-
-		statusLine.Clear()
-		statusLine.SetText("Changed: " + selected.GetPath())
+		selected.OnChangedFunc()
 	})
 
 	navigationPanel.SetSelectedFunc(func(index int, mainText, secondaryText string, shortcut rune) {
 		selected := menuItems.GetByParentAndName(currentMenuItem, mainText)
 		if selected == nil {
-			statusLine.Clear()
-			statusLine.SetText("Failed to find currently selected menu item!")
-			return
+			panic("Failed to find currently selected menu item!")
 		}
 
 		newChilds := menuItems.GetChilds(selected)
 		if len(newChilds) > 0 {
+			oldMenuItem := currentMenuItem
 			currentMenuItem = selected
 
-			navigationPanel.Clear()
-			for _, menuItem := range menuItems.GetChilds(selected) {
-				navigationPanel.AddItem(menuItem.GetName(), menuItem.GetPath(), 0, nil)
-			}
+			reloadMenu(oldMenuItem)
 
-			positionLine.Clear()
-			positionLine.SetText(selected.GetPath())
-
-			detailsPanel.Clear()
-			detailsPanel.SetText("Details about " + selected.GetName())
-
-			statusLine.Clear()
-			statusLine.SetText("Selected: " + selected.GetPath())
+			currentMenuItem.OnSelectedFunc()
 		} else {
 			statusLine.Clear()
 			statusLine.SetText("No child items for " + selected.GetPath())
@@ -103,34 +102,33 @@ func main() {
 	})
 
 	navigationPanel.SetDoneFunc(func() {
-		var selected MenuItem
-		if currentMenuItem != nil {
-			selected = currentMenuItem.GetParent()
-			currentMenuItem = selected
+		if currentMenuItem == nil {
+			return
 		}
 
-		navigationPanel.Clear()
-		for _, menuItem := range menuItems.GetChilds(selected) {
-			navigationPanel.AddItem(menuItem.GetName(), menuItem.GetPath(), 0, nil)
-		}
+		oldMenuItem := currentMenuItem
+		currentMenuItem = currentMenuItem.GetParent()
 
-		if selected == nil {
+		reloadMenu(oldMenuItem)
+
+		if currentMenuItem == nil {
 			positionLine.Clear()
 			positionLine.SetText("Home")
 
-			statusLine.Clear()
-			statusLine.SetText("Navigated back to Home")
+			updateKeysLine([]string{})
 		} else {
-			positionLine.Clear()
-			positionLine.SetText(selected.GetPath())
-
-			statusLine.Clear()
-			statusLine.SetText("Back to: " + selected.GetPath())
+			currentMenuItem.OnDoneFunc()
 		}
 	})
 
 	navigationPanel.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
+		case tcell.KeyBS, tcell.KeyBackspace2:
+			return tcell.NewEventKey(tcell.KeyEscape, 0, tcell.ModNone)
+		case tcell.KeyCtrlU:
+			return tcell.NewEventKey(tcell.KeyPgUp, 0, tcell.ModNone)
+		case tcell.KeyCtrlD:
+			return tcell.NewEventKey(tcell.KeyPgDn, 0, tcell.ModNone)
 		case tcell.KeyRune:
 			switch event.Rune() {
 			case 'h':
@@ -142,10 +140,6 @@ func main() {
 			case 'l':
 				return tcell.NewEventKey(tcell.KeyRight, tcell.RuneRArrow, tcell.ModNone)
 			}
-		case tcell.KeyCtrlU:
-			return tcell.NewEventKey(tcell.KeyPgUp, 0, tcell.ModNone)
-		case tcell.KeyCtrlD:
-			return tcell.NewEventKey(tcell.KeyPgDn, 0, tcell.ModNone)
 		}
 
 		return event
@@ -184,20 +178,88 @@ func main() {
 }
 
 func load() {
-	menuItems.Add(
-		&MenuFolder{
+	networks := &MenuStatic{
+		MenuFolder: &MenuFolder{
 			Name: "Netowrks",
 		},
-	)
+		Index: 0,
+		Description: `
+                In the network menu you can slice and dice the network
+            `,
+	}
+	menuItems.Add(networks)
+
+	cgNatNetwork := &MenuNetwork{
+		MenuFolder: &MenuFolder{
+			Name:   "CG-NAT",
+			Parent: networks.GetPath(),
+		},
+		CIDR: "100.64.0.0/10",
+	}
+	menuItems.Add(cgNatNetwork)
 
 	menuItems.Add(
-		&MenuFolder{
-			Name: "IPs",
+		&MenuNetwork{
+			MenuFolder: &MenuFolder{
+				Name:   "Subnet 1",
+				Parent: cgNatNetwork.GetPath(),
+			},
+			CIDR: "100.64.0.0/11",
+		},
+	)
+	menuItems.Add(
+		&MenuNetwork{
+			MenuFolder: &MenuFolder{
+				Name:   "Subnet 2",
+				Parent: cgNatNetwork.GetPath(),
+			},
+			CIDR: "100.64.128.0/11",
 		},
 	)
 
+	menuItems.Add(
+		&MenuNetwork{
+			MenuFolder: &MenuFolder{
+				Name:   "Home",
+				Parent: networks.GetPath(),
+			},
+			CIDR: "10.0.0.0/8",
+		},
+	)
+
+	menuItems.Add(
+		&MenuStatic{
+			MenuFolder: &MenuFolder{
+				Name: "IPs",
+			},
+			Index: 1,
+			Description: `
+                In the IPs menu you can track IP reservations
+            `,
+		},
+	)
+
+	reloadMenu(nil)
+}
+
+func reloadMenu(from MenuItem) {
 	navigationPanel.Clear()
-	for _, menuItem := range menuItems.GetChilds(nil) {
+
+	newMenuItems := menuItems.GetChilds(currentMenuItem)
+	fromIndex := -1
+	for i, menuItem := range newMenuItems {
+		if from != nil && from.GetName() == menuItem.GetName() {
+			fromIndex = i
+		}
 		navigationPanel.AddItem(menuItem.GetName(), menuItem.GetPath(), 0, nil)
 	}
+
+	if fromIndex >= 0 {
+		navigationPanel.SetCurrentItem(fromIndex)
+	}
+}
+
+func updateKeysLine(extraKeys []string) {
+	keysLine.Clear()
+	keysLine.SetText(" " + strings.Join(append(constantKeys, extraKeys...), " | "))
 }
