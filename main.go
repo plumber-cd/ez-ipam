@@ -46,7 +46,7 @@ func main() {
 	middleFlex.AddItem(navigationPanel, 0, 1, false)
 
 	detailsFlex := tview.NewFlex().SetDirection(tview.FlexRow)
-	middleFlex.AddItem(detailsFlex, 0, 5, false)
+	middleFlex.AddItem(detailsFlex, 0, 2, false)
 
 	detailsPanel = tview.NewTextView()
 	detailsPanel.SetBorder(true).SetTitle("Details")
@@ -181,18 +181,19 @@ func load() {
 	networks := &MenuStatic{
 		MenuFolder: &MenuFolder{
 			Name: "Netowrks",
-		},
-		Index: 0,
-		Description: `
+			Description: `
                 In the network menu you can slice and dice the network
             `,
+		},
+		Index: 0,
 	}
 	menuItems.Add(networks)
 
 	cgNatNetwork := &MenuNetwork{
 		MenuFolder: &MenuFolder{
-			Name:   "CG-NAT",
-			Parent: networks.GetPath(),
+			Name:        "CG-NAT",
+			Parent:      networks.GetPath(),
+			Description: "This is the CG-NAT network",
 		},
 		CIDR: "100.64.0.0/10",
 	}
@@ -201,8 +202,9 @@ func load() {
 	menuItems.Add(
 		&MenuNetwork{
 			MenuFolder: &MenuFolder{
-				Name:   "Subnet 1",
-				Parent: cgNatNetwork.GetPath(),
+				Name:        "Subnet 1",
+				Parent:      cgNatNetwork.GetPath(),
+				Description: "This is the first subnet",
 			},
 			CIDR: "100.64.0.0/11",
 		},
@@ -210,18 +212,20 @@ func load() {
 	menuItems.Add(
 		&MenuNetwork{
 			MenuFolder: &MenuFolder{
-				Name:   "Subnet 2",
-				Parent: cgNatNetwork.GetPath(),
+				Name:        "Subnet 2",
+				Parent:      cgNatNetwork.GetPath(),
+				Description: "This is the second subnet",
 			},
-			CIDR: "100.64.128.0/11",
+			CIDR: "100.96.0.0/11",
 		},
 	)
 
 	menuItems.Add(
 		&MenuNetwork{
 			MenuFolder: &MenuFolder{
-				Name:   "Home",
-				Parent: networks.GetPath(),
+				Name:        "Home",
+				Parent:      networks.GetPath(),
+				Description: "This is the home network",
 			},
 			CIDR: "10.0.0.0/8",
 		},
@@ -231,11 +235,11 @@ func load() {
 		&MenuStatic{
 			MenuFolder: &MenuFolder{
 				Name: "IPs",
+				Description: `
+                    In the IPs menu you can track IP reservations
+                `,
 			},
 			Index: 1,
-			Description: `
-                In the IPs menu you can track IP reservations
-            `,
 		},
 	)
 

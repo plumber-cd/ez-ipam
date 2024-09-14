@@ -1,8 +1,9 @@
 package main
 
 type MenuFolder struct {
-	Name   string `json:"name"`
-	Parent string `json:"parent"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Parent      string `json:"parent"`
 }
 
 func (f *MenuFolder) GetName() string {

@@ -6,8 +6,7 @@ import (
 
 type MenuStatic struct {
 	*MenuFolder
-	Index       int
-	Description string
+	Index int
 }
 
 func (m *MenuStatic) Compare(other MenuItem) int {
