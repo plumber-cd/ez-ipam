@@ -1,13 +1,14 @@
 package main
 
+import "github.com/gdamore/tcell/v2"
+
 type MenuFolder struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Parent      string `json:"parent"`
+	ID         string `json:"id"`
+	ParentPath string `json:"parent"`
 }
 
-func (f *MenuFolder) GetName() string {
-	return f.Name
+func (f *MenuFolder) GetID() string {
+	return f.ID
 }
 
 func (f *MenuFolder) AsFolder() *MenuFolder {
@@ -15,16 +16,24 @@ func (f *MenuFolder) AsFolder() *MenuFolder {
 }
 
 func (f *MenuFolder) GetParentPath() string {
-	return f.Parent
+	return f.ParentPath
 }
 
 func (f *MenuFolder) GetParent() MenuItem {
-	return menuItems[f.Parent]
+	return menuItems[f.ParentPath]
 }
 
 func (f *MenuFolder) GetPath() string {
-	if f.Parent == "" {
-		return f.Name
+	if f.ParentPath == "" {
+		return f.ID
 	}
-	return f.GetParent().GetPath() + " -> " + f.Name
+	return f.GetParent().GetPath() + " -> " + f.ID
+}
+
+func (f *MenuFolder) CurrentMenuInputCapture(event *tcell.EventKey) *tcell.EventKey {
+	return event
+}
+
+func (f *MenuFolder) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKey {
+	return event
 }

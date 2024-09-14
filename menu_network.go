@@ -3,8 +3,8 @@ package main
 import (
 	"cmp"
 	"fmt"
-	"math/big"
 	"net"
+	"net/netip"
 	"strings"
 
 	"golang.org/x/text/language"
@@ -13,11 +13,20 @@ import (
 
 type MenuNetwork struct {
 	*MenuFolder
-	CIDR string
+	Allocated   bool   `json:"allocated"`
+	DisplayName string `json:"display_name"`
+	Description string `json:"description"`
 }
 
-func (n *MenuNetwork) GetName() string {
-	return fmt.Sprintf("%s (%s)", n.Name, n.CIDR)
+func (n *MenuNetwork) GetID() string {
+	if n.Allocated {
+		if n.DisplayName != "" {
+			return fmt.Sprintf("%s (%s)", n.ID, n.DisplayName)
+		}
+		return n.ID
+	} else {
+		return fmt.Sprintf("%s (*)", n.ID)
+	}
 }
 
 func (n *MenuNetwork) Compare(other MenuItem) int {
@@ -28,15 +37,15 @@ func (n *MenuNetwork) Compare(other MenuItem) int {
 	otherMenu, ok := other.(*MenuNetwork)
 
 	if !ok {
-		return cmp.Compare(n.GetName(), other.GetName())
+		return cmp.Compare(n.GetID(), other.GetID())
 	}
 
-	_, ipNetLeft, err := net.ParseCIDR(n.CIDR)
+	_, ipNetLeft, err := net.ParseCIDR(n.ID)
 	if err != nil {
 		panic(err)
 	}
 
-	_, ipNetRight, err := net.ParseCIDR(otherMenu.CIDR)
+	_, ipNetRight, err := net.ParseCIDR(otherMenu.ID)
 	if err != nil {
 		panic(err)
 	}
@@ -61,74 +70,133 @@ func (n *MenuNetwork) Compare(other MenuItem) int {
 func (n *MenuNetwork) OnChangedFunc() {
 	detailsPanel.Clear()
 	detailsPanel.SetText(n.RenderDetails())
+	if n.Allocated {
+		currentFocusKeys = []string{
+			"<d> Description",
+		}
+	} else {
+		currentFocusKeys = []string{
+			"<a> Allocate",
+			"<s> Split",
+		}
+	}
 }
 
 func (n *MenuNetwork) OnSelectedFunc() {
 	positionLine.Clear()
 	positionLine.SetText(n.GetPath())
-
-	updateKeysLine([]string{})
+	currentMenuItemKeys = []string{}
 }
 
 func (n *MenuNetwork) OnDoneFunc() {
 	positionLine.Clear()
 	positionLine.SetText(n.GetPath())
+	currentMenuItemKeys = []string{}
 }
 
 func (n *MenuNetwork) RenderDetails() string {
-	ip, ipNet, err := net.ParseCIDR(n.CIDR)
+	_, ipnet, err := net.ParseCIDR(n.ID)
 	if err != nil {
-		return fmt.Sprintf("invalid CIDR %s: %v", n.CIDR, err)
+		return fmt.Sprintf("Error parsing CIDR %s: %s", n.ID, err)
 	}
 
-	ip = ip.To4()
-	if ip == nil {
-		return fmt.Sprintf("IPv6 addresses are not supported")
+	maskBits, _ := ipnet.Mask.Size()
+
+	subnetMask := make(net.IP, len(ipnet.Mask))
+	copy(subnetMask, ipnet.Mask)
+	subnetMaskStr := subnetMask.String()
+
+	totalHosts := 1 << (32 - maskBits)
+	usableHosts := totalHosts - 2
+
+	firstIP := ipnet.IP
+	lastIP := make(net.IP, len(firstIP))
+	copy(lastIP, firstIP)
+	for i := range lastIP {
+		lastIP[i] = firstIP[i] | ^ipnet.Mask[i]
 	}
 
-	networkIP := ip.Mask(ipNet.Mask)
+	usableFirstIP := make(net.IP, len(firstIP))
+	copy(usableFirstIP, firstIP)
+	usableFirstIP[len(usableFirstIP)-1]++
 
-	broadcastIP := make(net.IP, len(networkIP))
-	for i := 0; i < len(networkIP); i++ {
-		broadcastIP[i] = networkIP[i] | ^ipNet.Mask[i]
-	}
-
-	ones, bits := ipNet.Mask.Size()
-	totalHosts := big.NewInt(0).Exp(big.NewInt(2), big.NewInt(int64(bits-ones)), nil)
-
-	var firstUsableIP, lastUsableIP net.IP
-	usableHosts := new(big.Int)
-	if totalHosts.Cmp(big.NewInt(2)) > 0 {
-		firstUsableIP = make(net.IP, len(networkIP))
-		copy(firstUsableIP, networkIP)
-		firstUsableIP[3]++
-
-		lastUsableIP = make(net.IP, len(broadcastIP))
-		copy(lastUsableIP, broadcastIP)
-		lastUsableIP[3]--
-
-		usableHosts = new(big.Int).Sub(totalHosts, big.NewInt(2))
-	} else {
-		firstUsableIP = networkIP
-		lastUsableIP = broadcastIP
-		usableHosts.SetInt64(0)
-	}
+	usableLastIP := make(net.IP, len(lastIP))
+	copy(usableLastIP, lastIP)
+	usableLastIP[len(usableLastIP)-1]--
 
 	stringWriter := new(strings.Builder)
 	p := message.NewPrinter(language.English) // sorry, rest of the world
 
-	stringWriter.WriteString(p.Sprintf("CIDR:                %s\n", n.CIDR))
-	stringWriter.WriteString(p.Sprintf("Network Address:     %s\n", networkIP))
-	stringWriter.WriteString(p.Sprintf("Mask Bits:           /%d\n", ones))
-	stringWriter.WriteString(p.Sprintf("Range:               %s - %s\n", networkIP, broadcastIP))
-	stringWriter.WriteString(p.Sprintf("Total Hosts:         %d\n", totalHosts.Int64()))
-	stringWriter.WriteString(p.Sprintf("Usable Range:        %s - %s\n", firstUsableIP, lastUsableIP))
-	stringWriter.WriteString(p.Sprintf("Usable Hosts:        %d\n", usableHosts.Int64()))
-	stringWriter.WriteString(p.Sprintf("Broadcast Address:   %s\n", broadcastIP))
-	stringWriter.WriteString(p.Sprintf("Netmask:             %s\n", net.IP(ipNet.Mask)))
+	stringWriter.WriteString(p.Sprintf("CIDR:                %s\n", n.ID))
+	stringWriter.WriteString(p.Sprintf("Network Address:     %s\n", firstIP))
+	stringWriter.WriteString(p.Sprintf("Mask Bits:           %d\n", maskBits))
+	stringWriter.WriteString(p.Sprintf("Subnet Mask:         %s\n", subnetMaskStr))
+	stringWriter.WriteString(p.Sprintf("Broadcast Address:   %s\n", lastIP))
+	stringWriter.WriteString(p.Sprintf("Range:               %s - %s\n", firstIP, lastIP))
+	stringWriter.WriteString(p.Sprintf("Total Hosts:         %d\n", totalHosts))
+	stringWriter.WriteString(p.Sprintf("Usable Range:        %s - %s\n", usableFirstIP, usableLastIP))
+	stringWriter.WriteString(p.Sprintf("Usable Hosts:        %d\n", usableHosts))
 
 	stringWriter.WriteString("\n\n\n")
-	stringWriter.WriteString(n.Description)
+	if n.Allocated {
+		stringWriter.WriteString(n.Description)
+	} else {
+		stringWriter.WriteString("Unallocated")
+	}
 
 	return stringWriter.String()
+}
+
+func broadcastAddress(ip netip.Addr, maskSize int) []byte {
+	ipBytes := ip.AsSlice()
+	for i := len(ipBytes) - 1; maskSize < (len(ipBytes) * 8); maskSize++ {
+		byteIndex := i
+		bitIndex := 7 - (maskSize % 8)
+		ipBytes[byteIndex] |= 1 << uint(bitIndex)
+		if bitIndex == 0 {
+			i--
+		}
+	}
+	return ipBytes
+}
+
+func nextIP(ip netip.Addr) netip.Addr {
+	ipBytes := ip.AsSlice()
+	for i := len(ipBytes) - 1; i >= 0; i-- {
+		if ipBytes[i] < 255 {
+			ipBytes[i]++
+			newIP, ok := netip.AddrFromSlice(ipBytes)
+			if !ok {
+				return ip
+			}
+			return newIP
+		}
+		ipBytes[i] = 0
+	}
+	return ip
+}
+
+func prevIP(ip netip.Addr) netip.Addr {
+	ipBytes := ip.AsSlice()
+	for i := len(ipBytes) - 1; i >= 0; i-- {
+		if ipBytes[i] > 0 {
+			ipBytes[i]--
+			newIP, ok := netip.AddrFromSlice(ipBytes)
+			if !ok {
+				return ip
+			}
+			return newIP
+		}
+		ipBytes[i] = 255
+	}
+	return ip
+}
+
+func subnetMaskFromBits(bits int) string {
+	var mask uint32 = ^uint32(0) << (32 - bits)
+	return fmt.Sprintf("%d.%d.%d.%d",
+		byte(mask>>24),
+		byte(mask>>16),
+		byte(mask>>8),
+		byte(mask))
 }

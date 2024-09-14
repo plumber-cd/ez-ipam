@@ -1,9 +1,13 @@
 package main
 
-import "slices"
+import (
+	"slices"
+
+	"github.com/gdamore/tcell/v2"
+)
 
 type MenuItem interface {
-	GetName() string
+	GetID() string
 	AsFolder() *MenuFolder
 	GetParentPath() string
 	GetParent() MenuItem
@@ -12,6 +16,8 @@ type MenuItem interface {
 	OnChangedFunc()
 	OnSelectedFunc()
 	OnDoneFunc()
+	CurrentMenuInputCapture(event *tcell.EventKey) *tcell.EventKey
+	CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKey
 }
 
 type MenuItems map[string]MenuItem
@@ -43,9 +49,9 @@ func (m MenuItems) GetChilds(parent MenuItem) []MenuItem {
 	return childs
 }
 
-func (m MenuItems) GetByParentAndName(parent MenuItem, name string) MenuItem {
+func (m MenuItems) GetByParentAndID(parent MenuItem, name string) MenuItem {
 	for _, menuItem := range m.GetChilds(parent) {
-		if menuItem.GetName() == name {
+		if menuItem.GetID() == name {
 			return menuItem
 		}
 	}
@@ -53,6 +59,10 @@ func (m MenuItems) GetByParentAndName(parent MenuItem, name string) MenuItem {
 }
 
 var (
-	menuItems       = MenuItems{}
-	currentMenuItem MenuItem
+	globalKeys          = []string{"<q> Quit", "<ctrl+s> Save"}
+	menuItems           = MenuItems{}
+	currentMenuItem     MenuItem
+	currentMenuItemKeys = []string{}
+	currentMenuFocus    MenuItem
+	currentFocusKeys    = []string{}
 )

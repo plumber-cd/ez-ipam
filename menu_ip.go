@@ -4,9 +4,9 @@ import "fmt"
 
 type MenuIP struct {
 	*MenuFolder
-	IP string
+	DisplayName string
 }
 
-func (i *MenuIP) GetName() string {
-	return fmt.Sprintf("%s (%s)", i.Name, i.IP)
+func (i *MenuIP) GetID() string {
+	return fmt.Sprintf("%s (%s)", i.ID, i.DisplayName)
 }
