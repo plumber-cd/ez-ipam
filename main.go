@@ -241,6 +241,36 @@ func load() {
 	)
 
 	menuItems.Add(
+		&MenuNetwork{
+			MenuFolder: &MenuFolder{
+				ID:         "fdb1:77aa:038a::0/48",
+				ParentPath: networks.GetPath(),
+			},
+			DisplayName: "Home IPv6",
+		},
+	)
+
+	menuItems.Add(
+		&MenuNetwork{
+			MenuFolder: &MenuFolder{
+				ID:         "fdb1:77aa:038b::0/64",
+				ParentPath: networks.GetPath(),
+			},
+			DisplayName: "Home IPv6",
+		},
+	)
+
+	menuItems.Add(
+		&MenuNetwork{
+			MenuFolder: &MenuFolder{
+				ID:         "fdb1:77aa:038c::0/72",
+				ParentPath: networks.GetPath(),
+			},
+			DisplayName: "Test IPv6",
+		},
+	)
+
+	menuItems.Add(
 		&MenuStatic{
 			MenuFolder: &MenuFolder{
 				ID: "IPs",

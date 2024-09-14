@@ -3,6 +3,7 @@ package main
 import (
 	"cmp"
 	"fmt"
+	"math/big"
 	"net"
 	"net/netip"
 	"strings"
@@ -95,47 +96,68 @@ func (n *MenuNetwork) OnDoneFunc() {
 }
 
 func (n *MenuNetwork) RenderDetails() string {
+	stringWriter := new(strings.Builder)
+	p := message.NewPrinter(language.English) // sorry, rest of the world
+	template := "%-20s: %s\n"
+	stringWriter.WriteString(p.Sprintf(template, "CIDR", n.ID))
+
 	_, ipnet, err := net.ParseCIDR(n.ID)
 	if err != nil {
 		return fmt.Sprintf("Error parsing CIDR %s: %s", n.ID, err)
 	}
 
+	firstIP := ipnet.IP
+	stringWriter.WriteString(p.Sprintf(template, "Network Address", firstIP))
+
 	maskBits, _ := ipnet.Mask.Size()
+	stringWriter.WriteString(p.Sprintf(template, "Mask Bits", p.Sprintf("%d", maskBits)))
 
 	subnetMask := make(net.IP, len(ipnet.Mask))
 	copy(subnetMask, ipnet.Mask)
 	subnetMaskStr := subnetMask.String()
+	stringWriter.WriteString(p.Sprintf(template, "Subnet Mask", subnetMaskStr))
 
-	totalHosts := 1 << (32 - maskBits)
-	usableHosts := totalHosts - 2
-
-	firstIP := ipnet.IP
 	lastIP := make(net.IP, len(firstIP))
 	copy(lastIP, firstIP)
 	for i := range lastIP {
 		lastIP[i] = firstIP[i] | ^ipnet.Mask[i]
 	}
+	if ipnet.IP.To4() != nil {
+		stringWriter.WriteString(p.Sprintf(template, "Broadcast Address", lastIP))
+	}
+	stringWriter.WriteString(p.Sprintf(template, "Range", p.Sprintf("%s - %s", firstIP, lastIP)))
 
-	usableFirstIP := make(net.IP, len(firstIP))
-	copy(usableFirstIP, firstIP)
-	usableFirstIP[len(usableFirstIP)-1]++
+	var totalHosts big.Int
+	totalHosts.SetUint64(1)
+	var usableHosts big.Int
+	if ipnet.IP.To4() == nil { // IPv6
+		totalHosts.Lsh(&totalHosts, uint(128-maskBits))
+		usableHosts.Set(&totalHosts)
+		usableHosts.Sub(&usableHosts, big.NewInt(1))
 
-	usableLastIP := make(net.IP, len(lastIP))
-	copy(usableLastIP, lastIP)
-	usableLastIP[len(usableLastIP)-1]--
+		if maskBits <= 64 {
+			totalNetworks := 1 << (64 - maskBits)
+			stringWriter.WriteString(p.Sprintf(template, "Total /64 Networks", p.Sprintf("%d", totalNetworks)))
+		} else {
+			stringWriter.WriteString(p.Sprintf(template, "Total Hosts", p.Sprintf("%d", totalHosts.Uint64())))
+		}
+	} else { // IPv4
+		totalHosts.Lsh(&totalHosts, uint(32-maskBits))
+		usableHosts.Set(&totalHosts)
+		usableHosts.Sub(&usableHosts, big.NewInt(2))
+		stringWriter.WriteString(p.Sprintf(template, "Total Hosts", p.Sprintf("%d", totalHosts.Uint64())))
 
-	stringWriter := new(strings.Builder)
-	p := message.NewPrinter(language.English) // sorry, rest of the world
-
-	stringWriter.WriteString(p.Sprintf("CIDR:                %s\n", n.ID))
-	stringWriter.WriteString(p.Sprintf("Network Address:     %s\n", firstIP))
-	stringWriter.WriteString(p.Sprintf("Mask Bits:           %d\n", maskBits))
-	stringWriter.WriteString(p.Sprintf("Subnet Mask:         %s\n", subnetMaskStr))
-	stringWriter.WriteString(p.Sprintf("Broadcast Address:   %s\n", lastIP))
-	stringWriter.WriteString(p.Sprintf("Range:               %s - %s\n", firstIP, lastIP))
-	stringWriter.WriteString(p.Sprintf("Total Hosts:         %d\n", totalHosts))
-	stringWriter.WriteString(p.Sprintf("Usable Range:        %s - %s\n", usableFirstIP, usableLastIP))
-	stringWriter.WriteString(p.Sprintf("Usable Hosts:        %d\n", usableHosts))
+		usableFirstIP := make(net.IP, len(firstIP))
+		copy(usableFirstIP, firstIP)
+		usableFirstIP[len(usableFirstIP)-1]++
+		usableLastIP := make(net.IP, len(lastIP))
+		copy(usableLastIP, lastIP)
+		if ipnet.IP.To4() != nil {
+			usableLastIP[len(usableLastIP)-1]--
+		}
+		stringWriter.WriteString(p.Sprintf(template, "Usable Range", p.Sprintf("%s - %s", usableFirstIP, usableLastIP)))
+		stringWriter.WriteString(p.Sprintf(template, "Usable Hosts", p.Sprintf("%d", usableHosts.Uint64())))
+	}
 
 	stringWriter.WriteString("\n\n\n")
 	if n.Allocated {
