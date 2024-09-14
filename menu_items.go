@@ -7,6 +7,7 @@ import (
 )
 
 type MenuItem interface {
+	Validate() error
 	GetID() string
 	AsFolder() *MenuFolder
 	GetParentPath() string
@@ -22,9 +23,18 @@ type MenuItem interface {
 
 type MenuItems map[string]MenuItem
 
-func (m MenuItems) Add(menuItem MenuItem) MenuItems {
+func (m MenuItems) Add(menuItem MenuItem) error {
+	if err := menuItem.Validate(); err != nil {
+		return err
+	}
 	m[menuItem.GetPath()] = menuItem
-	return m
+	return nil
+}
+
+func (m MenuItems) MustAdd(menuItem MenuItem) {
+	if err := m.Add(menuItem); err != nil {
+		panic(err)
+	}
 }
 
 func (m MenuItems) GetChilds(parent MenuItem) []MenuItem {

@@ -1,10 +1,28 @@
 package main
 
-import "github.com/gdamore/tcell/v2"
+import (
+	"fmt"
+
+	"github.com/gdamore/tcell/v2"
+)
 
 type MenuFolder struct {
 	ID         string `json:"id"`
 	ParentPath string `json:"parent"`
+}
+
+func (f *MenuFolder) Validate() error {
+	if f.ID == "" {
+		return fmt.Errorf("ID must be set")
+	}
+
+	if f.ParentPath != "" {
+		if _, ok := menuItems[f.GetParentPath()]; !ok {
+			return fmt.Errorf("ParentPath does not exist for %s: %s", f.ID, f.ParentPath)
+		}
+	}
+
+	return nil
 }
 
 func (f *MenuFolder) GetID() string {

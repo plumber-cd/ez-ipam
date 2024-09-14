@@ -2,6 +2,7 @@ package main
 
 import (
 	"cmp"
+	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 )
@@ -10,6 +11,21 @@ type MenuStatic struct {
 	*MenuFolder
 	Index       int
 	Description string
+}
+
+func (m *MenuStatic) Validate() error {
+	if err := m.MenuFolder.Validate(); err != nil {
+		return err
+	}
+
+	if m.Description == "" {
+		return fmt.Errorf("Description must be set for MenuStatic=%s", m.GetPath())
+	}
+	if m.GetParentPath() != "" {
+		return fmt.Errorf("ParentPath must be empty for MenuStatic=%s", m.GetPath())
+	}
+
+	return nil
 }
 
 func (m *MenuStatic) Compare(other MenuItem) int {
@@ -58,6 +74,17 @@ func (m *MenuStatic) CurrentMenuInputCapture(event *tcell.EventKey) *tcell.Event
 		case tcell.KeyRune:
 			switch event.Rune() {
 			case 'a':
+				newNet := &Network{
+					MenuFolder: &MenuFolder{
+						ID:         "192.168.0.0/16",
+						ParentPath: currentMenuItem.GetPath(),
+					},
+					DisplayName: "New network",
+				}
+				menuItems.MustAdd(newNet)
+
+				reloadMenu(newNet)
+
 				statusLine.Clear()
 				statusLine.SetText("Append to network folder")
 				return nil

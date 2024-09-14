@@ -2,11 +2,11 @@ package main
 
 import "fmt"
 
-type MenuIP struct {
+type IP struct {
 	*MenuFolder
 	DisplayName string
 }
 
-func (i *MenuIP) GetID() string {
+func (i *IP) GetID() string {
 	return fmt.Sprintf("%s (%s)", i.ID, i.DisplayName)
 }

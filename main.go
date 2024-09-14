@@ -200,9 +200,20 @@ func load() {
             In the network menu you can slice and dice the network
         `,
 	}
-	menuItems.Add(networks)
+	menuItems.MustAdd(networks)
 
-	cgNatNetwork := &MenuNetwork{
+	ips := &MenuStatic{
+		MenuFolder: &MenuFolder{
+			ID: "IPs",
+		},
+		Index: 1,
+		Description: `
+                In the IPs menu you can track IP reservations
+            `,
+	}
+	menuItems.MustAdd(ips)
+
+	cgNatNetwork := &Network{
 		MenuFolder: &MenuFolder{
 			ID:         "100.64.0.0/10",
 			ParentPath: networks.GetPath(),
@@ -211,18 +222,18 @@ func load() {
 		DisplayName: "CG-NAT",
 		Description: "This is the CG-NAT network",
 	}
-	menuItems.Add(cgNatNetwork)
+	menuItems.MustAdd(cgNatNetwork)
 
-	menuItems.Add(
-		&MenuNetwork{
+	menuItems.MustAdd(
+		&Network{
 			MenuFolder: &MenuFolder{
 				ID:         "100.64.0.0/11",
 				ParentPath: cgNatNetwork.GetPath(),
 			},
 		},
 	)
-	menuItems.Add(
-		&MenuNetwork{
+	menuItems.MustAdd(
+		&Network{
 			MenuFolder: &MenuFolder{
 				ID:         "100.96.0.0/11",
 				ParentPath: cgNatNetwork.GetPath(),
@@ -230,8 +241,8 @@ func load() {
 		},
 	)
 
-	menuItems.Add(
-		&MenuNetwork{
+	menuItems.MustAdd(
+		&Network{
 			MenuFolder: &MenuFolder{
 				ID:         "10.0.0.0/8",
 				ParentPath: networks.GetPath(),
@@ -240,8 +251,8 @@ func load() {
 		},
 	)
 
-	menuItems.Add(
-		&MenuNetwork{
+	menuItems.MustAdd(
+		&Network{
 			MenuFolder: &MenuFolder{
 				ID:         "fdb1:77aa:038a::0/48",
 				ParentPath: networks.GetPath(),
@@ -250,8 +261,8 @@ func load() {
 		},
 	)
 
-	menuItems.Add(
-		&MenuNetwork{
+	menuItems.MustAdd(
+		&Network{
 			MenuFolder: &MenuFolder{
 				ID:         "fdb1:77aa:038b::0/64",
 				ParentPath: networks.GetPath(),
@@ -260,8 +271,8 @@ func load() {
 		},
 	)
 
-	menuItems.Add(
-		&MenuNetwork{
+	menuItems.MustAdd(
+		&Network{
 			MenuFolder: &MenuFolder{
 				ID:         "fdb1:77aa:038c::0/72",
 				ParentPath: networks.GetPath(),
@@ -270,28 +281,16 @@ func load() {
 		},
 	)
 
-	menuItems.Add(
-		&MenuStatic{
-			MenuFolder: &MenuFolder{
-				ID: "IPs",
-			},
-			Index: 1,
-			Description: `
-                In the IPs menu you can track IP reservations
-            `,
-		},
-	)
-
 	reloadMenu(nil)
 }
 
-func reloadMenu(from MenuItem) {
+func reloadMenu(focusedItem MenuItem) {
 	navigationPanel.Clear()
 
 	newMenuItems := menuItems.GetChilds(currentMenuItem)
 	fromIndex := -1
 	for i, menuItem := range newMenuItems {
-		if from != nil && from.GetID() == menuItem.GetID() {
+		if focusedItem != nil && focusedItem.GetID() == menuItem.GetID() {
 			fromIndex = i
 		}
 		navigationPanel.AddItem(menuItem.GetID(), menuItem.GetPath(), 0, nil)
