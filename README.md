@@ -24,6 +24,10 @@ As a bonus, if you are using GitHub-like platform, the `EZ-IPAM.md` file can be 
 
 This repository itself has a `.ez-ipam` folder with some state in it and a [`EZ-IPAM.md`](./EZ-IPAM.md) file generated from it as a demonstration.
 
+# Installation
+
+You can eiter compile it for yourself or download from pre-compiled binaries from https://github.com/plumber-cd/ez-ipam/releases/latest. Sorry, no fancy Brew as of now.
+
 # TODO
 
 - Static IP management
