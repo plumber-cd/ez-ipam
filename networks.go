@@ -464,7 +464,6 @@ func (n *Network) Compare(other MenuItem) int {
 	}
 
 	otherMenu, ok := other.(*Network)
-
 	if !ok {
 		return cmp.Compare(n.GetID(), other.GetID())
 	}
@@ -482,7 +481,12 @@ func (n *Network) Compare(other MenuItem) int {
 	ipLeft := ipNetLeft.IP.Mask(ipNetLeft.Mask)
 	ipRight := ipNetRight.IP.Mask(ipNetRight.Mask)
 
-	for i := 0; i < 4; i++ {
+	// Ensure both IPs are in 16-byte form
+	ipLeft = ipLeft.To16()
+	ipRight = ipRight.To16()
+
+	// Compare byte by byte
+	for i := 0; i < net.IPv6len; i++ {
 		if ipLeft[i] < ipRight[i] {
 			return -1
 		} else if ipLeft[i] > ipRight[i] {
