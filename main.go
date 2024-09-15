@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
@@ -10,6 +11,7 @@ import (
 const (
 	mainPage              = "*main*"
 	newNetworkPage        = "*new_network*"
+	splitNetworkPage      = "*split_network*"
 	allocateNetworkPage   = "*allocate_network*"
 	deallocateNetworkPage = "*deallocate_network*"
 	deleteNetworkPage     = "*delete_network*"
@@ -28,6 +30,7 @@ var (
 	keysLine        *tview.TextView
 
 	newNetworkDialog        *tview.Form
+	splitNetworkDialog      *tview.Form
 	allocateNetworkDialog   *tview.Form
 	deallocateNetworkDialog *tview.Modal
 	deleteNetworkDialog     *tview.Modal
@@ -108,8 +111,20 @@ func main() {
 			reloadMenu(oldMenuItem)
 			currentMenuItem.OnSelectedFunc()
 		} else {
-			statusLine.Clear()
-			statusLine.SetText("No child items for " + selected.GetPath())
+			n, ok := selected.(*Network)
+			if !ok {
+				statusLine.Clear()
+				statusLine.SetText("No child items for " + selected.GetPath())
+				return
+			}
+
+			if n.Allocated {
+				panic("How can allocated network not have any children?")
+			}
+
+			allocateNetworkDialog.SetFocus(0)
+			pages.ShowPage(allocateNetworkPage)
+			app.SetFocus(allocateNetworkDialog)
 		}
 		updateKeysLine()
 	})
@@ -204,15 +219,59 @@ func main() {
 	}
 
 	{
-		height := 13
-		width := 57
+		height := 7
+		width := 66
+		splitNetworkDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("New Networks Prefix", "", 42, nil, nil).
+			AddButton("Save", func() {
+				newPrefix := getAndClearTextFromInputField(splitNetworkDialog, "New Networks Prefix")
+				newPrefix = strings.TrimLeft(newPrefix, "/")
+				newPrefixInt, err := strconv.Atoi(newPrefix)
+				if err != nil {
+					statusLine.Clear()
+					statusLine.SetText("Invalid new prefix, should be a number representing smaller networks than this parent " + err.Error())
+				}
+				SplitNetwork(newPrefixInt)
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", func() {
+				getAndClearTextFromInputField(splitNetworkDialog, "New Networks Prefix")
+
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			})
+		splitNetworkDialog.SetBorder(true)
+		splitNetworkDialogFlex := tview.NewFlex().SetDirection(tview.FlexColumn).
+			AddItem(nil, 0, 1, false).
+			AddItem(
+				tview.NewFlex().SetDirection(tview.FlexRow).
+					AddItem(nil, 0, 1, false).
+					AddItem(splitNetworkDialog, height, 1, false).
+					AddItem(nil, 0, 1, false),
+				width, 1, false).
+			AddItem(nil, 0, 1, false)
+		pages.AddPage(splitNetworkPage, splitNetworkDialogFlex, true, false)
+	}
+
+	{
+		height := 15
+		width := 59
 		allocateNetworkDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
 			AddInputField("Display Name", "", 40, nil, nil).
 			AddTextArea("Description", "", 48, 5, 0, nil).
+			AddInputField("Subnets Prefix", "", 40, nil, nil).
 			AddButton("Save", func() {
 				displayName := getAndClearTextFromInputField(allocateNetworkDialog, "Display Name")
 				description := getAndClearTextFromTextArea(allocateNetworkDialog, "Description")
-				AllocateNetwork(displayName, description)
+				subnetsPrefix := getAndClearTextFromInputField(allocateNetworkDialog, "Subnets Prefix")
+				subnetsPrefix = strings.TrimLeft(subnetsPrefix, "/")
+				subnetsPrefixInt, err := strconv.Atoi(subnetsPrefix)
+				if err != nil {
+					statusLine.Clear()
+					statusLine.SetText("Invalid subnets prefix, should be a number representing smaller networks than this parent " + err.Error())
+				}
+				AllocateNetwork(displayName, description, subnetsPrefixInt)
 
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
@@ -220,6 +279,7 @@ func main() {
 			AddButton("Cancel", func() {
 				getAndClearTextFromInputField(allocateNetworkDialog, "Display Name")
 				getAndClearTextFromTextArea(allocateNetworkDialog, "Description")
+				getAndClearTextFromInputField(allocateNetworkDialog, "Subnets Prefix")
 
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)

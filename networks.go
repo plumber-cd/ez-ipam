@@ -40,7 +40,46 @@ func AddNewNetwork(cidr string) {
 	statusLine.SetText("Added new network: " + cidr)
 }
 
-func AllocateNetwork(displayName, description string) {
+func SplitNetwork(newPrefix int) {
+	focusedNetwork, ok := currentMenuFocus.(*Network)
+	if !ok {
+		panic("SplitNetwork called on non-Network")
+	}
+
+	if focusedNetwork.Allocated {
+		panic("SplitNetwork called on allocated Network")
+	}
+
+	newNetworks, err := splitNetwork(focusedNetwork.ID, newPrefix)
+	if err != nil {
+		statusLine.Clear()
+		statusLine.SetText("Error splitting network: " + err.Error())
+		return
+	}
+
+	menuItems.Delete(focusedNetwork)
+
+	for _, newNet := range newNetworks {
+		newMenuItem := &Network{
+			MenuFolder: &MenuFolder{
+				ID:         newNet,
+				ParentPath: focusedNetwork.GetParent().GetPath(),
+			},
+		}
+		if err := menuItems.Add(newMenuItem); err != nil {
+			statusLine.Clear()
+			statusLine.SetText("Error adding newly split network: " + err.Error())
+			return
+		}
+	}
+
+	reloadMenu(focusedNetwork)
+
+	statusLine.Clear()
+	statusLine.SetText("Split network " + focusedNetwork.GetPath() + " into " + fmt.Sprintf("%d subnets", len(newNetworks)))
+}
+
+func AllocateNetwork(displayName, description string, subnetsPrefix int) {
 	focusedNetwork, ok := currentMenuFocus.(*Network)
 	if !ok {
 		panic("AllocateNetwork called on non-Network")
@@ -65,11 +104,39 @@ func AllocateNetwork(displayName, description string) {
 		return
 	}
 
+	newNetworks, err := splitNetwork(focusedNetwork.ID, subnetsPrefix)
+	if err != nil {
+		statusLine.Clear()
+		statusLine.SetText("Error splitting network: " + err.Error())
+		return
+	}
+
+	newMenuItems := []*Network{}
+	for _, newNet := range newNetworks {
+		newMenuItem := &Network{
+			MenuFolder: &MenuFolder{
+				ID:         newNet,
+				ParentPath: focusedNetwork.GetPath(),
+			},
+		}
+		if err := newMenuItem.Validate(); err != nil {
+			statusLine.Clear()
+			statusLine.SetText("Error validating new network: " + err.Error())
+		}
+		newMenuItems = append(newMenuItems, newMenuItem)
+	}
+
 	mod(focusedNetwork)
 	if err := focusedNetwork.Validate(); err != nil {
 		// This needs to panic since we just changed state of the object in memory and now it fails validation.
 		// We do not know how to recover, this would be a bug and it should never reach this brunch here - missed during pre validation above somehow.
 		panic(err)
+	}
+
+	for _, newMenuItem := range newMenuItems {
+		if err := menuItems.Add(newMenuItem); err != nil {
+			panic(err)
+		}
 	}
 
 	reloadMenu(focusedNetwork)
@@ -125,6 +192,12 @@ func DeleteNetwork() {
 	focusedNetwork, ok := currentMenuFocus.(*Network)
 	if !ok {
 		panic("DeleteNetwork called on non-Network")
+	}
+
+	parent := focusedNetwork.GetParent()
+	_, ok = parent.(*Network)
+	if ok {
+		panic("DeleteNetwork called on child of Network " + focusedNetwork.GetPath())
 	}
 
 	menuItems.Delete(focusedNetwork)
@@ -298,18 +371,26 @@ func (n *Network) Compare(other MenuItem) int {
 func (n *Network) OnChangedFunc() {
 	detailsPanel.Clear()
 	detailsPanel.SetText(n.RenderDetails())
+
+	parentIsNetwork := false
+	parent := n.GetParent()
+	if parent != nil {
+		_, parentIsNetwork = parent.(*Network)
+	}
+
 	if n.Allocated {
 		currentFocusKeys = []string{
 			"<u> Update Allocation",
 			"<d> Deallocate",
-			"<D> Delete",
 		}
 	} else {
 		currentFocusKeys = []string{
 			"<a> Allocate",
 			"<s> Split",
-			"<D> Delete",
 		}
+	}
+	if !parentIsNetwork {
+		currentFocusKeys = append(currentFocusKeys, "<D> Delete")
 	}
 }
 
@@ -338,6 +419,16 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 			pages.ShowPage(allocateNetworkPage)
 			app.SetFocus(allocateNetworkDialog)
 			return nil
+		case 's':
+			if n.Allocated {
+				return event
+			}
+
+			splitNetworkDialog.SetTitle(fmt.Sprintf("Split Network %s", n.GetID()))
+			splitNetworkDialog.SetFocus(0)
+			pages.ShowPage(splitNetworkPage)
+			app.SetFocus(splitNetworkDialog)
+			return nil
 		case 'd':
 			if !n.Allocated {
 				return event
@@ -349,6 +440,15 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 			app.SetFocus(deallocateNetworkDialog)
 			return nil
 		case 'D':
+			parentIsNetwork := false
+			parent := n.GetParent()
+			if parent != nil {
+				_, parentIsNetwork = parent.(*Network)
+			}
+			if parentIsNetwork {
+				return event
+			}
+
 			deleteNetworkDialog.SetText(fmt.Sprintf("Are you sure you want to delete network %s? This will automatically delete any subnets.", n.GetID()))
 			deleteNetworkDialog.SetFocus(0)
 			pages.ShowPage(deleteNetworkPage)
@@ -485,4 +585,70 @@ func subnetMaskFromBits(bits int) string {
 		byte(mask>>16),
 		byte(mask>>8),
 		byte(mask))
+}
+
+func ipToBigInt(addr netip.Addr) *big.Int {
+	ip := addr.AsSlice()
+	return new(big.Int).SetBytes(ip)
+}
+
+func bigIntToIP(bi *big.Int, isIPv6 bool) (netip.Addr, bool) {
+	ipBytes := bi.Bytes()
+	if isIPv6 && len(ipBytes) < 16 {
+		padding := make([]byte, 16-len(ipBytes))
+		ipBytes = append(padding, ipBytes...)
+	} else if !isIPv6 && len(ipBytes) < 4 {
+		padding := make([]byte, 4-len(ipBytes))
+		ipBytes = append(padding, ipBytes...)
+	}
+
+	return netip.AddrFromSlice(ipBytes)
+}
+
+func splitNetwork(cidr string, newSize int) ([]string, error) {
+	prefix, err := netip.ParsePrefix(cidr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid CIDR: %w", err)
+	}
+
+	origSize := prefix.Bits()
+	addrLen := prefix.Addr().BitLen()
+
+	if newSize < 1 {
+		newSize = origSize + 1
+	}
+
+	if newSize <= origSize || newSize > addrLen {
+		return nil, fmt.Errorf("invalid new size: must be larger than original but not exceed address bit length")
+	}
+
+	// Calculate number of subnets and prevent splitting into too many subnets
+	numSubnets := 1 << (newSize - origSize)
+	maxSubnets := 1024
+	if numSubnets > maxSubnets {
+		return nil, fmt.Errorf("splitting would create %d subnets, current limit is %d due to performance issues", numSubnets, maxSubnets)
+	}
+
+	var subnets []string
+	addr := prefix.Addr()
+	step := big.NewInt(1)
+	step.Lsh(step, uint(addrLen-newSize))
+
+	currIP := ipToBigInt(addr)
+	isIPv6 := addr.Is6()
+
+	for i := 0; i < (1 << (newSize - origSize)); i++ {
+		nextPrefix := netip.PrefixFrom(addr, newSize)
+		subnets = append(subnets, nextPrefix.String())
+
+		currIP.Add(currIP, step)
+
+		nextAddr, ok := bigIntToIP(currIP, isIPv6)
+		if !ok {
+			return nil, fmt.Errorf("failed to convert bigInt %d to IP", currIP)
+		}
+		addr = nextAddr
+	}
+
+	return subnets, nil
 }
