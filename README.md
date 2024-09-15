@@ -20,6 +20,6 @@ This makes it agnostic to how you want to manage the state, you can put it on a 
 My personal idea was that the state along with the `EZ-IPAM.md` file can be in a Git repository.
 That way history of changes is traceable, and Git provides out of the box conflict resolution for when multiple people made conficting changes
 (and this is why state in the `.ez-ipam` directory is not a single YAML file, to minimize chances of any conflicts).
-As a bonus, if you are using GitHub-like platform, the `EZ-IPAM.md` file can be right there in your browser for whrn you only want to read it.
+As a bonus, if you are using GitHub-like platform, the `EZ-IPAM.md` file can be right there in your browser for when you only want to read it.
 
 This repository itself has a `.ez-ipam` folder with some state in it and a [`EZ-IPAM.md`](./EZ-IPAM.md) file generated from it as a demonstration.
