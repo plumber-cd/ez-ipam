@@ -31,5 +31,5 @@ This repository itself has a `.ez-ipam` folder with some state in it and a [`EZ-
 - WiFi SSIDs management
 - Possibly physical network topology management
 
-I got to admit that I am not in a business of managing networks for living, so I will only ever focus on what matters for me and my homelab setup, and how it matters to me. But hey - PRs are always welcome!
+I got to admit that I am not in a business of managing networks for living, so I will only ever focus on what matters for me and my homelab setup, and how it matters to me. But hey - PRs are always welcome, also feel free to fork it as well!
 
