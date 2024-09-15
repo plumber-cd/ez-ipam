@@ -472,73 +472,56 @@ func load() {
 	}
 	menuItems.MustAdd(ips)
 
-	cgNatNetwork := &Network{
-		MenuFolder: &MenuFolder{
-			ID:         "100.64.0.0/10",
-			ParentPath: networks.GetPath(),
-		},
-		Allocated:   true,
-		DisplayName: "CG-NAT",
-		Description: "This is the CG-NAT network",
+	currentDir, err := os.Getwd()
+	if err != nil {
+		panic("Failed to get current directory: " + err.Error())
 	}
-	menuItems.MustAdd(cgNatNetwork)
 
-	menuItems.MustAdd(
-		&Network{
-			MenuFolder: &MenuFolder{
-				ID:         "100.64.0.0/11",
-				ParentPath: cgNatNetwork.GetPath(),
-			},
-		},
-	)
-	menuItems.MustAdd(
-		&Network{
-			MenuFolder: &MenuFolder{
-				ID:         "100.96.0.0/11",
-				ParentPath: cgNatNetwork.GetPath(),
-			},
-		},
-	)
+	dataDir := filepath.Join(currentDir, dataDirName)
+	networkDir := filepath.Join(dataDir, networksDirName)
 
-	menuItems.MustAdd(
-		&Network{
-			MenuFolder: &MenuFolder{
-				ID:         "10.0.0.0/8",
-				ParentPath: networks.GetPath(),
-			},
-			DisplayName: "Home",
-		},
-	)
+	networkFiles, err := os.ReadDir(networkDir)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			panic("Failed to read " + networkDir + " directory: " + err.Error())
+		}
+		if err := os.MkdirAll(networkDir, 0755); err != nil {
+			panic("Failed to create " + networkDir + " directory: " + err.Error())
+		}
+	}
+	for _, networkFile := range networkFiles {
+		if networkFile.IsDir() {
+			continue
+		}
 
-	menuItems.MustAdd(
-		&Network{
-			MenuFolder: &MenuFolder{
-				ID:         "fdb1:77aa:038a::0/48",
-				ParentPath: networks.GetPath(),
-			},
-			DisplayName: "Home IPv6",
-		},
-	)
+		bytes, err := os.ReadFile(filepath.Join(networkDir, networkFile.Name()))
+		if err != nil {
+			panic("Failed to read " + networkFile.Name() + " file: " + err.Error())
+		}
 
-	menuItems.MustAdd(
-		&Network{
-			MenuFolder: &MenuFolder{
-				ID:         "fdb1:77aa:038b::0/64",
-				ParentPath: networks.GetPath(),
-			},
-			DisplayName: "Home IPv6",
-		},
-	)
+		network := &Network{}
+		if err := yaml.Unmarshal(bytes, network); err != nil {
+			panic("Failed to unmarshal " + networkFile.Name() + " file: " + err.Error())
+		}
 
-	menuItems.MustAdd(
-		&Network{
-			MenuFolder: &MenuFolder{
-				ID:         "fdb1:77aa:038c::0/72",
-				ParentPath: networks.GetPath(),
+		menuItems[network.GetPath()] = network
+	}
+	if len(networkFiles) == 0 {
+		menuItems.MustAdd(
+			&Network{
+				MenuFolder: &MenuFolder{
+					ID:         "192.168.0.0/16",
+					ParentPath: networks.GetPath(),
+				},
 			},
-			DisplayName: "Test IPv6",
-		},
-	)
+		)
+	}
+
+	for _, menuItem := range menuItems {
+		if err := menuItem.Validate(); err != nil {
+			panic("Failed to load " + menuItem.GetPath() + ": " + err.Error())
+		}
+	}
 
 	reloadMenu(nil)
 }
