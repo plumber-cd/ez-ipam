@@ -39,9 +39,12 @@ jobs:
           distribution: goreleaser
           version: '~> v2'
           args: build --clean
-          workdir: .build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: List workspace
+        run: |
+          ls -lahs
 
       - name: Run GoReleaser
         if: github.event_name == 'workflow_dispatch'
