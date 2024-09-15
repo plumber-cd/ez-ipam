@@ -17,6 +17,7 @@ const (
 	updateNetworkAllocationPage = "*update_network_allocation*"
 	deallocateNetworkPage       = "*deallocate_network*"
 	deleteNetworkPage           = "*delete_network*"
+	quitPage                    = "*quit*"
 )
 
 var ()
@@ -38,6 +39,7 @@ var (
 	updateNetworkAllocationDialog *tview.Form
 	deallocateNetworkDialog       *tview.Modal
 	deleteNetworkDialog           *tview.Modal
+	quitDialog                    *tview.Modal
 )
 
 func main() {
@@ -174,7 +176,8 @@ func main() {
 			case 'l':
 				return tcell.NewEventKey(tcell.KeyRight, tcell.RuneRArrow, tcell.ModNone)
 			case 'q':
-				app.Stop()
+				pages.ShowPage(quitPage)
+				app.SetFocus(quitDialog)
 				return nil
 			}
 		}
@@ -392,6 +395,23 @@ func main() {
 		pages.AddPage(deleteNetworkPage, deleteNetworkDialog, true, false)
 	}
 
+	{
+		quitDialog = tview.NewModal().SetText("Do you want to quit? All unsaved changes will be lost.").
+			AddButtons([]string{"Quit", "Cancel"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				switch buttonLabel {
+				case "Quit":
+					app.Stop()
+				case "Cancel":
+					fallthrough
+				default:
+					pages.SwitchToPage(mainPage)
+					app.SetFocus(navigationPanel)
+				}
+			})
+		pages.AddPage(quitPage, quitDialog, true, false)
+	}
+
 	app.SetRoot(pages, true)
 	app.EnableMouse(true)
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -403,6 +423,7 @@ func main() {
 			statusLine.SetText("Saved")
 			return nil
 		case tcell.KeyCtrlQ:
+			// This is "hidden" quit without the confirmation dialog - use for local debugging, maybe should disable from the release version
 			app.Stop()
 			return nil
 			// case tcell.KeyCtrlD:
