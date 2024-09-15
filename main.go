@@ -12,6 +12,7 @@ const (
 	mainPage                    = "*main*"
 	newNetworkPage              = "*new_network*"
 	splitNetworkPage            = "*split_network*"
+	summarizeNetworkPage        = "*summarize_network*"
 	allocateNetworkPage         = "*allocate_network*"
 	updateNetworkAllocationPage = "*update_network_allocation*"
 	deallocateNetworkPage       = "*deallocate_network*"
@@ -32,6 +33,7 @@ var (
 
 	newNetworkDialog              *tview.Form
 	splitNetworkDialog            *tview.Form
+	summarizeNetworkDialog        *tview.Modal
 	allocateNetworkDialog         *tview.Form
 	updateNetworkAllocationDialog *tview.Form
 	deallocateNetworkDialog       *tview.Modal
@@ -254,6 +256,25 @@ func main() {
 				width, 1, false).
 			AddItem(nil, 0, 1, false)
 		pages.AddPage(splitNetworkPage, splitNetworkDialogFlex, true, false)
+	}
+
+	{
+		summarizeNetworkDialog = tview.NewModal().
+			AddButtons([]string{"Yes", "No"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				switch buttonLabel {
+				case "Yes":
+					SummarizeNetwork()
+					fallthrough
+				case "No":
+					fallthrough
+				default:
+					summarizeNetworkDialog.SetText("")
+					pages.SwitchToPage(mainPage)
+					app.SetFocus(navigationPanel)
+				}
+			})
+		pages.AddPage(summarizeNetworkPage, summarizeNetworkDialog, true, false)
 	}
 
 	{
