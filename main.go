@@ -176,7 +176,7 @@ func main() {
 			pages.SwitchToPage(mainPage)
 			app.SetFocus(navigationPanel)
 		})
-	newNetworkDialog.SetBorder(true).SetTitle("New Network")
+	newNetworkDialog.SetBorder(true).SetTitle("Add Network")
 	newNetworkDialogFlex := tview.NewFlex().SetDirection(tview.FlexColumn).
 		AddItem(nil, 0, 1, false).
 		AddItem(

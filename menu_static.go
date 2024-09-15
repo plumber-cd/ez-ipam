@@ -54,7 +54,7 @@ func (m *MenuStatic) OnSelectedFunc() {
 	switch m.ID {
 	case "Networks":
 		currentMenuItemKeys = []string{
-			"<n> New Network",
+			"<a> Add Network",
 		}
 	default:
 		currentMenuItemKeys = []string{}
