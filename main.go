@@ -166,21 +166,13 @@ func main() {
 	newNetworkDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
 		AddInputField("CIDR", "", 42, nil, nil).
 		AddButton("Save", func() {
-			cidrFormItem := newNetworkDialog.GetFormItemByLabel("CIDR")
-			if cidrFormItem == nil {
-				panic("Failed to find CIDR input field")
-			}
-
-			cidrInputField, ok := cidrFormItem.(*tview.InputField)
-			if !ok {
-				panic("Failed to cast CIDR input field")
-			}
-
-			AddNewNetwork(cidrInputField.GetText())
+			AddNewNetwork(getAndClearTextFromInputField(newNetworkDialog, "CIDR", true))
 			pages.SwitchToPage(mainPage)
 			app.SetFocus(navigationPanel)
 		}).
-		AddButton("Quit", func() {
+		AddButton("Cancel", func() {
+			getAndClearTextFromInputField(newNetworkDialog, "CIDR", true)
+
 			pages.SwitchToPage(mainPage)
 			app.SetFocus(navigationPanel)
 		})
@@ -339,4 +331,30 @@ func reloadMenu(focusedItem MenuItem) {
 func updateKeysLine() {
 	keysLine.Clear()
 	keysLine.SetText(" " + strings.Join(append(append(globalKeys, currentMenuItemKeys...), currentFocusKeys...), " | "))
+}
+
+func getAndClearTextFromInputField(form *tview.Form, label string, leaveInFocus bool) string {
+	formItemIndex := form.GetFormItemIndex(label)
+	if formItemIndex < 0 {
+		panic("Failed to find " + label + " input field index")
+	}
+
+	formItem := form.GetFormItem(formItemIndex)
+	if formItem == nil {
+		panic("Failed to find " + label + " input field")
+	}
+
+	inputField, ok := formItem.(*tview.InputField)
+	if !ok {
+		panic("Failed to cast " + label + " input field")
+	}
+
+	text := inputField.GetText()
+	inputField.SetText("")
+
+	if leaveInFocus {
+		form.SetFocus(formItemIndex)
+	}
+
+	return text
 }
