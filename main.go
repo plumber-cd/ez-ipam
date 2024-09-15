@@ -1,6 +1,9 @@
 package main
 
 import (
+	_ "embed"
+	"html/template"
+
 	"os"
 	"path/filepath"
 	"strconv"
@@ -22,11 +25,15 @@ const (
 	deleteNetworkPage           = "*delete_network*"
 	quitPage                    = "*quit*"
 
-	dataDirName     = ".ez-ipam"
-	networksDirName = "networks"
+	dataDirName      = ".ez-ipam"
+	networksDirName  = "networks"
+	markdownFileName = "EZ-IPAM.md"
 )
 
 var (
+	//go:embed markdown.tmpl
+	markdownTmpl string
+
 	app   *tview.Application
 	pages *tview.Pages
 
@@ -572,7 +579,62 @@ func save() {
 		panic("Failed to rename " + dataTmpDir + " to " + dataDir + " directory: " + err.Error())
 	}
 
-	// mdFile := filepath.Join(currentDir, "EZ-IPAM.md")
+	networksIndex := []string{}
+	networksDisplayNames := map[string]string{}
+	networksDataIndex := map[string][]string{}
+	networksData := map[string]map[string]string{}
+	networksOpts := map[string]map[string]bool{}
+	var recursivelyPopulateNetworksData func(n *Network)
+	recursivelyPopulateNetworksData = func(n *Network) {
+		index, data, err := n.RenderDetailsMap()
+		if err != nil {
+			panic("Failed to render details map for " + n.GetPath() + ": " + err.Error())
+		}
+		networksIndex = append(networksIndex, n.GetID())
+		networksDisplayNames[n.GetID()] = n.GetID()
+		networksDataIndex[n.GetID()] = index
+		networksData[n.GetID()] = data
+		networksOpts[n.GetID()] = map[string]bool{
+			"Allocated": n.Allocated,
+		}
+		childs := menuItems.GetChilds(n)
+		for _, child := range childs {
+			nn, ok := child.(*Network)
+			if !ok {
+				panic("Failed to cast " + child.GetPath() + " to network")
+			}
+			recursivelyPopulateNetworksData(nn)
+		}
+	}
+
+	networksMenuItem := menuItems.GetByParentAndID(nil, "Networks")
+	for _, menuItem := range menuItems.GetChilds(networksMenuItem) {
+		n, ok := menuItem.(*Network)
+		if !ok {
+			panic("Failed to cast " + menuItem.GetPath() + " to network")
+		}
+		recursivelyPopulateNetworksData(n)
+	}
+
+	template := template.Must(template.New(markdownFileName).Parse(markdownTmpl))
+	input := map[string]interface{}{
+		"NetworksIndex":        networksIndex,
+		"NetworksDisplayNames": networksDisplayNames,
+		"NetworksDataIndex":    networksDataIndex,
+		"NetworksData":         networksData,
+		"NetworksOpts":         networksOpts,
+	}
+
+	mdFile, err := os.Create(filepath.Join(currentDir, markdownFileName))
+	if err != nil {
+		panic("Failed to create " + markdownFileName + " file: " + err.Error())
+	}
+	defer mdFile.Close()
+
+	if err := template.Execute(mdFile, input); err != nil {
+		panic("Failed to execute template for " + markdownFileName + " file: " + err.Error())
+	}
+
 	statusLine.Clear()
 	statusLine.SetText("Saved")
 }

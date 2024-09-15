@@ -630,27 +630,33 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 	return event
 }
 
-func (n *Network) RenderDetails() string {
-	stringWriter := new(strings.Builder)
+func (n *Network) RenderDetailsMap() ([]string, map[string]string, error) {
+	index := []string{}
+	result := map[string]string{}
+
 	p := message.NewPrinter(language.English) // sorry, rest of the world
-	template := "%-20s: %s\n"
-	stringWriter.WriteString(p.Sprintf(template, "CIDR", n.ID))
+
+	index = append(index, "CIDR")
+	result["CIDR"] = p.Sprintf(n.ID)
 
 	_, ipnet, err := net.ParseCIDR(n.ID)
 	if err != nil {
-		return fmt.Sprintf("Error parsing CIDR %s: %s", n.ID, err)
+		return nil, nil, fmt.Errorf("Error parsing CIDR %s: %s", n.ID, err)
 	}
 
 	firstIP := ipnet.IP
-	stringWriter.WriteString(p.Sprintf(template, "Network Address", firstIP))
+	index = append(index, "Network Address")
+	result["Network Address"] = firstIP.String()
 
 	maskBits, _ := ipnet.Mask.Size()
-	stringWriter.WriteString(p.Sprintf(template, "Mask Bits", p.Sprintf("%d", maskBits)))
+	index = append(index, "Mask Bits")
+	result["Mask Bits"] = p.Sprintf("%d", maskBits)
 
 	subnetMask := make(net.IP, len(ipnet.Mask))
 	copy(subnetMask, ipnet.Mask)
 	subnetMaskStr := subnetMask.String()
-	stringWriter.WriteString(p.Sprintf(template, "Subnet Mask", subnetMaskStr))
+	index = append(index, "Subnet Mask")
+	result["Subnet Mask"] = subnetMaskStr
 
 	lastIP := make(net.IP, len(firstIP))
 	copy(lastIP, firstIP)
@@ -658,9 +664,11 @@ func (n *Network) RenderDetails() string {
 		lastIP[i] = firstIP[i] | ^ipnet.Mask[i]
 	}
 	if ipnet.IP.To4() != nil {
-		stringWriter.WriteString(p.Sprintf(template, "Broadcast Address", lastIP))
+		index = append(index, "Broadcast Address")
+		result["Broadcast Address"] = lastIP.String()
 	}
-	stringWriter.WriteString(p.Sprintf(template, "Range", p.Sprintf("%s - %s", firstIP, lastIP)))
+	index = append(index, "Range")
+	result["Range"] = p.Sprintf("%s - %s", firstIP, lastIP)
 
 	var totalHosts big.Int
 	totalHosts.SetUint64(1)
@@ -672,15 +680,18 @@ func (n *Network) RenderDetails() string {
 
 		if maskBits <= 64 {
 			totalNetworks := 1 << (64 - maskBits)
-			stringWriter.WriteString(p.Sprintf(template, "Total /64 Networks", p.Sprintf("%d", totalNetworks)))
+			index = append(index, "Total /64 Networks")
+			result["Total /64 Networks"] = p.Sprintf("%d", totalNetworks)
 		} else {
-			stringWriter.WriteString(p.Sprintf(template, "Total Hosts", p.Sprintf("%d", totalHosts.Uint64())))
+			index = append(index, "Total Hosts")
+			result["Total Hosts"] = p.Sprintf("%d", totalHosts.Uint64())
 		}
 	} else { // IPv4
 		totalHosts.Lsh(&totalHosts, uint(32-maskBits))
 		usableHosts.Set(&totalHosts)
 		usableHosts.Sub(&usableHosts, big.NewInt(2))
-		stringWriter.WriteString(p.Sprintf(template, "Total Hosts", p.Sprintf("%d", totalHosts.Uint64())))
+		index = append(index, "Total Hosts")
+		result["Total Hosts"] = p.Sprintf("%d", totalHosts.Uint64())
 
 		usableFirstIP := make(net.IP, len(firstIP))
 		copy(usableFirstIP, firstIP)
@@ -690,15 +701,38 @@ func (n *Network) RenderDetails() string {
 		if ipnet.IP.To4() != nil {
 			usableLastIP[len(usableLastIP)-1]--
 		}
-		stringWriter.WriteString(p.Sprintf(template, "Usable Range", p.Sprintf("%s - %s", usableFirstIP, usableLastIP)))
-		stringWriter.WriteString(p.Sprintf(template, "Usable Hosts", p.Sprintf("%d", usableHosts.Uint64())))
+		index = append(index, "Usable Range")
+		result["Usable Range"] = p.Sprintf("%s - %s", usableFirstIP, usableLastIP)
+		index = append(index, "Usable Hosts")
+		result["Usable Hosts"] = p.Sprintf("%d", usableHosts.Uint64())
 	}
 
-	stringWriter.WriteString("\n\n\n")
 	if n.Allocated {
+		result["Description"] = n.Description
+	}
+
+	return index, result, nil
+}
+
+func (n *Network) RenderDetails() string {
+	stringWriter := new(strings.Builder)
+	template := "%-20s: %s\n"
+
+	index, data, err := n.RenderDetailsMap()
+	if err != nil {
+		return fmt.Sprintf("Error rendering details: %v", err)
+	}
+
+	for _, key := range index {
+		if key == "Description" {
+			continue
+		}
+		stringWriter.WriteString(fmt.Sprintf(template, key, data[key]))
+	}
+
+	if n.Allocated {
+		stringWriter.WriteString("\n\n\n")
 		stringWriter.WriteString(n.Description)
-	} else {
-		stringWriter.WriteString("Unallocated")
 	}
 
 	return stringWriter.String()
