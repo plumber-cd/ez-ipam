@@ -2,6 +2,7 @@ package main
 
 import (
 	"cmp"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"math/big"
@@ -821,6 +822,29 @@ func isPowerOfTwo(n *big.Int) bool {
 	one := big.NewInt(1)
 	tmp := new(big.Int).Sub(n, one)
 	return new(big.Int).And(n, tmp).Cmp(big.NewInt(0)) == 0
+}
+
+func CIDRToIdentifier(cidr string) (string, error) {
+	ip, ipNet, err := net.ParseCIDR(cidr)
+	if err != nil {
+		return "", fmt.Errorf("invalid CIDR: %v", err)
+	}
+
+	var ipBytes []byte
+	if ip4 := ip.To4(); ip4 != nil {
+		// IPv4 address
+		ipBytes = ip4
+	} else if ip16 := ip.To16(); ip16 != nil {
+		// IPv6 address
+		ipBytes = ip16
+	} else {
+		return "", fmt.Errorf("invalid IP address in CIDR")
+	}
+
+	ipHex := hex.EncodeToString(ipBytes)
+	prefixLen, _ := ipNet.Mask.Size()
+	identifier := fmt.Sprintf("%s_%d", ipHex, prefixLen)
+	return identifier, nil
 }
 
 func splitNetwork(cidr string, newSize int) ([]string, error) {

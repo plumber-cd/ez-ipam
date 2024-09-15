@@ -1,0 +1,5 @@
+allocated: false
+description: ""
+display_name: ""
+id: 100.96.0.0/11
+parent: Networks -> 100.64.0.0/10

@@ -1,11 +1,14 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
+	"sigs.k8s.io/yaml"
 )
 
 const (
@@ -18,9 +21,10 @@ const (
 	deallocateNetworkPage       = "*deallocate_network*"
 	deleteNetworkPage           = "*delete_network*"
 	quitPage                    = "*quit*"
-)
 
-var ()
+	dataDirName     = ".ez-ipam"
+	networksDirName = "networks"
+)
 
 var (
 	app   *tview.Application
@@ -419,8 +423,7 @@ func main() {
 		case tcell.KeyCtrlC:
 			return nil
 		case tcell.KeyCtrlS:
-			statusLine.Clear()
-			statusLine.SetText("Saved")
+			save()
 			return nil
 		case tcell.KeyCtrlQ:
 			// This is "hidden" quit without the confirmation dialog - use for local debugging, maybe should disable from the release version
@@ -538,6 +541,57 @@ func load() {
 	)
 
 	reloadMenu(nil)
+}
+
+func save() {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		panic("Failed to get current directory: " + err.Error())
+	}
+
+	dataDir := filepath.Join(currentDir, dataDirName)
+	dataTmpDir := dataDir + ".tmp"
+
+	networksTmpDir := filepath.Join(dataTmpDir, networksDirName)
+	if err := os.RemoveAll(networksTmpDir); err != nil {
+		panic("Failed to remove " + networksTmpDir + " directory: " + err.Error())
+	}
+	if err := os.MkdirAll(networksTmpDir, 0755); err != nil {
+		panic("Failed to create " + networksTmpDir + " directory: " + err.Error())
+	}
+
+	for _, menuItem := range menuItems {
+		switch m := menuItem.(type) {
+		case *MenuStatic:
+		// This is not serializable
+		case *Network:
+			id, err := CIDRToIdentifier(m.ID)
+			if err != nil {
+				panic("Failed to convert " + m.ID + " to identifier: " + err.Error())
+			}
+
+			fileName := filepath.Join(networksTmpDir, id+".yaml")
+			bytes, err := yaml.Marshal(menuItem)
+			if err != nil {
+				panic("Failed to marshal " + menuItem.GetPath() + " to yaml: " + err.Error())
+			}
+			if err := os.WriteFile(fileName, bytes, 0644); err != nil {
+				panic("Failed to write " + fileName + " file: " + err.Error())
+			}
+		default:
+		}
+	}
+
+	if err := os.RemoveAll(dataDir); err != nil {
+		panic("Failed to remove " + dataDir + " directory: " + err.Error())
+	}
+	if err := os.Rename(dataTmpDir, dataDir); err != nil {
+		panic("Failed to rename " + dataTmpDir + " to " + dataDir + " directory: " + err.Error())
+	}
+
+	// mdFile := filepath.Join(currentDir, "EZ-IPAM.md")
+	statusLine.Clear()
+	statusLine.SetText("Saved")
 }
 
 func reloadMenu(focusedItem MenuItem) {

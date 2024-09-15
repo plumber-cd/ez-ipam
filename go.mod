@@ -6,6 +6,7 @@ require (
 	github.com/gdamore/tcell/v2 v2.7.1
 	github.com/rivo/tview v0.0.0-20240818110301-fd649dbf1223
 	golang.org/x/text v0.14.0
+	sigs.k8s.io/yaml v1.4.0
 )
 
 require (
