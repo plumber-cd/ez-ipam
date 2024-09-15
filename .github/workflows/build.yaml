@@ -44,7 +44,7 @@ jobs:
 
       - name: List workspace
         run: |
-          ls -lahs
+          ls -lahs dist
 
       - name: Run GoReleaser
         if: github.event_name == 'workflow_dispatch'
