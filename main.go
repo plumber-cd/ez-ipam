@@ -9,12 +9,13 @@ import (
 )
 
 const (
-	mainPage              = "*main*"
-	newNetworkPage        = "*new_network*"
-	splitNetworkPage      = "*split_network*"
-	allocateNetworkPage   = "*allocate_network*"
-	deallocateNetworkPage = "*deallocate_network*"
-	deleteNetworkPage     = "*delete_network*"
+	mainPage                    = "*main*"
+	newNetworkPage              = "*new_network*"
+	splitNetworkPage            = "*split_network*"
+	allocateNetworkPage         = "*allocate_network*"
+	updateNetworkAllocationPage = "*update_network_allocation*"
+	deallocateNetworkPage       = "*deallocate_network*"
+	deleteNetworkPage           = "*delete_network*"
 )
 
 var ()
@@ -29,11 +30,12 @@ var (
 	statusLine      *tview.TextView
 	keysLine        *tview.TextView
 
-	newNetworkDialog        *tview.Form
-	splitNetworkDialog      *tview.Form
-	allocateNetworkDialog   *tview.Form
-	deallocateNetworkDialog *tview.Modal
-	deleteNetworkDialog     *tview.Modal
+	newNetworkDialog              *tview.Form
+	splitNetworkDialog            *tview.Form
+	allocateNetworkDialog         *tview.Form
+	updateNetworkAllocationDialog *tview.Form
+	deallocateNetworkDialog       *tview.Modal
+	deleteNetworkDialog           *tview.Modal
 )
 
 func main() {
@@ -284,7 +286,7 @@ func main() {
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
 			})
-		allocateNetworkDialog.SetBorder(true).SetTitle("Allocate Network")
+		allocateNetworkDialog.SetBorder(true)
 		allocateNetworkDialogFlex := tview.NewFlex().SetDirection(tview.FlexColumn).
 			AddItem(nil, 0, 1, false).
 			AddItem(
@@ -295,6 +297,40 @@ func main() {
 				width, 1, false).
 			AddItem(nil, 0, 1, false)
 		pages.AddPage(allocateNetworkPage, allocateNetworkDialogFlex, true, false)
+	}
+
+	{
+		height := 13
+		width := 59
+		updateNetworkAllocationDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("Display Name", "", 42, nil, nil).
+			AddTextArea("Description", "", 48, 5, 0, nil).
+			AddButton("Save", func() {
+				displayName := getAndClearTextFromInputField(updateNetworkAllocationDialog, "Display Name")
+				description := getAndClearTextFromTextArea(updateNetworkAllocationDialog, "Description")
+				UpdateNetworkAllocation(displayName, description)
+
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", func() {
+				getAndClearTextFromInputField(updateNetworkAllocationDialog, "Display Name")
+				getAndClearTextFromTextArea(updateNetworkAllocationDialog, "Description")
+
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			})
+		updateNetworkAllocationDialog.SetBorder(true)
+		updateNetworkAllocationFlex := tview.NewFlex().SetDirection(tview.FlexColumn).
+			AddItem(nil, 0, 1, false).
+			AddItem(
+				tview.NewFlex().SetDirection(tview.FlexRow).
+					AddItem(nil, 0, 1, false).
+					AddItem(updateNetworkAllocationDialog, height, 1, false).
+					AddItem(nil, 0, 1, false),
+				width, 1, false).
+			AddItem(nil, 0, 1, false)
+		pages.AddPage(updateNetworkAllocationPage, updateNetworkAllocationFlex, true, false)
 	}
 
 	{
@@ -512,6 +548,17 @@ func getAndClearTextFromInputField(form *tview.Form, label string) string {
 	return text
 }
 
+func setTextFromInputField(form *tview.Form, label, value string) {
+	_, formItem := getFormItemByLabel(form, label)
+
+	inputField, ok := formItem.(*tview.InputField)
+	if !ok {
+		panic("Failed to cast " + label + " input field")
+	}
+
+	inputField.SetText(value)
+}
+
 func getAndClearTextFromTextArea(form *tview.Form, label string) string {
 	_, formItem := getFormItemByLabel(form, label)
 
@@ -524,4 +571,15 @@ func getAndClearTextFromTextArea(form *tview.Form, label string) string {
 	textArea.SetText("", false)
 
 	return text
+}
+
+func setTextFromTextArea(form *tview.Form, label, value string) {
+	_, formItem := getFormItemByLabel(form, label)
+
+	textArea, ok := formItem.(*tview.TextArea)
+	if !ok {
+		panic("Failed to cast " + label + " text area")
+	}
+
+	textArea.SetText(value, true)
 }

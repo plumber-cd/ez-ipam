@@ -145,6 +145,43 @@ func AllocateNetwork(displayName, description string, subnetsPrefix int) {
 	statusLine.SetText("Allocated network: " + focusedNetwork.GetPath())
 }
 
+func UpdateNetworkAllocation(displayName, description string) {
+	focusedNetwork, ok := currentMenuFocus.(*Network)
+	if !ok {
+		panic("UpdateNetworkAllocation called on non-Network")
+	}
+
+	if !focusedNetwork.Allocated {
+		panic("UpdateNetworkAllocation called on unallocated Network")
+	}
+
+	mod := func(n *Network) {
+		n.DisplayName = displayName
+		n.Description = description
+	}
+
+	copy := *focusedNetwork
+	copy.copyOf = focusedNetwork
+	mod(&copy)
+	if err := copy.Validate(); err != nil {
+		statusLine.Clear()
+		statusLine.SetText("Error updating network allocation: " + err.Error())
+		return
+	}
+
+	mod(focusedNetwork)
+	if err := focusedNetwork.Validate(); err != nil {
+		// This needs to panic since we just changed state of the object in memory and now it fails validation.
+		// We do not know how to recover, this would be a bug and it should never reach this brunch here - missed during pre validation above somehow.
+		panic(err)
+	}
+
+	reloadMenu(focusedNetwork)
+
+	statusLine.Clear()
+	statusLine.SetText("Allocated network updated: " + focusedNetwork.GetPath())
+}
+
 func DeallocateNetwork() {
 	focusedNetwork, ok := currentMenuFocus.(*Network)
 	if !ok {
@@ -415,9 +452,22 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 				return event
 			}
 
+			allocateNetworkDialog.SetTitle(fmt.Sprintf("Allocate Network %s", n.GetID()))
 			allocateNetworkDialog.SetFocus(0)
 			pages.ShowPage(allocateNetworkPage)
 			app.SetFocus(allocateNetworkDialog)
+			return nil
+		case 'u':
+			if !n.Allocated {
+				return event
+			}
+
+			updateNetworkAllocationDialog.SetTitle(fmt.Sprintf("Update Network Allocation %s", n.GetID()))
+			setTextFromInputField(updateNetworkAllocationDialog, "Display Name", n.DisplayName)
+			setTextFromTextArea(updateNetworkAllocationDialog, "Description", n.Description)
+			updateNetworkAllocationDialog.SetFocus(0)
+			pages.ShowPage(updateNetworkAllocationPage)
+			app.SetFocus(updateNetworkAllocationDialog)
 			return nil
 		case 's':
 			if n.Allocated {
