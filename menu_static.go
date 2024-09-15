@@ -73,7 +73,7 @@ func (m *MenuStatic) CurrentMenuInputCapture(event *tcell.EventKey) *tcell.Event
 		switch event.Key() {
 		case tcell.KeyRune:
 			switch event.Rune() {
-			case 'a':
+			case 'n':
 				pages.ShowPage(newNetworkPage)
 				app.SetFocus(newNetworkDialog)
 				return nil
