@@ -57,8 +57,9 @@ func AllocateNetwork(displayName, description string) {
 	}
 
 	copy := *focusedNetwork
+	copy.copyOf = focusedNetwork
 	mod(&copy)
-	if err := copy.ValidateForAllocated(); err != nil {
+	if err := copy.Validate(); err != nil {
 		statusLine.Clear()
 		statusLine.SetText("Error allocating network: " + err.Error())
 		return
@@ -77,11 +78,51 @@ func AllocateNetwork(displayName, description string) {
 	statusLine.SetText("Allocated network: " + focusedNetwork.GetPath())
 }
 
+func DeallocateNetwork() {
+	focusedNetwork, ok := currentMenuFocus.(*Network)
+	if !ok {
+		panic("DeallocateNetwork called on non-Network")
+	}
+
+	if !focusedNetwork.Allocated {
+		panic("DeallocateNetwork called on unallocated Network")
+	}
+
+	mod := func(n *Network) {
+		n.Allocated = false
+		n.DisplayName = ""
+		n.Description = ""
+	}
+
+	copy := *focusedNetwork
+	copy.copyOf = focusedNetwork
+	mod(&copy)
+	if err := copy.Validate(); err != nil {
+		statusLine.Clear()
+		statusLine.SetText("Error deallocating network: " + err.Error())
+		return
+	}
+
+	mod(focusedNetwork)
+	if err := focusedNetwork.Validate(); err != nil {
+		// This needs to panic since we just changed state of the object in memory and now it fails validation.
+		// We do not know how to recover, this would be a bug and it should never reach this brunch here - missed during pre validation above somehow.
+		panic(err)
+	}
+
+	reloadMenu(focusedNetwork)
+
+	statusLine.Clear()
+	statusLine.SetText("Deallocated network: " + focusedNetwork.GetPath())
+}
+
 type Network struct {
 	*MenuFolder
 	Allocated   bool   `json:"allocated"`
 	DisplayName string `json:"display_name"`
 	Description string `json:"description"`
+
+	copyOf *Network
 }
 
 func (n *Network) Validate() error {
@@ -141,6 +182,10 @@ func (n *Network) Validate() error {
 			continue
 		}
 
+		if n.copyOf == other {
+			continue
+		}
+
 		_, otherIPNet, err := net.ParseCIDR(otherNetwork.ID)
 		if err != nil {
 			return fmt.Errorf("Error parsing other CIDR %s: %s", other.GetID(), err)
@@ -156,21 +201,14 @@ func (n *Network) Validate() error {
 	}
 
 	if n.Allocated {
-		if err := n.ValidateForAllocated(); err != nil {
-			return err
+		if n.DisplayName == "" {
+			return fmt.Errorf("DisplayName must be set for allocated Network=%s", n.GetPath())
+		}
+		if n.Description == "" {
+			return fmt.Errorf("Description must be set for allocated Network=%s", n.GetPath())
 		}
 	}
 
-	return nil
-}
-
-func (n *Network) ValidateForAllocated() error {
-	if n.DisplayName == "" {
-		return fmt.Errorf("DisplayName must be set for allocated Network=%s", n.GetPath())
-	}
-	if n.Description == "" {
-		return fmt.Errorf("Description must be set for allocated Network=%s", n.GetPath())
-	}
 	return nil
 }
 
@@ -228,7 +266,8 @@ func (n *Network) OnChangedFunc() {
 	detailsPanel.SetText(n.RenderDetails())
 	if n.Allocated {
 		currentFocusKeys = []string{
-			"<d> Description",
+			"<u> Update Allocation",
+			"<d> Deallocate",
 		}
 	} else {
 		currentFocusKeys = []string{
@@ -259,8 +298,19 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 				return event
 			}
 
+			allocateNetworkDialog.SetFocus(0)
 			pages.ShowPage(allocateNetworkPage)
 			app.SetFocus(allocateNetworkDialog)
+			return nil
+		case 'd':
+			if !n.Allocated {
+				return event
+			}
+
+			deallocateNetworkDialog.SetText(fmt.Sprintf("Are you sure you want to deallocate network %s?", n.GetID()))
+			deallocateNetworkDialog.SetFocus(0)
+			pages.ShowPage(deallocateNetworkPage)
+			app.SetFocus(deallocateNetworkDialog)
 			return nil
 		}
 	}

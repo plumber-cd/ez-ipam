@@ -74,6 +74,7 @@ func (m *MenuStatic) CurrentMenuInputCapture(event *tcell.EventKey) *tcell.Event
 		case tcell.KeyRune:
 			switch event.Rune() {
 			case 'n':
+				newNetworkDialog.SetFocus(0)
 				pages.ShowPage(newNetworkPage)
 				app.SetFocus(newNetworkDialog)
 				return nil

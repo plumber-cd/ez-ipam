@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	mainPage            = "*main*"
-	newNetworkPage      = "*new_network*"
-	allocateNetworkPage = "*allocate_network*"
+	mainPage              = "*main*"
+	newNetworkPage        = "*new_network*"
+	allocateNetworkPage   = "*allocate_network*"
+	deallocateNetworkPage = "*deallocate_network*"
 )
 
 var ()
@@ -25,8 +26,9 @@ var (
 	statusLine      *tview.TextView
 	keysLine        *tview.TextView
 
-	newNetworkDialog      *tview.Form
-	allocateNetworkDialog *tview.Form
+	newNetworkDialog        *tview.Form
+	allocateNetworkDialog   *tview.Form
+	deallocateNetworkDialog *tview.Modal
 )
 
 func main() {
@@ -176,12 +178,12 @@ func main() {
 		newNetworkDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
 			AddInputField("CIDR", "", 42, nil, nil).
 			AddButton("Save", func() {
-				AddNewNetwork(getAndClearTextFromInputField(newNetworkDialog, "CIDR", true))
+				AddNewNetwork(getAndClearTextFromInputField(newNetworkDialog, "CIDR"))
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
 			}).
 			AddButton("Cancel", func() {
-				getAndClearTextFromInputField(newNetworkDialog, "CIDR", true)
+				getAndClearTextFromInputField(newNetworkDialog, "CIDR")
 
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
@@ -206,16 +208,16 @@ func main() {
 			AddInputField("Display Name", "", 40, nil, nil).
 			AddTextArea("Description", "", 48, 5, 0, nil).
 			AddButton("Save", func() {
-				displayName := getAndClearTextFromInputField(allocateNetworkDialog, "Display Name", true)
-				description := getAndClearTextFromTextArea(allocateNetworkDialog, "Description", false)
+				displayName := getAndClearTextFromInputField(allocateNetworkDialog, "Display Name")
+				description := getAndClearTextFromTextArea(allocateNetworkDialog, "Description")
 				AllocateNetwork(displayName, description)
 
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
 			}).
 			AddButton("Cancel", func() {
-				getAndClearTextFromInputField(allocateNetworkDialog, "Display Name", true)
-				getAndClearTextFromTextArea(allocateNetworkDialog, "Description", false)
+				getAndClearTextFromInputField(allocateNetworkDialog, "Display Name")
+				getAndClearTextFromTextArea(allocateNetworkDialog, "Description")
 
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
@@ -233,6 +235,25 @@ func main() {
 		pages.AddPage(allocateNetworkPage, allocateNetworkDialogFlex, true, false)
 	}
 
+	{
+		deallocateNetworkDialog = tview.NewModal().
+			AddButtons([]string{"Yes", "No"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				switch buttonLabel {
+				case "Yes":
+					DeallocateNetwork()
+					fallthrough
+				case "No":
+					fallthrough
+				default:
+					deallocateNetworkDialog.SetText("")
+					pages.SwitchToPage(mainPage)
+					app.SetFocus(navigationPanel)
+				}
+			})
+		pages.AddPage(deallocateNetworkPage, deallocateNetworkDialog, true, false)
+	}
+
 	app.SetRoot(pages, true)
 	app.EnableMouse(true)
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -246,6 +267,12 @@ func main() {
 		case tcell.KeyCtrlQ:
 			app.Stop()
 			return nil
+			// case tcell.KeyCtrlD:
+			// 	statusLine.Clear()
+			// 	currentFocus := app.GetFocus()
+			// 	currentFocusStr := reflect.TypeOf(currentFocus).String()
+			// 	statusLine.SetText(currentFocusStr)
+			// 	return nil
 		}
 
 		return event
@@ -376,7 +403,7 @@ func updateKeysLine() {
 	keysLine.SetText(" " + strings.Join(append(append(globalKeys, currentMenuItemKeys...), currentFocusKeys...), " | "))
 }
 
-func getFormItemByLabel(form *tview.Form, label string, focus bool) (int, tview.FormItem) {
+func getFormItemByLabel(form *tview.Form, label string) (int, tview.FormItem) {
 	formItemIndex := form.GetFormItemIndex(label)
 	if formItemIndex < 0 {
 		panic("Failed to find " + label + " form item index")
@@ -387,15 +414,11 @@ func getFormItemByLabel(form *tview.Form, label string, focus bool) (int, tview.
 		panic("Failed to find " + label + " form item")
 	}
 
-	if focus {
-		form.SetFocus(formItemIndex)
-	}
-
 	return formItemIndex, formItem
 }
 
-func getAndClearTextFromInputField(form *tview.Form, label string, leaveInFocus bool) string {
-	_, formItem := getFormItemByLabel(form, label, leaveInFocus)
+func getAndClearTextFromInputField(form *tview.Form, label string) string {
+	_, formItem := getFormItemByLabel(form, label)
 
 	inputField, ok := formItem.(*tview.InputField)
 	if !ok {
@@ -408,8 +431,8 @@ func getAndClearTextFromInputField(form *tview.Form, label string, leaveInFocus 
 	return text
 }
 
-func getAndClearTextFromTextArea(form *tview.Form, label string, leaveInFocus bool) string {
-	_, formItem := getFormItemByLabel(form, label, leaveInFocus)
+func getAndClearTextFromTextArea(form *tview.Form, label string) string {
+	_, formItem := getFormItemByLabel(form, label)
 
 	textArea, ok := formItem.(*tview.TextArea)
 	if !ok {
@@ -417,7 +440,7 @@ func getAndClearTextFromTextArea(form *tview.Form, label string, leaveInFocus bo
 	}
 
 	text := textArea.GetText()
-	textArea.SetText("", true)
+	textArea.SetText("", false)
 
 	return text
 }
