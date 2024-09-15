@@ -122,14 +122,11 @@ func main() {
 			panic("Failed to find currently selected menu item!")
 		}
 
-		newChilds := menuItems.GetChilds(selected)
-		if len(newChilds) > 0 {
-			oldMenuItem := currentMenuItem
-			currentMenuItem = selected
+		oldMenuItem := currentMenuItem
+		currentMenuItem = selected
 
-			reloadMenu(oldMenuItem)
-			currentMenuItem.OnSelectedFunc()
-		}
+		reloadMenu(oldMenuItem)
+		currentMenuItem.OnSelectedFunc()
 		updateKeysLine()
 	})
 
