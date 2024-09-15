@@ -487,17 +487,6 @@ func load() {
 	}
 	menuItems.MustAdd(networks)
 
-	ips := &MenuStatic{
-		MenuFolder: &MenuFolder{
-			ID: "IPs",
-		},
-		Index: 1,
-		Description: `
-                In the IPs menu you can track IP reservations
-            `,
-	}
-	menuItems.MustAdd(ips)
-
 	currentDir, err := os.Getwd()
 	if err != nil {
 		panic("Failed to get current directory: " + err.Error())
