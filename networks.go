@@ -8,6 +8,7 @@ import (
 	"net/netip"
 	"strings"
 
+	"github.com/gdamore/tcell/v2"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -37,6 +38,43 @@ func AddNewNetwork(cidr string) {
 
 	statusLine.Clear()
 	statusLine.SetText("Added new network: " + cidr)
+}
+
+func AllocateNetwork(displayName, description string) {
+	focusedNetwork, ok := currentMenuFocus.(*Network)
+	if !ok {
+		panic("AllocateNetwork called on non-Network")
+	}
+
+	if focusedNetwork.Allocated {
+		panic("AllocateNetwork called on already allocated Network")
+	}
+
+	mod := func(n *Network) {
+		n.Allocated = true
+		n.DisplayName = displayName
+		n.Description = description
+	}
+
+	copy := *focusedNetwork
+	mod(&copy)
+	if err := copy.ValidateForAllocated(); err != nil {
+		statusLine.Clear()
+		statusLine.SetText("Error allocating network: " + err.Error())
+		return
+	}
+
+	mod(focusedNetwork)
+	if err := focusedNetwork.Validate(); err != nil {
+		// This needs to panic since we just changed state of the object in memory and now it fails validation.
+		// We do not know how to recover, this would be a bug and it should never reach this brunch here - missed during pre validation above somehow.
+		panic(err)
+	}
+
+	reloadMenu(focusedNetwork)
+
+	statusLine.Clear()
+	statusLine.SetText("Allocated network: " + focusedNetwork.GetPath())
 }
 
 type Network struct {
@@ -99,6 +137,10 @@ func (n *Network) Validate() error {
 			panic("Non-network child found in Networks")
 		}
 
+		if other == n {
+			continue
+		}
+
 		_, otherIPNet, err := net.ParseCIDR(otherNetwork.ID)
 		if err != nil {
 			return fmt.Errorf("Error parsing other CIDR %s: %s", other.GetID(), err)
@@ -114,14 +156,21 @@ func (n *Network) Validate() error {
 	}
 
 	if n.Allocated {
-		if n.DisplayName == "" {
-			return fmt.Errorf("DisplayName must be set for allocated Network=%s", n.GetPath())
-		}
-		if n.Description == "" {
-			return fmt.Errorf("Description must be set for allocated Network=%s", n.GetPath())
+		if err := n.ValidateForAllocated(); err != nil {
+			return err
 		}
 	}
 
+	return nil
+}
+
+func (n *Network) ValidateForAllocated() error {
+	if n.DisplayName == "" {
+		return fmt.Errorf("DisplayName must be set for allocated Network=%s", n.GetPath())
+	}
+	if n.Description == "" {
+		return fmt.Errorf("Description must be set for allocated Network=%s", n.GetPath())
+	}
 	return nil
 }
 
@@ -199,6 +248,23 @@ func (n *Network) OnDoneFunc() {
 	positionLine.Clear()
 	positionLine.SetText(n.GetPath())
 	currentMenuItemKeys = []string{}
+}
+
+func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKey {
+	switch event.Key() {
+	case tcell.KeyRune:
+		switch event.Rune() {
+		case 'a':
+			if n.Allocated {
+				return event
+			}
+
+			pages.ShowPage(allocateNetworkPage)
+			app.SetFocus(allocateNetworkDialog)
+			return nil
+		}
+	}
+	return event
 }
 
 func (n *Network) RenderDetails() string {
