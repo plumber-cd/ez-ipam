@@ -2,7 +2,7 @@
 
 This project was inspired by a great tool https://www.davidc.net/sites/default/subnets/subnets.html and its successor https://visualsubnetcalc.com/.
 
-!(./demo.gif)
+![Demo](./demo.gif)
 
 I only ever had two problems with these tools:
 
