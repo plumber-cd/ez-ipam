@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	mainPage = "*main*"
+	mainPage       = "*main*"
+	newNetworkPage = "*new_network*"
 )
 
 var ()
@@ -16,17 +17,18 @@ var ()
 var (
 	app   *tview.Application
 	pages *tview.Pages
-	focus tview.Primitive
 
 	positionLine    *tview.TextView
 	navigationPanel *tview.List
 	detailsPanel    *tview.TextView
 	statusLine      *tview.TextView
 	keysLine        *tview.TextView
+
+	newNetworkDialog *tview.Form
 )
 
 func main() {
-	app := tview.NewApplication()
+	app = tview.NewApplication()
 	rootFlex := tview.NewFlex().SetDirection(tview.FlexRow)
 
 	positionLine = tview.NewTextView()
@@ -141,6 +143,9 @@ func main() {
 				return tcell.NewEventKey(tcell.KeyUp, tcell.RuneUArrow, tcell.ModNone)
 			case 'l':
 				return tcell.NewEventKey(tcell.KeyRight, tcell.RuneRArrow, tcell.ModNone)
+			case 'q':
+				app.Stop()
+				return nil
 			}
 		}
 
@@ -158,8 +163,41 @@ func main() {
 		return event
 	})
 
+	newNetworkDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+		AddInputField("CIDR", "", 42, nil, nil).
+		AddButton("Save", func() {
+			cidrFormItem := newNetworkDialog.GetFormItemByLabel("CIDR")
+			if cidrFormItem == nil {
+				panic("Failed to find CIDR input field")
+			}
+
+			cidrInputField, ok := cidrFormItem.(*tview.InputField)
+			if !ok {
+				panic("Failed to cast CIDR input field")
+			}
+
+			AddNewNetwork(cidrInputField.GetText())
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}).
+		AddButton("Quit", func() {
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		})
+	newNetworkDialog.SetBorder(true).SetTitle("New Network")
+	newNetworkDialogFlex := tview.NewFlex().SetDirection(tview.FlexColumn).
+		AddItem(nil, 0, 1, false).
+		AddItem(
+			tview.NewFlex().SetDirection(tview.FlexRow).
+				AddItem(nil, 0, 1, false).
+				AddItem(newNetworkDialog, 7, 1, false).
+				AddItem(nil, 0, 1, false),
+			51, 1, false).
+		AddItem(nil, 0, 1, false)
+
 	pages = tview.NewPages().
-		AddPage(mainPage, rootFlex, true, true)
+		AddPage(mainPage, rootFlex, true, true).
+		AddPage(newNetworkPage, newNetworkDialogFlex, true, false)
 	app.SetRoot(pages, true)
 	app.EnableMouse(true)
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -170,18 +208,15 @@ func main() {
 			statusLine.Clear()
 			statusLine.SetText("Saved")
 			return nil
-		case tcell.KeyRune:
-			switch event.Rune() {
-			case 'q':
-				app.Stop()
-				return nil
-			}
+		case tcell.KeyCtrlQ:
+			app.Stop()
+			return nil
 		}
 
 		return event
 	})
+	pages.SwitchToPage(mainPage)
 	app.SetFocus(navigationPanel)
-	focus = app.GetFocus()
 
 	load()
 

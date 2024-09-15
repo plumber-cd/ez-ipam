@@ -74,19 +74,8 @@ func (m *MenuStatic) CurrentMenuInputCapture(event *tcell.EventKey) *tcell.Event
 		case tcell.KeyRune:
 			switch event.Rune() {
 			case 'a':
-				newNet := &Network{
-					MenuFolder: &MenuFolder{
-						ID:         "192.168.0.0/16",
-						ParentPath: currentMenuItem.GetPath(),
-					},
-					DisplayName: "New network",
-				}
-				menuItems.MustAdd(newNet)
-
-				reloadMenu(newNet)
-
-				statusLine.Clear()
-				statusLine.SetText("Append to network folder")
+				pages.ShowPage(newNetworkPage)
+				app.SetFocus(newNetworkDialog)
 				return nil
 			}
 		}

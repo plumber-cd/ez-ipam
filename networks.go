@@ -12,6 +12,33 @@ import (
 	"golang.org/x/text/message"
 )
 
+func AddNewNetwork(cidr string) {
+	newNet := &Network{
+		MenuFolder: &MenuFolder{
+			ID:         cidr,
+			ParentPath: currentMenuItem.GetPath(),
+		},
+	}
+
+	if err := newNet.Validate(); err != nil {
+		statusLine.Clear()
+		statusLine.SetText("Error adding new network: " + err.Error())
+		return
+	}
+
+	if err := menuItems.Add(newNet); err != nil {
+		statusLine.Clear()
+		statusLine.SetText("Added new network: " + cidr)
+
+		return
+	}
+
+	reloadMenu(newNet)
+
+	statusLine.Clear()
+	statusLine.SetText("Added new network: " + cidr)
+}
+
 type Network struct {
 	*MenuFolder
 	Allocated   bool   `json:"allocated"`
