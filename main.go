@@ -129,10 +129,6 @@ func main() {
 
 			reloadMenu(oldMenuItem)
 			currentMenuItem.OnSelectedFunc()
-		} else {
-			statusLine.Clear()
-			statusLine.SetText("No child items for " + selected.GetPath())
-			return
 		}
 		updateKeysLine()
 	})
