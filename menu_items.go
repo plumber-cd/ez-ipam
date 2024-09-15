@@ -31,6 +31,14 @@ func (m MenuItems) Add(menuItem MenuItem) error {
 	return nil
 }
 
+func (m MenuItems) Delete(menuItem MenuItem) {
+	childs := m.GetChilds(menuItem)
+	for _, child := range childs {
+		menuItems.Delete(child)
+	}
+	delete(m, menuItem.GetPath())
+}
+
 func (m MenuItems) MustAdd(menuItem MenuItem) {
 	if err := m.Add(menuItem); err != nil {
 		panic(err)

@@ -110,10 +110,29 @@ func DeallocateNetwork() {
 		panic(err)
 	}
 
+	children := menuItems.GetChilds(focusedNetwork)
+	for _, child := range children {
+		menuItems.Delete(child)
+	}
+
 	reloadMenu(focusedNetwork)
 
 	statusLine.Clear()
 	statusLine.SetText("Deallocated network: " + focusedNetwork.GetPath())
+}
+
+func DeleteNetwork() {
+	focusedNetwork, ok := currentMenuFocus.(*Network)
+	if !ok {
+		panic("DeleteNetwork called on non-Network")
+	}
+
+	menuItems.Delete(focusedNetwork)
+
+	reloadMenu(focusedNetwork)
+
+	statusLine.Clear()
+	statusLine.SetText("Deleted network: " + focusedNetwork.GetPath())
 }
 
 type Network struct {
@@ -130,9 +149,24 @@ func (n *Network) Validate() error {
 		return err
 	}
 
-	_, ipNet, err := net.ParseCIDR(n.ID)
+	ip, ipNet, err := net.ParseCIDR(n.ID)
 	if err != nil {
 		return fmt.Errorf("Invalid ID %s (must be a valid network CIDR): %s", n.ID, err)
+	}
+
+	if ipNet.Mask == nil {
+		return fmt.Errorf("Provided CIDR does not contain a network mask: %s", n.ID)
+	}
+
+	maskBits, _ := ipNet.Mask.Size()
+	if ipNet.IP.To4() != nil && maskBits == 32 {
+		return fmt.Errorf("Provided CIDR is a single IPv4 address, not a network: %s", n.ID)
+	} else if ipNet.IP.To4() == nil && maskBits == 128 {
+		return fmt.Errorf("Provided CIDR is a single IPv6 address, not a network: %s", n.ID)
+	}
+
+	if !ip.Equal(ipNet.IP) {
+		return fmt.Errorf("Provided CIDR specifies a host, not a network: %s (should be %s/%d)", n.ID, ipNet.IP, maskBits)
 	}
 
 	parent := n.GetParent()
@@ -268,11 +302,13 @@ func (n *Network) OnChangedFunc() {
 		currentFocusKeys = []string{
 			"<u> Update Allocation",
 			"<d> Deallocate",
+			"<D> Delete",
 		}
 	} else {
 		currentFocusKeys = []string{
 			"<a> Allocate",
 			"<s> Split",
+			"<D> Delete",
 		}
 	}
 }
@@ -307,10 +343,16 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 				return event
 			}
 
-			deallocateNetworkDialog.SetText(fmt.Sprintf("Are you sure you want to deallocate network %s?", n.GetID()))
+			deallocateNetworkDialog.SetText(fmt.Sprintf("Are you sure you want to deallocate network %s? This will automatically delete any subnets.", n.GetID()))
 			deallocateNetworkDialog.SetFocus(0)
 			pages.ShowPage(deallocateNetworkPage)
 			app.SetFocus(deallocateNetworkDialog)
+			return nil
+		case 'D':
+			deleteNetworkDialog.SetText(fmt.Sprintf("Are you sure you want to delete network %s? This will automatically delete any subnets.", n.GetID()))
+			deleteNetworkDialog.SetFocus(0)
+			pages.ShowPage(deleteNetworkPage)
+			app.SetFocus(deleteNetworkDialog)
 			return nil
 		}
 	}

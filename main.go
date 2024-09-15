@@ -12,6 +12,7 @@ const (
 	newNetworkPage        = "*new_network*"
 	allocateNetworkPage   = "*allocate_network*"
 	deallocateNetworkPage = "*deallocate_network*"
+	deleteNetworkPage     = "*delete_network*"
 )
 
 var ()
@@ -29,6 +30,7 @@ var (
 	newNetworkDialog        *tview.Form
 	allocateNetworkDialog   *tview.Form
 	deallocateNetworkDialog *tview.Modal
+	deleteNetworkDialog     *tview.Modal
 )
 
 func main() {
@@ -252,6 +254,25 @@ func main() {
 				}
 			})
 		pages.AddPage(deallocateNetworkPage, deallocateNetworkDialog, true, false)
+	}
+
+	{
+		deleteNetworkDialog = tview.NewModal().
+			AddButtons([]string{"Yes", "No"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				switch buttonLabel {
+				case "Yes":
+					DeleteNetwork()
+					fallthrough
+				case "No":
+					fallthrough
+				default:
+					deleteNetworkDialog.SetText("")
+					pages.SwitchToPage(mainPage)
+					app.SetFocus(navigationPanel)
+				}
+			})
+		pages.AddPage(deleteNetworkPage, deleteNetworkDialog, true, false)
 	}
 
 	app.SetRoot(pages, true)
