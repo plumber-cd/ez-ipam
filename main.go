@@ -532,16 +532,6 @@ func load() {
 
 		menuItems[network.GetPath()] = network
 	}
-	if len(networkFiles) == 0 {
-		menuItems.MustAdd(
-			&Network{
-				MenuFolder: &MenuFolder{
-					ID:         "192.168.0.0/16",
-					ParentPath: networks.GetPath(),
-				},
-			},
-		)
-	}
 
 	for _, menuItem := range menuItems {
 		if err := menuItem.Validate(); err != nil {
