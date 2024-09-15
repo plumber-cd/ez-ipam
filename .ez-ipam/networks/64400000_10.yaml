@@ -1,5 +1,5 @@
-allocated: true
-description: This is the CG-NAT network
+allocation_mode: 1
+description: This is a CG-NAT network
 display_name: CG-NAT
 id: 100.64.0.0/10
 parent: Networks

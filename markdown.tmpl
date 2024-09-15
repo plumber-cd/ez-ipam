@@ -10,29 +10,25 @@ Please, do not modify this document manually.
 {{- $networksData := .NetworksData }}
 {{- $networksOpts := .NetworksOpts }}
 {{- range $ID := .NetworksIndex }}
+
 ### Network Details for `{{ index $networksDisplayNames $ID }}`
 
-| Property            | Value                       |
-|---------------------|-----------------------------|
+| Property | Value |
+|----------|-------|
 {{- range $key := index $networksDataIndex $ID }}
 {{- if eq $key "Description" }}
 {{- continue }}
 {{- end }}
-| **{{ $key }}** | `{{ index (index $networksData $ID) $key }}`     |
+| **{{ $key }}** | `{{ index (index $networksData $ID) $key }}` |
 {{- end }}
 
-#### Allocation Details
+{{- if not (eq (index (index $networksOpts $ID) "AllocationMode") 0) }}
 
-{{- if index (index $networksOpts $ID) "Allocated" }}
+#### Description for `{{ index $networksDisplayNames $ID }}`
 
 {{ index (index $networksData $ID) "Description" }}
 
-{{- else }}
-
-**Unallocated**
-
 {{- end }}
 
----
 
 {{- end }}

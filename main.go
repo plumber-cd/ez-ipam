@@ -135,8 +135,8 @@ func main() {
 				return
 			}
 
-			if n.Allocated {
-				panic("How can allocated network not have any children?")
+			if n.AllocationMode != AllocationModeSubnets {
+				panic("How can allocated in subnets mode network not have any children?")
 			}
 
 			allocateNetworkDialog.SetFocus(0)
@@ -308,7 +308,7 @@ func main() {
 					statusLine.Clear()
 					statusLine.SetText("Invalid subnets prefix, should be a number representing smaller networks than this parent " + err.Error())
 				}
-				AllocateNetwork(displayName, description, subnetsPrefixInt)
+				AllocateSubnets(displayName, description, subnetsPrefixInt)
 
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
@@ -583,7 +583,7 @@ func save() {
 	networksDisplayNames := map[string]string{}
 	networksDataIndex := map[string][]string{}
 	networksData := map[string]map[string]string{}
-	networksOpts := map[string]map[string]bool{}
+	networksOpts := map[string]map[string]int{}
 	var recursivelyPopulateNetworksData func(n *Network)
 	recursivelyPopulateNetworksData = func(n *Network) {
 		index, data, err := n.RenderDetailsMap()
@@ -594,8 +594,8 @@ func save() {
 		networksDisplayNames[n.GetID()] = n.GetID()
 		networksDataIndex[n.GetID()] = index
 		networksData[n.GetID()] = data
-		networksOpts[n.GetID()] = map[string]bool{
-			"Allocated": n.Allocated,
+		networksOpts[n.GetID()] = map[string]int{
+			"AllocationMode": int(n.AllocationMode),
 		}
 		childs := menuItems.GetChilds(n)
 		for _, child := range childs {

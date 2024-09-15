@@ -1,4 +1,4 @@
-allocated: false
+allocation_mode: 0
 description: ""
 display_name: Home IPv6
 id: fdb1:77aa:038b::0/64

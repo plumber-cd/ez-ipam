@@ -1,4 +1,4 @@
-allocated: false
+allocation_mode: 0
 description: ""
 display_name: Home
 id: 10.0.0.0/8

@@ -1,4 +1,4 @@
-allocated: false
+allocation_mode: 0
 description: ""
 display_name: ""
 id: 100.96.0.0/11

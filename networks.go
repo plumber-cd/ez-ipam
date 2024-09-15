@@ -50,7 +50,7 @@ func SplitNetwork(newPrefix int) {
 		panic("SplitNetwork called on non-Network")
 	}
 
-	if focusedNetwork.Allocated {
+	if focusedNetwork.AllocationMode != AllocationModeUnallocated {
 		panic("SplitNetwork called on allocated Network")
 	}
 
@@ -95,7 +95,7 @@ func SummarizeNetwork() {
 		panic("SummarizeNetwork called on non-Network")
 	}
 
-	if focusedNetwork.Allocated {
+	if focusedNetwork.AllocationMode != AllocationModeUnallocated {
 		panic("SummarizeNetwork called on allocated Network")
 	}
 
@@ -128,18 +128,18 @@ func SummarizeNetwork() {
 	statusLine.SetText("Summarized network " + newMenuItem.GetID())
 }
 
-func AllocateNetwork(displayName, description string, subnetsPrefix int) {
+func AllocateSubnets(displayName, description string, subnetsPrefix int) {
 	focusedNetwork, ok := currentMenuFocus.(*Network)
 	if !ok {
 		panic("AllocateNetwork called on non-Network")
 	}
 
-	if focusedNetwork.Allocated {
+	if focusedNetwork.AllocationMode != AllocationModeUnallocated {
 		panic("AllocateNetwork called on already allocated Network")
 	}
 
 	mod := func(n *Network) {
-		n.Allocated = true
+		n.AllocationMode = AllocationModeSubnets
 		n.DisplayName = displayName
 		n.Description = description
 	}
@@ -210,7 +210,7 @@ func UpdateNetworkAllocation(displayName, description string) {
 		panic("UpdateNetworkAllocation called on non-Network")
 	}
 
-	if !focusedNetwork.Allocated {
+	if focusedNetwork.AllocationMode == AllocationModeUnallocated {
 		panic("UpdateNetworkAllocation called on unallocated Network")
 	}
 
@@ -252,12 +252,12 @@ func DeallocateNetwork() {
 		panic("DeallocateNetwork called on non-Network")
 	}
 
-	if !focusedNetwork.Allocated {
+	if focusedNetwork.AllocationMode == AllocationModeUnallocated {
 		panic("DeallocateNetwork called on unallocated Network")
 	}
 
 	mod := func(n *Network) {
-		n.Allocated = false
+		n.AllocationMode = AllocationModeUnallocated
 		n.DisplayName = ""
 		n.Description = ""
 	}
@@ -314,11 +314,19 @@ func DeleteNetwork() {
 	statusLine.SetText("Deleted network: " + focusedNetwork.GetPath())
 }
 
+type AllocationMode uint8
+
+const (
+	AllocationModeUnallocated AllocationMode = iota
+	AllocationModeSubnets
+	AllocationModeHosts
+)
+
 type Network struct {
 	*MenuFolder
-	Allocated   bool   `json:"allocated"`
-	DisplayName string `json:"display_name"`
-	Description string `json:"description"`
+	AllocationMode AllocationMode `json:"allocation_mode"`
+	DisplayName    string         `json:"display_name"`
+	Description    string         `json:"description"`
 }
 
 func (n *Network) Validate() error {
@@ -372,8 +380,8 @@ func (n *Network) ValidateWithRules(rules *NetworkValidationRules) error {
 			p = substitute
 		}
 
-		if !p.Allocated {
-			return fmt.Errorf("Parent must be allocated network for Network=%s", n.GetPath())
+		if p.AllocationMode != AllocationModeSubnets {
+			return fmt.Errorf("Parent network must be allocated in subnets mode network for Network=%s", n.GetPath())
 		}
 
 		_, parentIPNet, err := net.ParseCIDR(p.ID)
@@ -435,7 +443,7 @@ func (n *Network) ValidateWithRules(rules *NetworkValidationRules) error {
 		}
 	}
 
-	if n.Allocated {
+	if n.AllocationMode != AllocationModeUnallocated {
 		if n.DisplayName == "" {
 			return fmt.Errorf("DisplayName must be set for allocated Network=%s", n.GetPath())
 		}
@@ -448,7 +456,7 @@ func (n *Network) ValidateWithRules(rules *NetworkValidationRules) error {
 }
 
 func (n *Network) GetID() string {
-	if n.Allocated {
+	if n.AllocationMode != AllocationModeUnallocated {
 		if n.DisplayName != "" {
 			return fmt.Sprintf("%s (%s)", n.ID, n.DisplayName)
 		}
@@ -510,14 +518,15 @@ func (n *Network) OnChangedFunc() {
 		_, parentIsNetwork = parent.(*Network)
 	}
 
-	if n.Allocated {
+	if n.AllocationMode != AllocationModeUnallocated {
 		currentFocusKeys = []string{
 			"<u> Update Allocation",
 			"<d> Deallocate",
 		}
 	} else {
 		currentFocusKeys = []string{
-			"<a> Allocate",
+			"<a> Allocate Subnets",
+			"<A> Allocate Hosts",
 			"<s> Split",
 		}
 		summarizeable, _, _ := findSummarizableRangeForNetwork(n)
@@ -547,7 +556,7 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 	case tcell.KeyRune:
 		switch event.Rune() {
 		case 'a':
-			if n.Allocated {
+			if n.AllocationMode != AllocationModeUnallocated {
 				return event
 			}
 
@@ -557,7 +566,7 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 			app.SetFocus(allocateNetworkDialog)
 			return nil
 		case 'u':
-			if !n.Allocated {
+			if n.AllocationMode == AllocationModeUnallocated {
 				return event
 			}
 
@@ -569,7 +578,7 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 			app.SetFocus(updateNetworkAllocationDialog)
 			return nil
 		case 's':
-			if n.Allocated {
+			if n.AllocationMode != AllocationModeUnallocated {
 				return event
 			}
 
@@ -579,7 +588,7 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 			app.SetFocus(splitNetworkDialog)
 			return nil
 		case 'S':
-			if n.Allocated {
+			if n.AllocationMode != AllocationModeUnallocated {
 				return event
 			}
 
@@ -601,7 +610,7 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 			app.SetFocus(summarizeNetworkDialog)
 			return nil
 		case 'd':
-			if !n.Allocated {
+			if n.AllocationMode == AllocationModeUnallocated {
 				return event
 			}
 
@@ -707,7 +716,18 @@ func (n *Network) RenderDetailsMap() ([]string, map[string]string, error) {
 		result["Usable Hosts"] = p.Sprintf("%d", usableHosts.Uint64())
 	}
 
-	if n.Allocated {
+	index = append(index, "Allocation Mode")
+	switch n.AllocationMode {
+	case AllocationModeUnallocated:
+		result["Allocation Mode"] = "Unallocated"
+	case AllocationModeSubnets:
+		result["Allocation Mode"] = "Subnets"
+	case AllocationModeHosts:
+		result["Allocation Mode"] = "Hosts"
+	default:
+		panic("Unknown AllocationMode")
+	}
+	if n.AllocationMode != AllocationModeUnallocated {
 		result["Description"] = n.Description
 	}
 
@@ -730,7 +750,7 @@ func (n *Network) RenderDetails() string {
 		stringWriter.WriteString(fmt.Sprintf(template, key, data[key]))
 	}
 
-	if n.Allocated {
+	if n.AllocationMode != AllocationModeUnallocated {
 		stringWriter.WriteString("\n\n\n")
 		stringWriter.WriteString(n.Description)
 	}
@@ -1065,7 +1085,7 @@ func findSummarizableRangeForNetwork(network *Network) (bool, []*Network, string
 	}
 	for i := indexAmongAllNeighbors - 1; i >= 0; i-- {
 		if n, ok := neighbors[i].(*Network); ok {
-			if n.Allocated {
+			if n.AllocationMode != AllocationModeUnallocated {
 				break
 			}
 
@@ -1080,7 +1100,7 @@ func findSummarizableRangeForNetwork(network *Network) (bool, []*Network, string
 	unallocatedNeighborsCIDRs = append(unallocatedNeighborsCIDRs, network.ID)
 	for i := indexAmongAllNeighbors + 1; i < len(neighbors); i++ {
 		if n, ok := neighbors[i].(*Network); ok {
-			if n.Allocated {
+			if n.AllocationMode != AllocationModeUnallocated {
 				break
 			}
 
