@@ -984,16 +984,24 @@ func findSummarizableRange(cidrs []string, index int) (bool, []string, string) {
 
 func findSummarizableRangeForNetwork(network *Network) (bool, []*Network, string) {
 	neighbors := menuItems.GetChilds(network.GetParent())
-	index := -1
+	if len(neighbors) <= 2 {
+		// Cannot summarize the only two remaining networks - it would amount to the parent network
+		return false, nil, ""
+	}
+
 	unallocatedNeighbors := []*Network{}
 	unallocatedNeighborsCIDRs := []string{}
+	indexAmongAllNeighbors := -1
 	for i, neighbor := range neighbors {
 		if neighbor == network {
-			index = i
+			indexAmongAllNeighbors = i
 			break
 		}
 	}
-	for i := index - 1; i >= 0; i-- {
+	if indexAmongAllNeighbors < 0 || indexAmongAllNeighbors >= len(neighbors) {
+		panic("index out of range")
+	}
+	for i := indexAmongAllNeighbors - 1; i >= 0; i-- {
 		if n, ok := neighbors[i].(*Network); ok {
 			if n.Allocated {
 				break
@@ -1005,9 +1013,10 @@ func findSummarizableRangeForNetwork(network *Network) (bool, []*Network, string
 	}
 	slices.Reverse(unallocatedNeighbors)
 	slices.Reverse(unallocatedNeighborsCIDRs)
+	index := len(unallocatedNeighborsCIDRs)
 	unallocatedNeighbors = append(unallocatedNeighbors, network)
 	unallocatedNeighborsCIDRs = append(unallocatedNeighborsCIDRs, network.ID)
-	for i := index + 1; i < len(neighbors); i++ {
+	for i := indexAmongAllNeighbors + 1; i < len(neighbors); i++ {
 		if n, ok := neighbors[i].(*Network); ok {
 			if n.Allocated {
 				break
@@ -1016,14 +1025,6 @@ func findSummarizableRangeForNetwork(network *Network) (bool, []*Network, string
 			unallocatedNeighbors = append(unallocatedNeighbors, n)
 			unallocatedNeighborsCIDRs = append(unallocatedNeighborsCIDRs, n.ID)
 		}
-	}
-	if index < 0 || index >= len(unallocatedNeighbors) {
-		return false, nil, ""
-	}
-
-	if len(neighbors) <= 2 {
-		// Cannot summarize the only two remaining networks - it would amount to the parent network
-		return false, nil, ""
 	}
 
 	summarizeable, summarizeableCIDRs, newNetwork := findSummarizableRange(unallocatedNeighborsCIDRs, index)
