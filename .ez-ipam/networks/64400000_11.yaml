@@ -1,5 +1,5 @@
-allocation_mode: 0
-description: ""
-display_name: ""
+allocation_mode: 2
+description: This is site A
+display_name: CG-NAT site A
 id: 100.64.0.0/11
 parent: Networks -> 100.64.0.0/10

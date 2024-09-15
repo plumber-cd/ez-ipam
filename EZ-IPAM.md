@@ -43,7 +43,7 @@ This is a CG-NAT network
 
 ---
 
-### Network Details for `100.64.0.0/11 (*)`
+### Network Details for `100.64.0.0/11 (CG-NAT site A)`
 
 | Property | Value |
 |----------|-------|
@@ -56,23 +56,48 @@ This is a CG-NAT network
 | **Total Hosts** | `2,097,152` |
 | **Usable Range** | `100.64.0.1 - 100.95.255.254` |
 | **Usable Hosts** | `2,097,150` |
-| **Allocation Mode** | `Unallocated` |
+| **Allocation Mode** | `Hosts` |
+
+#### Description for `100.64.0.0/11 (CG-NAT site A)`
+
+This is site A
 
 ---
 
-### Network Details for `100.96.0.0/11 (*)`
+### Network Details for `100.96.0.0/12 (CG-NAT site B)`
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `100.96.0.0/11` |
+| **CIDR** | `100.96.0.0/12` |
 | **Network Address** | `100.96.0.0` |
-| **Mask Bits** | `11` |
-| **Subnet Mask** | `255.224.0.0` |
+| **Mask Bits** | `12` |
+| **Subnet Mask** | `255.240.0.0` |
+| **Broadcast Address** | `100.111.255.255` |
+| **Range** | `100.96.0.0 - 100.111.255.255` |
+| **Total Hosts** | `1,048,576` |
+| **Usable Range** | `100.96.0.1 - 100.111.255.254` |
+| **Usable Hosts** | `1,048,574` |
+| **Allocation Mode** | `Hosts` |
+
+#### Description for `100.96.0.0/12 (CG-NAT site B)`
+
+This is site B
+
+---
+
+### Network Details for `100.112.0.0/12 (*)`
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `100.112.0.0/12` |
+| **Network Address** | `100.112.0.0` |
+| **Mask Bits** | `12` |
+| **Subnet Mask** | `255.240.0.0` |
 | **Broadcast Address** | `100.127.255.255` |
-| **Range** | `100.96.0.0 - 100.127.255.255` |
-| **Total Hosts** | `2,097,152` |
-| **Usable Range** | `100.96.0.1 - 100.127.255.254` |
-| **Usable Hosts** | `2,097,150` |
+| **Range** | `100.112.0.0 - 100.127.255.255` |
+| **Total Hosts** | `1,048,576` |
+| **Usable Range** | `100.112.0.1 - 100.127.255.254` |
+| **Usable Hosts** | `1,048,574` |
 | **Allocation Mode** | `Unallocated` |
 
 ---

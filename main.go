@@ -15,15 +15,16 @@ import (
 )
 
 const (
-	mainPage                    = "*main*"
-	newNetworkPage              = "*new_network*"
-	splitNetworkPage            = "*split_network*"
-	summarizeNetworkPage        = "*summarize_network*"
-	allocateNetworkPage         = "*allocate_network*"
-	updateNetworkAllocationPage = "*update_network_allocation*"
-	deallocateNetworkPage       = "*deallocate_network*"
-	deleteNetworkPage           = "*delete_network*"
-	quitPage                    = "*quit*"
+	mainPage                       = "*main*"
+	newNetworkPage                 = "*new_network*"
+	splitNetworkPage               = "*split_network*"
+	summarizeNetworkPage           = "*summarize_network*"
+	allocateNetworkSubnetsModePage = "*allocate_network_subnets_mode*"
+	allocateNetworkHostsModePage   = "*allocate_network_hosts_mode*"
+	updateNetworkAllocationPage    = "*update_network_allocation*"
+	deallocateNetworkPage          = "*deallocate_network*"
+	deleteNetworkPage              = "*delete_network*"
+	quitPage                       = "*quit*"
 
 	dataDirName      = ".ez-ipam"
 	networksDirName  = "networks"
@@ -43,14 +44,15 @@ var (
 	statusLine      *tview.TextView
 	keysLine        *tview.TextView
 
-	newNetworkDialog              *tview.Form
-	splitNetworkDialog            *tview.Form
-	summarizeNetworkDialog        *tview.Modal
-	allocateNetworkDialog         *tview.Form
-	updateNetworkAllocationDialog *tview.Form
-	deallocateNetworkDialog       *tview.Modal
-	deleteNetworkDialog           *tview.Modal
-	quitDialog                    *tview.Modal
+	newNetworkDialog                 *tview.Form
+	splitNetworkDialog               *tview.Form
+	summarizeNetworkDialog           *tview.Modal
+	allocateNetworkSubnetsModeDialog *tview.Form
+	allocateNetworkHostsModeDialog   *tview.Form
+	updateNetworkAllocationDialog    *tview.Form
+	deallocateNetworkDialog          *tview.Modal
+	deleteNetworkDialog              *tview.Modal
+	quitDialog                       *tview.Modal
 )
 
 func main() {
@@ -128,20 +130,9 @@ func main() {
 			reloadMenu(oldMenuItem)
 			currentMenuItem.OnSelectedFunc()
 		} else {
-			n, ok := selected.(*Network)
-			if !ok {
-				statusLine.Clear()
-				statusLine.SetText("No child items for " + selected.GetPath())
-				return
-			}
-
-			if n.AllocationMode != AllocationModeSubnets {
-				panic("How can allocated in subnets mode network not have any children?")
-			}
-
-			allocateNetworkDialog.SetFocus(0)
-			pages.ShowPage(allocateNetworkPage)
-			app.SetFocus(allocateNetworkDialog)
+			statusLine.Clear()
+			statusLine.SetText("No child items for " + selected.GetPath())
+			return
 		}
 		updateKeysLine()
 	})
@@ -294,44 +285,79 @@ func main() {
 	{
 		height := 15
 		width := 59
-		allocateNetworkDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+		allocateNetworkSubnetsModeDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
 			AddInputField("Display Name", "", 40, nil, nil).
 			AddTextArea("Description", "", 48, 5, 0, nil).
 			AddInputField("Subnets Prefix", "", 40, nil, nil).
 			AddButton("Save", func() {
-				displayName := getAndClearTextFromInputField(allocateNetworkDialog, "Display Name")
-				description := getAndClearTextFromTextArea(allocateNetworkDialog, "Description")
-				subnetsPrefix := getAndClearTextFromInputField(allocateNetworkDialog, "Subnets Prefix")
+				displayName := getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Display Name")
+				description := getAndClearTextFromTextArea(allocateNetworkSubnetsModeDialog, "Description")
+				subnetsPrefix := getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Subnets Prefix")
 				subnetsPrefix = strings.TrimLeft(subnetsPrefix, "/")
 				subnetsPrefixInt, err := strconv.Atoi(subnetsPrefix)
 				if err != nil {
 					statusLine.Clear()
 					statusLine.SetText("Invalid subnets prefix, should be a number representing smaller networks than this parent " + err.Error())
 				}
-				AllocateSubnets(displayName, description, subnetsPrefixInt)
+				AllocateNetworkInSubnetsMode(displayName, description, subnetsPrefixInt)
 
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
 			}).
 			AddButton("Cancel", func() {
-				getAndClearTextFromInputField(allocateNetworkDialog, "Display Name")
-				getAndClearTextFromTextArea(allocateNetworkDialog, "Description")
-				getAndClearTextFromInputField(allocateNetworkDialog, "Subnets Prefix")
+				getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Display Name")
+				getAndClearTextFromTextArea(allocateNetworkSubnetsModeDialog, "Description")
+				getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Subnets Prefix")
 
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
 			})
-		allocateNetworkDialog.SetBorder(true)
-		allocateNetworkDialogFlex := tview.NewFlex().SetDirection(tview.FlexColumn).
+		allocateNetworkSubnetsModeDialog.SetBorder(true)
+		allocateNetworkSubnetsModeFlex := tview.NewFlex().SetDirection(tview.FlexColumn).
 			AddItem(nil, 0, 1, false).
 			AddItem(
 				tview.NewFlex().SetDirection(tview.FlexRow).
 					AddItem(nil, 0, 1, false).
-					AddItem(allocateNetworkDialog, height, 1, false).
+					AddItem(allocateNetworkSubnetsModeDialog, height, 1, false).
 					AddItem(nil, 0, 1, false),
 				width, 1, false).
 			AddItem(nil, 0, 1, false)
-		pages.AddPage(allocateNetworkPage, allocateNetworkDialogFlex, true, false)
+		pages.AddPage(allocateNetworkSubnetsModePage, allocateNetworkSubnetsModeFlex, true, false)
+	}
+
+	{
+		height := 13
+		width := 57
+		allocateNetworkHostsModeDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("Display Name", "", 40, nil, nil).
+			AddTextArea("Description", "", 48, 5, 0, nil).
+			AddButton("Save", func() {
+				displayName := getAndClearTextFromInputField(allocateNetworkHostsModeDialog, "Display Name")
+				description := getAndClearTextFromTextArea(allocateNetworkHostsModeDialog, "Description")
+
+				AllocateNetworkInHostsMode(displayName, description)
+
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", func() {
+				getAndClearTextFromInputField(allocateNetworkHostsModeDialog, "Display Name")
+				getAndClearTextFromTextArea(allocateNetworkHostsModeDialog, "Description")
+
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			})
+		allocateNetworkHostsModeDialog.SetBorder(true)
+		allocateNetworkHostsModeFlex := tview.NewFlex().SetDirection(tview.FlexColumn).
+			AddItem(nil, 0, 1, false).
+			AddItem(
+				tview.NewFlex().SetDirection(tview.FlexRow).
+					AddItem(nil, 0, 1, false).
+					AddItem(allocateNetworkHostsModeDialog, height, 1, false).
+					AddItem(nil, 0, 1, false),
+				width, 1, false).
+			AddItem(nil, 0, 1, false)
+		pages.AddPage(allocateNetworkHostsModePage, allocateNetworkHostsModeFlex, true, false)
 	}
 
 	{

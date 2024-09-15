@@ -1,0 +1,5 @@
+allocation_mode: 2
+description: This is site B
+display_name: CG-NAT site B
+id: 100.96.0.0/12
+parent: Networks -> 100.64.0.0/10

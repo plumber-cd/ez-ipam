@@ -128,14 +128,14 @@ func SummarizeNetwork() {
 	statusLine.SetText("Summarized network " + newMenuItem.GetID())
 }
 
-func AllocateSubnets(displayName, description string, subnetsPrefix int) {
+func AllocateNetworkInSubnetsMode(displayName, description string, subnetsPrefix int) {
 	focusedNetwork, ok := currentMenuFocus.(*Network)
 	if !ok {
-		panic("AllocateNetwork called on non-Network")
+		panic("AllocateNetworkInSubnetsMode called on non-Network")
 	}
 
 	if focusedNetwork.AllocationMode != AllocationModeUnallocated {
-		panic("AllocateNetwork called on already allocated Network")
+		panic("AllocateNetworkInSubnetsMode called on already allocated Network")
 	}
 
 	mod := func(n *Network) {
@@ -196,6 +196,49 @@ func AllocateSubnets(displayName, description string, subnetsPrefix int) {
 
 	for _, newMenuItem := range newMenuItems {
 		menuItems.MustAdd(newMenuItem)
+	}
+
+	reloadMenu(focusedNetwork)
+
+	statusLine.Clear()
+	statusLine.SetText("Allocated network: " + focusedNetwork.GetPath())
+}
+
+func AllocateNetworkInHostsMode(displayName, description string) {
+	focusedNetwork, ok := currentMenuFocus.(*Network)
+	if !ok {
+		panic("AllocateNetworkInHostsMode called on non-Network")
+	}
+
+	if focusedNetwork.AllocationMode != AllocationModeUnallocated {
+		panic("AllocateNetworkInHostsMode called on already allocated Network")
+	}
+
+	mod := func(n *Network) {
+		n.AllocationMode = AllocationModeHosts
+		n.DisplayName = displayName
+		n.Description = description
+	}
+
+	copy := *focusedNetwork
+	mod(&copy)
+	if err := copy.ValidateWithRules(
+		&NetworkValidationRules{
+			Substitudes: map[string]*Network{
+				focusedNetwork.ID: &copy,
+			},
+		},
+	); err != nil {
+		statusLine.Clear()
+		statusLine.SetText("Error allocating network: " + err.Error())
+		return
+	}
+
+	mod(focusedNetwork)
+	if err := focusedNetwork.Validate(); err != nil {
+		// This needs to panic since we just changed state of the object in memory and now it fails validation.
+		// We do not know how to recover, this would be a bug and it should never reach this brunch here - missed during pre validation above somehow.
+		panic(err)
 	}
 
 	reloadMenu(focusedNetwork)
@@ -560,10 +603,20 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 				return event
 			}
 
-			allocateNetworkDialog.SetTitle(fmt.Sprintf("Allocate Network %s", n.GetID()))
-			allocateNetworkDialog.SetFocus(0)
-			pages.ShowPage(allocateNetworkPage)
-			app.SetFocus(allocateNetworkDialog)
+			allocateNetworkSubnetsModeDialog.SetTitle(fmt.Sprintf("Allocate in Subnets mode for %s", n.GetID()))
+			allocateNetworkSubnetsModeDialog.SetFocus(0)
+			pages.ShowPage(allocateNetworkSubnetsModePage)
+			app.SetFocus(allocateNetworkSubnetsModeDialog)
+			return nil
+		case 'A':
+			if n.AllocationMode != AllocationModeUnallocated {
+				return event
+			}
+
+			allocateNetworkHostsModeDialog.SetTitle(fmt.Sprintf("Allocate in Hosts mode for %s", n.GetID()))
+			allocateNetworkHostsModeDialog.SetFocus(0)
+			pages.ShowPage(allocateNetworkHostsModePage)
+			app.SetFocus(allocateNetworkHostsModeDialog)
 			return nil
 		case 'u':
 			if n.AllocationMode == AllocationModeUnallocated {
