@@ -23,3 +23,13 @@ That way history of changes is traceable, and Git provides out of the box confli
 As a bonus, if you are using GitHub-like platform, the `EZ-IPAM.md` file can be right there in your browser for when you only want to read it.
 
 This repository itself has a `.ez-ipam` folder with some state in it and a [`EZ-IPAM.md`](./EZ-IPAM.md) file generated from it as a demonstration.
+
+# TODO
+
+- Static IP management
+- VLANs management
+- WiFi SSIDs management
+- Possibly physucal network topology management
+
+I got to admit that I am not in a business of managing networks for living, so I will only ever focus on what matters for me and my homelab setup, and how it matters to me. But hey - PRs are always welcome!
+
