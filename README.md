@@ -29,7 +29,7 @@ This repository itself has a `.ez-ipam` folder with some state in it and a [`EZ-
 - Static IP management
 - VLANs management
 - WiFi SSIDs management
-- Possibly physucal network topology management
+- Possibly physical network topology management
 
 I got to admit that I am not in a business of managing networks for living, so I will only ever focus on what matters for me and my homelab setup, and how it matters to me. But hey - PRs are always welcome!
 
