@@ -20,6 +20,8 @@ Please, do not modify this document manually.
 | **Usable Hosts** | `16,777,214` |
 | **Allocation Mode** | `Unallocated` |
 
+---
+
 ### Network Details for `100.64.0.0/10 (CG-NAT)`
 
 | Property | Value |
@@ -39,6 +41,8 @@ Please, do not modify this document manually.
 
 This is a CG-NAT network
 
+---
+
 ### Network Details for `100.64.0.0/11 (*)`
 
 | Property | Value |
@@ -53,6 +57,8 @@ This is a CG-NAT network
 | **Usable Range** | `100.64.0.1 - 100.95.255.254` |
 | **Usable Hosts** | `2,097,150` |
 | **Allocation Mode** | `Unallocated` |
+
+---
 
 ### Network Details for `100.96.0.0/11 (*)`
 
@@ -69,6 +75,8 @@ This is a CG-NAT network
 | **Usable Hosts** | `2,097,150` |
 | **Allocation Mode** | `Unallocated` |
 
+---
+
 ### Network Details for `fdb1:77aa:038a::0/48 (*)`
 
 | Property | Value |
@@ -80,6 +88,8 @@ This is a CG-NAT network
 | **Range** | `fdb1:77aa:38a:: - fdb1:77aa:38a:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `65,536` |
 | **Allocation Mode** | `Unallocated` |
+
+---
 
 ### Network Details for `fdb1:77aa:038b::0/64 (*)`
 
@@ -93,6 +103,8 @@ This is a CG-NAT network
 | **Total /64 Networks** | `1` |
 | **Allocation Mode** | `Unallocated` |
 
+---
+
 ### Network Details for `fdb1:77aa:038c::0/72 (*)`
 
 | Property | Value |
@@ -104,3 +116,5 @@ This is a CG-NAT network
 | **Range** | `fdb1:77aa:38c:: - fdb1:77aa:38c:0:ff:ffff:ffff:ffff` |
 | **Total Hosts** | `72,057,594,037,927,936` |
 | **Allocation Mode** | `Unallocated` |
+
+---
