@@ -1,4 +1,4 @@
-module github.com/dee-kryvenko/ez-ipam
+module github.com/plumber-cd/ez-ipam
 
 go 1.23.0
 
