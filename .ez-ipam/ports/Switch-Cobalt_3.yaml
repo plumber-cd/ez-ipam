@@ -1,0 +1,11 @@
+description: Endpoint A
+id: "3"
+lag_group: 3
+lag_mode: 802.3ad
+name: Port 3
+native_vlan_id: 233
+parent: Equipment -> Switch-Cobalt
+poe: PoE+
+port_type: RJ45
+speed: 2.5GbE
+tagged_vlan_mode: BlockAll

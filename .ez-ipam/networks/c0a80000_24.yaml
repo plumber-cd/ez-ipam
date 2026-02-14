@@ -3,4 +3,4 @@ description: Routers and servers
 display_name: Home Infra
 id: 192.168.0.0/24
 parent: Networks -> 192.168.0.0/16
-vlan_id: 10
+vlan_id: 147

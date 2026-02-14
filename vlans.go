@@ -78,13 +78,43 @@ func (v *VLAN) OnChangedFunc() {
 	}
 
 	associated := []string{}
+	associatedPorts := []string{}
+	associatedZones := []string{}
 	for _, menuItem := range menuItems {
 		network, ok := menuItem.(*Network)
-		if !ok {
+		if ok {
+			if network.VLANID > 0 && strconv.Itoa(network.VLANID) == v.ID {
+				associated = append(associated, network.GetPath())
+			}
 			continue
 		}
-		if network.VLANID > 0 && strconv.Itoa(network.VLANID) == v.ID {
-			associated = append(associated, network.GetPath())
+		port, ok := menuItem.(*Port)
+		if ok {
+			matched := false
+			if port.NativeVLANID > 0 && strconv.Itoa(port.NativeVLANID) == v.ID {
+				matched = true
+			}
+			if !matched {
+				for _, tagged := range port.TaggedVLANIDs {
+					if strconv.Itoa(tagged) == v.ID {
+						matched = true
+						break
+					}
+				}
+			}
+			if matched {
+				associatedPorts = append(associatedPorts, port.GetPath())
+			}
+			continue
+		}
+		zone, ok := menuItem.(*Zone)
+		if ok {
+			for _, vlanID := range zone.VLANIDs {
+				if strconv.Itoa(vlanID) == v.ID {
+					associatedZones = append(associatedZones, zone.GetPath())
+					break
+				}
+			}
 		}
 	}
 
@@ -93,6 +123,22 @@ func (v *VLAN) OnChangedFunc() {
 		details.WriteString(" <none>")
 	} else {
 		for _, path := range associated {
+			details.WriteString("\n- " + path)
+		}
+	}
+	details.WriteString("\n\nAssociated Ports     :")
+	if len(associatedPorts) == 0 {
+		details.WriteString(" <none>")
+	} else {
+		for _, path := range associatedPorts {
+			details.WriteString("\n- " + path)
+		}
+	}
+	details.WriteString("\n\nAssociated Zones     :")
+	if len(associatedZones) == 0 {
+		details.WriteString(" <none>")
+	} else {
+		for _, path := range associatedZones {
 			details.WriteString("\n- " + path)
 		}
 	}
@@ -227,11 +273,35 @@ func DeleteVLAN() {
 
 	for _, menuItem := range menuItems {
 		network, ok := menuItem.(*Network)
-		if !ok {
+		if ok {
+			if network.VLANID == vlanID {
+				network.VLANID = 0
+			}
 			continue
 		}
-		if network.VLANID == vlanID {
-			network.VLANID = 0
+		port, ok := menuItem.(*Port)
+		if ok {
+			if port.NativeVLANID == vlanID {
+				port.NativeVLANID = 0
+			}
+			filtered := make([]int, 0, len(port.TaggedVLANIDs))
+			for _, id := range port.TaggedVLANIDs {
+				if id != vlanID {
+					filtered = append(filtered, id)
+				}
+			}
+			port.TaggedVLANIDs = filtered
+			continue
+		}
+		zone, ok := menuItem.(*Zone)
+		if ok {
+			filtered := make([]int, 0, len(zone.VLANIDs))
+			for _, id := range zone.VLANIDs {
+				if id != vlanID {
+					filtered = append(filtered, id)
+				}
+			}
+			zone.VLANIDs = filtered
 		}
 	}
 

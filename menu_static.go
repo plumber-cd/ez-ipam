@@ -64,6 +64,14 @@ func (m *MenuStatic) OnSelectedFunc() {
 		currentMenuItemKeys = []string{
 			"<w> New WiFi SSID",
 		}
+	case "Zones":
+		currentMenuItemKeys = []string{
+			"<z> New Zone",
+		}
+	case "Equipment":
+		currentMenuItemKeys = []string{
+			"<e> New Equipment",
+		}
 	default:
 		currentMenuItemKeys = []string{}
 	}
@@ -107,6 +115,28 @@ func (m *MenuStatic) CurrentMenuInputCapture(event *tcell.EventKey) *tcell.Event
 				addSSIDDialog.SetFocus(0)
 				pages.ShowPage(addSSIDPage)
 				app.SetFocus(addSSIDDialog)
+				return nil
+			}
+		}
+	case "Zones":
+		switch event.Key() {
+		case tcell.KeyRune:
+			switch event.Rune() {
+			case 'z':
+				addZoneDialog.SetFocus(0)
+				pages.ShowPage(addZonePage)
+				app.SetFocus(addZoneDialog)
+				return nil
+			}
+		}
+	case "Equipment":
+		switch event.Key() {
+		case tcell.KeyRune:
+			switch event.Rune() {
+			case 'e':
+				addEquipmentDialog.SetFocus(0)
+				pages.ShowPage(addEquipmentPage)
+				app.SetFocus(addEquipmentDialog)
 				return nil
 			}
 		}

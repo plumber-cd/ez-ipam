@@ -1,0 +1,7 @@
+description: Uplink
+id: "1"
+name: WAN
+parent: Equipment -> Router-Topaz
+port_type: RJ45
+speed: 2.5GbE
+tagged_vlan_mode: BlockAll

@@ -1,0 +1,11 @@
+description: Endpoint B
+id: "4"
+lag_group: 3
+lag_mode: 802.3ad
+name: Port 4
+native_vlan_id: 233
+parent: Equipment -> Switch-Cobalt
+poe: PoE+
+port_type: RJ45
+speed: 2.5GbE
+tagged_vlan_mode: BlockAll

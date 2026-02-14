@@ -179,6 +179,78 @@ func addSSIDViaDialog(h *TestHarness, id, description string) {
 	h.PressEnter()
 }
 
+func navigateToZones(t *testing.T, h *TestHarness) {
+	t.Helper()
+	for i := 0; i < 16; i++ {
+		h.PressBackspace()
+	}
+	moveFocusToID(t, h, "Zones")
+	h.PressEnter()
+	h.AssertScreenContains("│Zones")
+}
+
+func navigateToEquipmentRoot(t *testing.T, h *TestHarness) {
+	t.Helper()
+	for i := 0; i < 16; i++ {
+		h.PressBackspace()
+	}
+	moveFocusToID(t, h, "Equipment")
+	h.PressEnter()
+	h.AssertScreenContains("│Equipment")
+}
+
+func addZoneViaDialog(h *TestHarness, name, description, vlanIDs string) {
+	h.PressRune('z')
+	h.AssertScreenContains("Add Zone")
+	h.TypeText(name)
+	h.PressTab()
+	h.TypeText(description)
+	h.PressTab()
+	h.TypeText(vlanIDs)
+	h.PressTab()
+	h.PressEnter()
+}
+
+func addEquipmentViaDialog(h *TestHarness, name, model, description string) {
+	h.PressRune('e')
+	h.AssertScreenContains("Add Equipment")
+	h.TypeText(name)
+	h.PressTab()
+	h.TypeText(model)
+	h.PressTab()
+	h.TypeText(description)
+	h.PressTab()
+	h.PressEnter()
+}
+
+func addPortViaDialog(h *TestHarness, number, name, portType, speed, poe, lagGroup, lagMode, nativeVLAN, taggedMode, taggedVLANIDs, description string) {
+	h.PressRune('p')
+	h.AssertScreenContains("Add Port")
+	h.TypeText(number)
+	h.PressTab()
+	h.TypeText(name)
+	h.PressTab()
+	h.TypeText(portType)
+	h.PressTab()
+	h.TypeText(speed)
+	h.PressTab()
+	h.TypeText(poe)
+	h.PressTab()
+	h.TypeText(lagGroup)
+	h.PressTab()
+	h.TypeText(lagMode)
+	h.PressTab()
+	h.TypeText(nativeVLAN)
+	h.PressTab()
+	h.TypeText(taggedMode)
+	h.PressTab()
+	h.TypeText(taggedVLANIDs)
+	h.PressTab()
+	h.TypeText(description)
+	h.PressTab()
+	h.PressEnter()
+}
+
 func updateFocusedIPReservation(h *TestHarness, nameSuffix, descriptionSuffix string) {
 	h.PressRune('u')
 	h.AssertScreenContains("Update Reservation")
@@ -607,6 +679,104 @@ func TestVLANCrossReference(t *testing.T) {
 	h.AssertScreenContains("10.60.0.0/24")
 }
 
+func TestZonesAndVLANCascade(t *testing.T) {
+	h := NewTestHarness(t)
+	navigateToVLANs(t, h)
+	addVLANViaDialog(h, "101", "Main", "main vlan")
+	h.AssertStatusContains("Added VLAN")
+
+	navigateToZones(t, h)
+	addZoneViaDialog(h, "Main", "trusted clients", "101")
+	h.AssertStatusContains("Added Zone")
+	moveFocusToID(t, h, "Main")
+	h.AssertScreenContains("101 (Main)")
+
+	navigateToVLANs(t, h)
+	moveFocusToID(t, h, "101 (Main)")
+	h.PressRune('D')
+	h.ConfirmModal()
+	h.AssertStatusContains("Deleted VLAN")
+
+	navigateToZones(t, h)
+	moveFocusToID(t, h, "Main")
+	h.AssertScreenContains("Associated VLANs")
+	h.AssertScreenContains("<none>")
+}
+
+func TestEquipmentPortAndConnections(t *testing.T) {
+	h := NewTestHarness(t)
+	navigateToEquipmentRoot(t, h)
+	addEquipmentViaDialog(h, "Gateway", "UCG-Fiber", "edge")
+	addEquipmentViaDialog(h, "Lab", "USW-Enterprise-8-PoE", "lab switch")
+	h.AssertStatusContains("Added Equipment")
+
+	moveFocusToID(t, h, "Gateway (UCG-Fiber)")
+	h.PressEnter()
+	addPortViaDialog(h, "1", "WAN1", "RJ45", "2.5GbE", "", "", "", "", "", "", "uplink")
+	h.AssertStatusContains("Added Port")
+	addPortViaDialog(h, "2", "", "RJ45", "2.5GbE", "", "", "", "", "", "", "")
+	h.AssertStatusContains("Added Port")
+
+	h.PressBackspace()
+	moveFocusToID(t, h, "Lab (USW-Enterprise-8-PoE)")
+	h.PressEnter()
+	addPortViaDialog(h, "1", "SFP+ 1", "SFP+", "10GbE", "", "", "", "", "", "", "")
+	h.AssertStatusContains("Added Port")
+	addPortViaDialog(h, "4", "Port 4", "RJ45", "2.5GbE", "", "3", "802.3ad", "", "", "", "")
+	h.AssertStatusContains("Error adding Port")
+
+	h.PressBackspace()
+	moveFocusToID(t, h, "Gateway (UCG-Fiber)")
+	h.PressEnter()
+	moveFocusToID(t, h, "1: WAN1")
+	h.PressRune('c')
+	h.AssertScreenContains("Connect")
+	h.PressTab()
+	h.PressEnter()
+	h.AssertStatusContains("Connected Port")
+
+	h.PressRune('x')
+	h.AssertScreenContains("Disconnect")
+	h.ConfirmModal()
+	h.AssertStatusContains("Disconnected Port")
+}
+
+func TestMarkdownIncludesZonesAndEquipment(t *testing.T) {
+	h := NewTestHarness(t)
+	navigateToVLANs(t, h)
+	addVLANViaDialog(h, "104", "Servers", "servers vlan")
+
+	navigateToZones(t, h)
+	addZoneViaDialog(h, "Servers", "server zone", "104")
+
+	navigateToEquipmentRoot(t, h)
+	addEquipmentViaDialog(h, "Servers", "USW-Aggregation", "agg switch")
+	moveFocusToID(t, h, "Servers (USW-Aggregation)")
+	h.PressEnter()
+	addPortViaDialog(h, "1", "SFP+ 1", "SFP+", "10GbE", "", "", "", "104", "BlockAll", "", "proxmox uplink")
+
+	h.PressCtrl('s')
+	h.AssertStatusContains("Saved to .ez-ipam/ and EZ-IPAM.md")
+
+	mdBytes, err := os.ReadFile(filepath.Join(h.workDir, markdownFileName))
+	if err != nil {
+		t.Fatalf("read markdown: %v", err)
+	}
+	md := string(mdBytes)
+	if !strings.Contains(md, "## Zones") {
+		t.Fatalf("markdown missing zones section")
+	}
+	if !strings.Contains(md, "## Equipment") {
+		t.Fatalf("markdown missing equipment section")
+	}
+	if !strings.Contains(md, "Servers (USW-Aggregation)") {
+		t.Fatalf("markdown missing equipment title")
+	}
+	if !strings.Contains(md, "SFP+ 1") {
+		t.Fatalf("markdown missing port row")
+	}
+}
+
 func TestSaveLoadAndQuit(t *testing.T) {
 	t.Run("save_and_load", func(t *testing.T) {
 		h := NewTestHarness(t)
@@ -763,14 +933,47 @@ func TestGoldenDialogsAndScreens(t *testing.T) {
 
 func TestDemoState(t *testing.T) {
 	h := NewTestHarness(t)
+	// Intentionally fixed, fictional showcase data (not user topology, deterministic for tests).
+	vlanA := 147
+	vlanB := 233
+	vlanC := 318
+	switchName := "Switch-Cobalt"
+	routerName := "Router-Topaz"
+
 	navigateToVLANs(t, h)
-	addVLANViaDialog(h, "10", "Home-Infra", "Home infrastructure")
-	addVLANViaDialog(h, "20", "Home-Users", "User devices")
-	addVLANViaDialog(h, "30", "Home-IoT", "IoT devices")
+	addVLANViaDialog(h, fmt.Sprintf("%d", vlanA), "Segment-Alpha", "Synthetic demo segment alpha")
+	addVLANViaDialog(h, fmt.Sprintf("%d", vlanB), "Segment-Beta", "Synthetic demo segment beta")
+	addVLANViaDialog(h, fmt.Sprintf("%d", vlanC), "Segment-Gamma", "Synthetic demo segment gamma")
+
+	navigateToZones(t, h)
+	addZoneViaDialog(h, "Zone-Red", "Demo trust zone red", fmt.Sprintf("%d,%d", vlanA, vlanB))
+	addZoneViaDialog(h, "Zone-Blue", "Demo trust zone blue", fmt.Sprintf("%d", vlanC))
+
 	navigateToSSIDs(t, h)
-	addSSIDViaDialog(h, "Home-Infra-5G", "Infrastructure devices wireless")
-	addSSIDViaDialog(h, "Home-Users", "User laptops and phones")
-	addSSIDViaDialog(h, "Home-IoT", "IoT and smart home devices")
+	addSSIDViaDialog(h, "Mesh-Blue", "Synthetic wireless profile blue")
+	addSSIDViaDialog(h, "Mesh-Green", "Synthetic wireless profile green")
+	addSSIDViaDialog(h, "Mesh-Red", "Synthetic wireless profile red")
+
+	navigateToEquipmentRoot(t, h)
+	addEquipmentViaDialog(h, switchName, "Model-X", "Synthetic demo switch")
+	addEquipmentViaDialog(h, routerName, "Model-Y", "Synthetic demo router")
+
+	moveFocusToID(t, h, routerName)
+	h.PressEnter()
+	addPortViaDialog(h, "1", "WAN", "RJ45", "2.5GbE", "", "", "", "", "BlockAll", "", "Uplink")
+	addPortViaDialog(h, "2", "LAN-A", "RJ45", "2.5GbE", "", "", "", fmt.Sprintf("%d", vlanA), "AllowAll", "", "Clients")
+	addPortViaDialog(h, "3", "", "RJ45", "2.5GbE", "", "", "", "", "", "", "")
+	h.PressBackspace()
+
+	moveFocusToID(t, h, switchName)
+	h.PressEnter()
+	addPortViaDialog(h, "1", "SFP+ 1", "SFP+", "10GbE", "", "", "", "", "AllowAll", "", "Trunk uplink")
+	addPortViaDialog(h, "2", "SFP+ 2", "SFP+", "10GbE", "", "", "", "", "AllowAll", "", "Trunk peer")
+	addPortViaDialog(h, "3", "Port 3", "RJ45", "2.5GbE", "PoE+", "3", "802.3ad", fmt.Sprintf("%d", vlanB), "BlockAll", "", "Endpoint A")
+	addPortViaDialog(h, "4", "Port 4", "RJ45", "2.5GbE", "PoE+", "3", "802.3ad", fmt.Sprintf("%d", vlanB), "BlockAll", "", "Endpoint B")
+	addPortViaDialog(h, "5", "", "RJ45", "2.5GbE", "", "", "", "", "", "", "")
+	h.PressBackspace()
+
 	navigateToNetworksRoot(t, h)
 
 	addNetworkViaDialog(h, "10.0.0.0/10")
@@ -909,19 +1112,19 @@ func TestDemoState(t *testing.T) {
 		t.Fatalf("split home into /24 failed: %v", err)
 	}
 	moveFocusToID(t, h, homeCIDRs[0])
-	allocateHostsFocused(h, "Home Infra", "Routers and servers", "10")
+	allocateHostsFocused(h, "Home Infra", "Routers and servers", fmt.Sprintf("%d", vlanA))
 	h.PressEnter()
 	reserveIPFromCurrentNetwork(h, "192.168.0.1", "gateway", "Default gateway")
 	reserveIPFromCurrentNetwork(h, "192.168.0.10", "nas", "NAS")
 	h.PressBackspace()
 	moveFocusToID(t, h, homeCIDRs[1])
-	allocateHostsFocused(h, "Home Users", "Laptops and phones", "20")
+	allocateHostsFocused(h, "Home Users", "Laptops and phones", fmt.Sprintf("%d", vlanB))
 	h.PressEnter()
 	reserveIPFromCurrentNetwork(h, "192.168.1.1", "gateway", "Default gateway")
 	reserveIPFromCurrentNetwork(h, "192.168.1.50", "printer", "Office printer")
 	h.PressBackspace()
 	moveFocusToID(t, h, homeCIDRs[2])
-	allocateHostsFocused(h, "Home IoT", "Cameras and sensors", "30")
+	allocateHostsFocused(h, "Home IoT", "Cameras and sensors", fmt.Sprintf("%d", vlanC))
 	h.PressEnter()
 	reserveIPFromCurrentNetwork(h, "192.168.2.1", "gateway", "Default gateway")
 	reserveIPFromCurrentNetwork(h, "192.168.2.20", "camera-nvr", "NVR")

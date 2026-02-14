@@ -1,0 +1,7 @@
+description: Trunk uplink
+id: "1"
+name: SFP+ 1
+parent: Equipment -> Switch-Cobalt
+port_type: SFP+
+speed: 10GbE
+tagged_vlan_mode: AllowAll

@@ -1,0 +1,7 @@
+description: Trunk peer
+id: "2"
+name: SFP+ 2
+parent: Equipment -> Switch-Cobalt
+port_type: SFP+
+speed: 10GbE
+tagged_vlan_mode: AllowAll

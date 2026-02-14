@@ -1,0 +1,4 @@
+id: "5"
+parent: Equipment -> Switch-Cobalt
+port_type: RJ45
+speed: 2.5GbE

@@ -3,4 +3,4 @@ description: Cameras and sensors
 display_name: Home IoT
 id: 192.168.2.0/24
 parent: Networks -> 192.168.0.0/16
-vlan_id: 30
+vlan_id: 318

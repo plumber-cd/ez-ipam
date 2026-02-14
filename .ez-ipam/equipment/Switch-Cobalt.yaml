@@ -1,0 +1,5 @@
+description: Synthetic demo switch
+display_name: Switch-Cobalt
+id: Switch-Cobalt
+model: Model-X
+parent: Equipment

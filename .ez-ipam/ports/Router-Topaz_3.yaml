@@ -1,0 +1,4 @@
+id: "3"
+parent: Equipment -> Router-Topaz
+port_type: RJ45
+speed: 2.5GbE

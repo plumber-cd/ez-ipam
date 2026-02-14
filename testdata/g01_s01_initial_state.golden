@@ -3,10 +3,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 ╔══════════Menu══════════╗┌───────────────────────Details──────────────────────┐
 ║Networks                ║│Manage your address space here.                     │
-║VLANs                   ║│                                                    │
-║WiFi SSIDs              ║│Use Enter or double-click to open items.            │
-║                        ║│Use Backspace to go up one level.                   │
-║                        ║│                                                    │
+║Zones                   ║│                                                    │
+║VLANs                   ║│Use Enter or double-click to open items.            │
+║WiFi SSIDs              ║│Use Backspace to go up one level.                   │
+║Equipment               ║│                                                    │
 ║                        ║│                                                    │
 ║                        ║│                                                    │
 ║                        ║│                                                    │

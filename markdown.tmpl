@@ -6,6 +6,16 @@
 
 > Legend: `Subnet Container` holds child networks, `Host Pool` holds reservable IPs, and `Reserved IP` is a concrete host reservation.
 
+{{- if .ZoneRows }}
+## Zones
+
+| Zone | VLANs | Description |
+|------|-------|-------------|
+{{- range $row := .ZoneRows }}
+| {{ index $row "Name" }} | {{ index $row "VLANs" }} | {{ index $row "Description" }} |
+{{- end }}
+{{- end }}
+
 {{- if .VLANRows }}
 ## VLANs
 
@@ -31,6 +41,24 @@
 |------|-------------|
 {{- range $row := .SSIDRows }}
 | {{ index $row "ID" }} | {{ index $row "Description" }} |
+{{- end }}
+{{- end }}
+
+{{- if .EquipmentRows }}
+## Equipment
+
+{{- range $row := .EquipmentRows }}
+### {{ index $row "DisplayName" }} ({{ index $row "Model" }})
+
+> {{ index $row "Description" }}
+
+| Port | Name | Type | Networks | Destination |
+|------|------|------|----------|-------------|
+{{- $equipmentPath := index $row "EquipmentPath" }}
+{{- range $port := index $.EquipmentPorts $equipmentPath }}
+| {{ index $port "Number" }} | {{ index $port "Name" }} | {{ index $port "Type" }} | {{ index $port "Networks" }} | {{ index $port "Destination" }} |
+{{- end }}
+
 {{- end }}
 {{- end }}
 

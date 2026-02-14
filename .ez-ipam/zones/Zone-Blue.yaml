@@ -1,0 +1,6 @@
+description: Demo trust zone blue
+display_name: Zone-Blue
+id: Zone-Blue
+parent: Zones
+vlan_ids:
+- 318

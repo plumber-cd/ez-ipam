@@ -5,13 +5,19 @@
 ## Overview
 
 > Legend: `Subnet Container` holds child networks, `Host Pool` holds reservable IPs, and `Reserved IP` is a concrete host reservation.
+## Zones
+
+| Zone | VLANs | Description |
+|------|-------|-------------|
+| `Zone-Blue` | 318 (Segment-Gamma) | Demo trust zone blue |
+| `Zone-Red` | 147 (Segment-Alpha), 233 (Segment-Beta) | Demo trust zone red |
 ## VLANs
 
 | VLAN ID | Name | Description |
 |---------|------|-------------|
-| `10` | `Home-Infra` | Home infrastructure |
-| `20` | `Home-Users` | User devices |
-| `30` | `Home-IoT` | IoT devices |
+| `147` | `Segment-Alpha` | Synthetic demo segment alpha |
+| `233` | `Segment-Beta` | Synthetic demo segment beta |
+| `318` | `Segment-Gamma` | Synthetic demo segment gamma |
 
 ## Networks
 
@@ -128,15 +134,15 @@
 | `│ │ └── 10.40.0.0/13` [link](#network-0a280000_13) | - | Unallocated | - | - |
 | `│ └── 10.48.0.0/12` [link](#network-0a300000_12) | - | Unallocated | - | - |
 | `192.168.0.0/16` [link](#network-c0a80000_16) | Home | Subnet Container | - | Home supernet with VLAN segments |
-| `│ ├── 192.168.0.0/24` [link](#network-c0a80000_24) | Home Infra | Host Pool | 10 (Home-Infra) | Routers and servers |
-| `│ │ ├── 192.168.0.1` | gateway | Reserved IP | 10 (Home-Infra) | Default gateway |
-| `│ │ └── 192.168.0.10` | nas | Reserved IP | 10 (Home-Infra) | NAS |
-| `│ ├── 192.168.1.0/24` [link](#network-c0a80100_24) | Home Users | Host Pool | 20 (Home-Users) | Laptops and phones |
-| `│ │ ├── 192.168.1.1` | gateway | Reserved IP | 20 (Home-Users) | Default gateway |
-| `│ │ └── 192.168.1.50` | printer | Reserved IP | 20 (Home-Users) | Office printer |
-| `│ ├── 192.168.2.0/24` [link](#network-c0a80200_24) | Home IoT | Host Pool | 30 (Home-IoT) | Cameras and sensors |
-| `│ │ ├── 192.168.2.1` | gateway | Reserved IP | 30 (Home-IoT) | Default gateway |
-| `│ │ └── 192.168.2.20` | camera-nvr | Reserved IP | 30 (Home-IoT) | NVR |
+| `│ ├── 192.168.0.0/24` [link](#network-c0a80000_24) | Home Infra | Host Pool | 147 (Segment-Alpha) | Routers and servers |
+| `│ │ ├── 192.168.0.1` | gateway | Reserved IP | 147 (Segment-Alpha) | Default gateway |
+| `│ │ └── 192.168.0.10` | nas | Reserved IP | 147 (Segment-Alpha) | NAS |
+| `│ ├── 192.168.1.0/24` [link](#network-c0a80100_24) | Home Users | Host Pool | 233 (Segment-Beta) | Laptops and phones |
+| `│ │ ├── 192.168.1.1` | gateway | Reserved IP | 233 (Segment-Beta) | Default gateway |
+| `│ │ └── 192.168.1.50` | printer | Reserved IP | 233 (Segment-Beta) | Office printer |
+| `│ ├── 192.168.2.0/24` [link](#network-c0a80200_24) | Home IoT | Host Pool | 318 (Segment-Gamma) | Cameras and sensors |
+| `│ │ ├── 192.168.2.1` | gateway | Reserved IP | 318 (Segment-Gamma) | Default gateway |
+| `│ │ └── 192.168.2.20` | camera-nvr | Reserved IP | 318 (Segment-Gamma) | NVR |
 | `│ ├── 192.168.3.0/24` [link](#network-c0a80300_24) | - | Unallocated | - | - |
 | `│ ├── 192.168.4.0/22` [link](#network-c0a80400_22) | - | Unallocated | - | - |
 | `│ ├── 192.168.8.0/21` [link](#network-c0a80800_21) | - | Unallocated | - | - |
@@ -161,9 +167,30 @@
 
 | SSID | Description |
 |------|-------------|
-| `Home-Infra-5G` | Infrastructure devices wireless |
-| `Home-IoT` | IoT and smart home devices |
-| `Home-Users` | User laptops and phones |
+| `Mesh-Blue` | Synthetic wireless profile blue |
+| `Mesh-Green` | Synthetic wireless profile green |
+| `Mesh-Red` | Synthetic wireless profile red |
+## Equipment
+### Router-Topaz (Model-Y)
+
+> Synthetic demo router
+
+| Port | Name | Type | Networks | Destination |
+|------|------|------|----------|-------------|
+| `1` | WAN | RJ45 2.5GbE | Native: Default Tagged: Block All | Uplink |
+| `2` | LAN-A | RJ45 2.5GbE | Native: 147 (Segment-Alpha) Tagged: Allow All | Clients |
+| `3` | - | RJ45 2.5GbE | Native: Default Tagged: - | - |
+### Switch-Cobalt (Model-X)
+
+> Synthetic demo switch
+
+| Port | Name | Type | Networks | Destination |
+|------|------|------|----------|-------------|
+| `1` | SFP+ 1 | SFP+ 10GbE | Native: Default Tagged: Allow All | Trunk uplink |
+| `2` | SFP+ 2 | SFP+ 10GbE | Native: Default Tagged: Allow All | Trunk peer |
+| `3` | Port 3 | RJ45 PoE+ 2.5GbE | Native: 233 (Segment-Beta) Tagged: Block All | Endpoint A |
+| `4` | Port 4 | RJ45 PoE+ 2.5GbE | Native: 233 (Segment-Beta) Tagged: Block All | Endpoint B |
+| `5` | - | RJ45 2.5GbE | Native: Default Tagged: - | - |
 
 ## Detailed Networks
 
@@ -2200,7 +2227,7 @@
 | **Usable Hosts** | `254` |
 | **Allocation Mode** | `Host Pool` |
 | **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-| **VLAN** | `10 (Home-Infra)` |
+| **VLAN** | `147 (Segment-Alpha)` |
 
 > Routers and servers
 
@@ -2229,7 +2256,7 @@
 | **Usable Hosts** | `254` |
 | **Allocation Mode** | `Host Pool` |
 | **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-| **VLAN** | `20 (Home-Users)` |
+| **VLAN** | `233 (Segment-Beta)` |
 
 > Laptops and phones
 
@@ -2258,7 +2285,7 @@
 | **Usable Hosts** | `254` |
 | **Allocation Mode** | `Host Pool` |
 | **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-| **VLAN** | `30 (Home-IoT)` |
+| **VLAN** | `318 (Segment-Gamma)` |
 
 > Cameras and sensors
 

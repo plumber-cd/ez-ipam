@@ -1,0 +1,7 @@
+description: Demo trust zone red
+display_name: Zone-Red
+id: Zone-Red
+parent: Zones
+vlan_ids:
+- 147
+- 233

@@ -1,0 +1,5 @@
+description: Synthetic demo router
+display_name: Router-Topaz
+id: Router-Topaz
+model: Model-Y
+parent: Equipment

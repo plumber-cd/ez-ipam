@@ -34,6 +34,17 @@ const (
 	addSSIDPage                    = "*add_ssid*"
 	updateSSIDPage                 = "*update_ssid*"
 	deleteSSIDPage                 = "*delete_ssid*"
+	addZonePage                    = "*add_zone*"
+	updateZonePage                 = "*update_zone*"
+	deleteZonePage                 = "*delete_zone*"
+	addEquipmentPage               = "*add_equipment*"
+	updateEquipmentPage            = "*update_equipment*"
+	deleteEquipmentPage            = "*delete_equipment*"
+	addPortPage                    = "*add_port*"
+	updatePortPage                 = "*update_port*"
+	connectPortPage                = "*connect_port*"
+	disconnectPortPage             = "*disconnect_port*"
+	deletePortPage                 = "*delete_port*"
 	quitPage                       = "*quit*"
 
 	dataDirName      = ".ez-ipam"
@@ -41,6 +52,9 @@ const (
 	ipsDirName       = "ips"
 	vlansDirName     = "vlans"
 	ssidsDirName     = "ssids"
+	zonesDirName     = "zones"
+	equipmentDirName = "equipment"
+	portsDirName     = "ports"
 	markdownFileName = "EZ-IPAM.md"
 	formFieldWidth   = 42
 )
@@ -76,11 +90,24 @@ var (
 	addSSIDDialog                    *tview.Form
 	updateSSIDDialog                 *tview.Form
 	deleteSSIDDialog                 *tview.Modal
+	addZoneDialog                    *tview.Form
+	updateZoneDialog                 *tview.Form
+	deleteZoneDialog                 *tview.Modal
+	addEquipmentDialog               *tview.Form
+	updateEquipmentDialog            *tview.Form
+	deleteEquipmentDialog            *tview.Modal
+	addPortDialog                    *tview.Form
+	updatePortDialog                 *tview.Form
+	connectPortDialog                *tview.Form
+	disconnectPortDialog             *tview.Modal
+	deletePortDialog                 *tview.Modal
 	quitDialog                       *tview.Modal
 
-	summarizeCandidates []*Network
-	summarizeFromIndex  int
-	summarizeToIndex    int
+	summarizeCandidates  []*Network
+	summarizeFromIndex   int
+	summarizeToIndex     int
+	connectPortSelection int
+	portConnectTargets   []string
 )
 
 func resetState() {
@@ -92,6 +119,8 @@ func resetState() {
 	summarizeCandidates = nil
 	summarizeFromIndex = 0
 	summarizeToIndex = 0
+	connectPortSelection = 0
+	portConnectTargets = nil
 }
 
 func setupApp() {
@@ -713,6 +742,261 @@ func setupApp() {
 	}
 
 	{
+		height := 13
+		width := 62
+		cancelDialog := func() {
+			getAndClearTextFromInputField(addZoneDialog, "Name")
+			getAndClearTextFromInputField(addZoneDialog, "Description")
+			getAndClearTextFromInputField(addZoneDialog, "VLAN IDs")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		addZoneDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("Name", "", formFieldWidth, nil, nil).
+			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddInputField("VLAN IDs", "", formFieldWidth, nil, nil).
+			AddButton("Save", func() {
+				name := getAndClearTextFromInputField(addZoneDialog, "Name")
+				description := getAndClearTextFromInputField(addZoneDialog, "Description")
+				vlanIDs := getAndClearTextFromInputField(addZoneDialog, "VLAN IDs")
+				AddZone(name, description, vlanIDs)
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		addZoneDialog.SetBorder(true).SetTitle("Add Zone")
+		wireDialogFormKeys(addZoneDialog, cancelDialog)
+		addZoneFlex := createDialogPage(addZoneDialog, width, height)
+		pages.AddPage(addZonePage, addZoneFlex, true, false)
+	}
+
+	{
+		height := 13
+		width := 62
+		cancelDialog := func() {
+			getAndClearTextFromInputField(updateZoneDialog, "Name")
+			getAndClearTextFromInputField(updateZoneDialog, "Description")
+			getAndClearTextFromInputField(updateZoneDialog, "VLAN IDs")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		updateZoneDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("Name", "", formFieldWidth, nil, nil).
+			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddInputField("VLAN IDs", "", formFieldWidth, nil, nil).
+			AddButton("Save", func() {
+				name := getAndClearTextFromInputField(updateZoneDialog, "Name")
+				description := getAndClearTextFromInputField(updateZoneDialog, "Description")
+				vlanIDs := getAndClearTextFromInputField(updateZoneDialog, "VLAN IDs")
+				UpdateZone(name, description, vlanIDs)
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		updateZoneDialog.SetBorder(true).SetTitle("Update Zone")
+		wireDialogFormKeys(updateZoneDialog, cancelDialog)
+		updateZoneFlex := createDialogPage(updateZoneDialog, width, height)
+		pages.AddPage(updateZonePage, updateZoneFlex, true, false)
+	}
+
+	{
+		height := 13
+		width := 62
+		cancelDialog := func() {
+			getAndClearTextFromInputField(addEquipmentDialog, "Name")
+			getAndClearTextFromInputField(addEquipmentDialog, "Model")
+			getAndClearTextFromInputField(addEquipmentDialog, "Description")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		addEquipmentDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("Name", "", formFieldWidth, nil, nil).
+			AddInputField("Model", "", formFieldWidth, nil, nil).
+			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddButton("Save", func() {
+				name := getAndClearTextFromInputField(addEquipmentDialog, "Name")
+				model := getAndClearTextFromInputField(addEquipmentDialog, "Model")
+				description := getAndClearTextFromInputField(addEquipmentDialog, "Description")
+				AddEquipment(name, model, description)
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		addEquipmentDialog.SetBorder(true).SetTitle("Add Equipment")
+		wireDialogFormKeys(addEquipmentDialog, cancelDialog)
+		addEquipmentFlex := createDialogPage(addEquipmentDialog, width, height)
+		pages.AddPage(addEquipmentPage, addEquipmentFlex, true, false)
+	}
+
+	{
+		height := 13
+		width := 62
+		cancelDialog := func() {
+			getAndClearTextFromInputField(updateEquipmentDialog, "Name")
+			getAndClearTextFromInputField(updateEquipmentDialog, "Model")
+			getAndClearTextFromInputField(updateEquipmentDialog, "Description")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		updateEquipmentDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("Name", "", formFieldWidth, nil, nil).
+			AddInputField("Model", "", formFieldWidth, nil, nil).
+			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddButton("Save", func() {
+				name := getAndClearTextFromInputField(updateEquipmentDialog, "Name")
+				model := getAndClearTextFromInputField(updateEquipmentDialog, "Model")
+				description := getAndClearTextFromInputField(updateEquipmentDialog, "Description")
+				UpdateEquipment(name, model, description)
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		updateEquipmentDialog.SetBorder(true).SetTitle("Update Equipment")
+		wireDialogFormKeys(updateEquipmentDialog, cancelDialog)
+		updateEquipmentFlex := createDialogPage(updateEquipmentDialog, width, height)
+		pages.AddPage(updateEquipmentPage, updateEquipmentFlex, true, false)
+	}
+
+	{
+		height := 23
+		width := 66
+		cancelDialog := func() {
+			getAndClearTextFromInputField(addPortDialog, "Port Number")
+			getAndClearTextFromInputField(addPortDialog, "Name")
+			getAndClearTextFromInputField(addPortDialog, "Port Type")
+			getAndClearTextFromInputField(addPortDialog, "Speed")
+			getAndClearTextFromInputField(addPortDialog, "PoE")
+			getAndClearTextFromInputField(addPortDialog, "LAG Group")
+			getAndClearTextFromInputField(addPortDialog, "LAG Mode")
+			getAndClearTextFromInputField(addPortDialog, "Native VLAN ID")
+			getAndClearTextFromInputField(addPortDialog, "Tagged VLAN Mode")
+			getAndClearTextFromInputField(addPortDialog, "Tagged VLAN IDs")
+			getAndClearTextFromInputField(addPortDialog, "Description")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		addPortDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("Port Number", "", formFieldWidth, nil, nil).
+			AddInputField("Name", "", formFieldWidth, nil, nil).
+			AddInputField("Port Type", "", formFieldWidth, nil, nil).
+			AddInputField("Speed", "", formFieldWidth, nil, nil).
+			AddInputField("PoE", "", formFieldWidth, nil, nil).
+			AddInputField("LAG Group", "", formFieldWidth, nil, nil).
+			AddInputField("LAG Mode", "", formFieldWidth, nil, nil).
+			AddInputField("Native VLAN ID", "", formFieldWidth, nil, nil).
+			AddInputField("Tagged VLAN Mode", "", formFieldWidth, nil, nil).
+			AddInputField("Tagged VLAN IDs", "", formFieldWidth, nil, nil).
+			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddButton("Save", func() {
+				AddPort(
+					getAndClearTextFromInputField(addPortDialog, "Port Number"),
+					getAndClearTextFromInputField(addPortDialog, "Name"),
+					getAndClearTextFromInputField(addPortDialog, "Port Type"),
+					getAndClearTextFromInputField(addPortDialog, "Speed"),
+					getAndClearTextFromInputField(addPortDialog, "PoE"),
+					getAndClearTextFromInputField(addPortDialog, "LAG Group"),
+					getAndClearTextFromInputField(addPortDialog, "LAG Mode"),
+					getAndClearTextFromInputField(addPortDialog, "Native VLAN ID"),
+					getAndClearTextFromInputField(addPortDialog, "Tagged VLAN Mode"),
+					getAndClearTextFromInputField(addPortDialog, "Tagged VLAN IDs"),
+					getAndClearTextFromInputField(addPortDialog, "Description"),
+				)
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		addPortDialog.SetBorder(true).SetTitle("Add Port")
+		wireDialogFormKeys(addPortDialog, cancelDialog)
+		addPortFlex := createDialogPage(addPortDialog, width, height)
+		pages.AddPage(addPortPage, addPortFlex, true, false)
+	}
+
+	{
+		height := 23
+		width := 66
+		cancelDialog := func() {
+			getAndClearTextFromInputField(updatePortDialog, "Port Number")
+			getAndClearTextFromInputField(updatePortDialog, "Name")
+			getAndClearTextFromInputField(updatePortDialog, "Port Type")
+			getAndClearTextFromInputField(updatePortDialog, "Speed")
+			getAndClearTextFromInputField(updatePortDialog, "PoE")
+			getAndClearTextFromInputField(updatePortDialog, "LAG Group")
+			getAndClearTextFromInputField(updatePortDialog, "LAG Mode")
+			getAndClearTextFromInputField(updatePortDialog, "Native VLAN ID")
+			getAndClearTextFromInputField(updatePortDialog, "Tagged VLAN Mode")
+			getAndClearTextFromInputField(updatePortDialog, "Tagged VLAN IDs")
+			getAndClearTextFromInputField(updatePortDialog, "Description")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		updatePortDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("Port Number", "", formFieldWidth, nil, nil).
+			AddInputField("Name", "", formFieldWidth, nil, nil).
+			AddInputField("Port Type", "", formFieldWidth, nil, nil).
+			AddInputField("Speed", "", formFieldWidth, nil, nil).
+			AddInputField("PoE", "", formFieldWidth, nil, nil).
+			AddInputField("LAG Group", "", formFieldWidth, nil, nil).
+			AddInputField("LAG Mode", "", formFieldWidth, nil, nil).
+			AddInputField("Native VLAN ID", "", formFieldWidth, nil, nil).
+			AddInputField("Tagged VLAN Mode", "", formFieldWidth, nil, nil).
+			AddInputField("Tagged VLAN IDs", "", formFieldWidth, nil, nil).
+			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddButton("Save", func() {
+				UpdatePort(
+					getAndClearTextFromInputField(updatePortDialog, "Port Number"),
+					getAndClearTextFromInputField(updatePortDialog, "Name"),
+					getAndClearTextFromInputField(updatePortDialog, "Port Type"),
+					getAndClearTextFromInputField(updatePortDialog, "Speed"),
+					getAndClearTextFromInputField(updatePortDialog, "PoE"),
+					getAndClearTextFromInputField(updatePortDialog, "LAG Group"),
+					getAndClearTextFromInputField(updatePortDialog, "LAG Mode"),
+					getAndClearTextFromInputField(updatePortDialog, "Native VLAN ID"),
+					getAndClearTextFromInputField(updatePortDialog, "Tagged VLAN Mode"),
+					getAndClearTextFromInputField(updatePortDialog, "Tagged VLAN IDs"),
+					getAndClearTextFromInputField(updatePortDialog, "Description"),
+				)
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		updatePortDialog.SetBorder(true).SetTitle("Update Port")
+		wireDialogFormKeys(updatePortDialog, cancelDialog)
+		updatePortFlex := createDialogPage(updatePortDialog, width, height)
+		pages.AddPage(updatePortPage, updatePortFlex, true, false)
+	}
+
+	{
+		height := 9
+		width := 66
+		cancelDialog := func() {
+			portConnectTargets = nil
+			connectPortSelection = 0
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		connectPortDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddDropDown("Target", nil, 0, func(option string, optionIndex int) {
+				if optionIndex >= 0 {
+					connectPortSelection = optionIndex
+				}
+			}).
+			AddButton("Connect", func() {
+				if connectPortSelection >= 0 && connectPortSelection < len(portConnectTargets) {
+					ConnectPort(portConnectTargets[connectPortSelection])
+				}
+				portConnectTargets = nil
+				connectPortSelection = 0
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		connectPortDialog.SetBorder(true).SetTitle("Connect Port")
+		wireDialogFormKeys(connectPortDialog, cancelDialog)
+		connectPortFlex := createDialogPage(connectPortDialog, width, height)
+		pages.AddPage(connectPortPage, connectPortFlex, true, false)
+	}
+
+	{
 		unreserveIPDialog = tview.NewModal().
 			SetText("Unreserve this IP address?").
 			AddButtons([]string{"Yes", "No"}).
@@ -770,6 +1054,86 @@ func setupApp() {
 				}
 			})
 		pages.AddPage(deleteSSIDPage, deleteSSIDDialog, true, false)
+	}
+
+	{
+		deleteZoneDialog = tview.NewModal().
+			SetText("Delete this zone?").
+			AddButtons([]string{"Yes", "No"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				switch buttonLabel {
+				case "Yes":
+					DeleteZone()
+					fallthrough
+				case "No":
+					fallthrough
+				default:
+					deleteZoneDialog.SetText("")
+					pages.SwitchToPage(mainPage)
+					app.SetFocus(navigationPanel)
+				}
+			})
+		pages.AddPage(deleteZonePage, deleteZoneDialog, true, false)
+	}
+
+	{
+		deleteEquipmentDialog = tview.NewModal().
+			SetText("Delete this equipment and all ports?").
+			AddButtons([]string{"Yes", "No"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				switch buttonLabel {
+				case "Yes":
+					DeleteEquipment()
+					fallthrough
+				case "No":
+					fallthrough
+				default:
+					deleteEquipmentDialog.SetText("")
+					pages.SwitchToPage(mainPage)
+					app.SetFocus(navigationPanel)
+				}
+			})
+		pages.AddPage(deleteEquipmentPage, deleteEquipmentDialog, true, false)
+	}
+
+	{
+		disconnectPortDialog = tview.NewModal().
+			SetText("Disconnect this port?").
+			AddButtons([]string{"Yes", "No"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				switch buttonLabel {
+				case "Yes":
+					DisconnectPort()
+					fallthrough
+				case "No":
+					fallthrough
+				default:
+					disconnectPortDialog.SetText("")
+					pages.SwitchToPage(mainPage)
+					app.SetFocus(navigationPanel)
+				}
+			})
+		pages.AddPage(disconnectPortPage, disconnectPortDialog, true, false)
+	}
+
+	{
+		deletePortDialog = tview.NewModal().
+			SetText("Delete this port?").
+			AddButtons([]string{"Yes", "No"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				switch buttonLabel {
+				case "Yes":
+					DeletePort()
+					fallthrough
+				case "No":
+					fallthrough
+				default:
+					deletePortDialog.SetText("")
+					pages.SwitchToPage(mainPage)
+					app.SetFocus(navigationPanel)
+				}
+			})
+		pages.AddPage(deletePortPage, deletePortDialog, true, false)
 	}
 
 	{
@@ -883,11 +1247,19 @@ func load() {
 		Description: "Manage your address space here.\n\nUse Enter or double-click to open items.\nUse Backspace to go up one level.",
 	}
 	menuItems.MustAdd(networks)
+	zones := &MenuStatic{
+		MenuFolder: &MenuFolder{
+			ID: "Zones",
+		},
+		Index:       1,
+		Description: "Document network security zones and associated VLANs.",
+	}
+	menuItems.MustAdd(zones)
 	vlans := &MenuStatic{
 		MenuFolder: &MenuFolder{
 			ID: "VLANs",
 		},
-		Index:       1,
+		Index:       2,
 		Description: "Manage VLAN IDs and their metadata here.",
 	}
 	menuItems.MustAdd(vlans)
@@ -895,10 +1267,18 @@ func load() {
 		MenuFolder: &MenuFolder{
 			ID: "WiFi SSIDs",
 		},
-		Index:       2,
+		Index:       3,
 		Description: "Manage WiFi SSIDs and their metadata here.",
 	}
 	menuItems.MustAdd(ssids)
+	equipment := &MenuStatic{
+		MenuFolder: &MenuFolder{
+			ID: "Equipment",
+		},
+		Index:       4,
+		Description: "Track network equipment, ports, VLAN profiles, and links.",
+	}
+	menuItems.MustAdd(equipment)
 
 	currentDir, err := os.Getwd()
 	if err != nil {
@@ -910,6 +1290,9 @@ func load() {
 	ipsDir := filepath.Join(dataDir, ipsDirName)
 	vlansDir := filepath.Join(dataDir, vlansDirName)
 	ssidsDir := filepath.Join(dataDir, ssidsDirName)
+	zonesDir := filepath.Join(dataDir, zonesDirName)
+	equipmentDir := filepath.Join(dataDir, equipmentDirName)
+	portsDir := filepath.Join(dataDir, portsDirName)
 
 	networkFiles, err := os.ReadDir(networkDir)
 	if err != nil {
@@ -1016,6 +1399,84 @@ func load() {
 
 		menuItems[ssid.GetPath()] = ssid
 	}
+	zoneFiles, err := os.ReadDir(zonesDir)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			panic("Failed to read " + zonesDir + " directory: " + err.Error())
+		}
+		if err := os.MkdirAll(zonesDir, 0755); err != nil {
+			panic("Failed to create " + zonesDir + " directory: " + err.Error())
+		}
+	}
+	for _, zoneFile := range zoneFiles {
+		if zoneFile.IsDir() {
+			continue
+		}
+
+		bytes, err := os.ReadFile(filepath.Join(zonesDir, zoneFile.Name()))
+		if err != nil {
+			panic("Failed to read " + zoneFile.Name() + " file: " + err.Error())
+		}
+
+		zone := &Zone{}
+		if err := yaml.Unmarshal(bytes, zone); err != nil {
+			panic("Failed to unmarshal " + zoneFile.Name() + " file: " + err.Error())
+		}
+
+		menuItems[zone.GetPath()] = zone
+	}
+	equipmentFiles, err := os.ReadDir(equipmentDir)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			panic("Failed to read " + equipmentDir + " directory: " + err.Error())
+		}
+		if err := os.MkdirAll(equipmentDir, 0755); err != nil {
+			panic("Failed to create " + equipmentDir + " directory: " + err.Error())
+		}
+	}
+	for _, equipmentFile := range equipmentFiles {
+		if equipmentFile.IsDir() {
+			continue
+		}
+
+		bytes, err := os.ReadFile(filepath.Join(equipmentDir, equipmentFile.Name()))
+		if err != nil {
+			panic("Failed to read " + equipmentFile.Name() + " file: " + err.Error())
+		}
+
+		equipment := &Equipment{}
+		if err := yaml.Unmarshal(bytes, equipment); err != nil {
+			panic("Failed to unmarshal " + equipmentFile.Name() + " file: " + err.Error())
+		}
+
+		menuItems[equipment.GetPath()] = equipment
+	}
+	portFiles, err := os.ReadDir(portsDir)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			panic("Failed to read " + portsDir + " directory: " + err.Error())
+		}
+		if err := os.MkdirAll(portsDir, 0755); err != nil {
+			panic("Failed to create " + portsDir + " directory: " + err.Error())
+		}
+	}
+	for _, portFile := range portFiles {
+		if portFile.IsDir() {
+			continue
+		}
+
+		bytes, err := os.ReadFile(filepath.Join(portsDir, portFile.Name()))
+		if err != nil {
+			panic("Failed to read " + portFile.Name() + " file: " + err.Error())
+		}
+
+		port := &Port{}
+		if err := yaml.Unmarshal(bytes, port); err != nil {
+			panic("Failed to unmarshal " + portFile.Name() + " file: " + err.Error())
+		}
+
+		menuItems[port.GetPath()] = port
+	}
 
 	for _, menuItem := range menuItems {
 		if err := menuItem.Validate(); err != nil {
@@ -1040,6 +1501,9 @@ func save() {
 	ipsTmpDir := filepath.Join(dataTmpDir, ipsDirName)
 	vlansTmpDir := filepath.Join(dataTmpDir, vlansDirName)
 	ssidsTmpDir := filepath.Join(dataTmpDir, ssidsDirName)
+	zonesTmpDir := filepath.Join(dataTmpDir, zonesDirName)
+	equipmentTmpDir := filepath.Join(dataTmpDir, equipmentDirName)
+	portsTmpDir := filepath.Join(dataTmpDir, portsDirName)
 	if err := os.RemoveAll(dataTmpDir); err != nil {
 		panic("Failed to remove " + dataTmpDir + " directory: " + err.Error())
 	}
@@ -1054,6 +1518,15 @@ func save() {
 	}
 	if err := os.MkdirAll(ssidsTmpDir, 0755); err != nil {
 		panic("Failed to create " + ssidsTmpDir + " directory: " + err.Error())
+	}
+	if err := os.MkdirAll(zonesTmpDir, 0755); err != nil {
+		panic("Failed to create " + zonesTmpDir + " directory: " + err.Error())
+	}
+	if err := os.MkdirAll(equipmentTmpDir, 0755); err != nil {
+		panic("Failed to create " + equipmentTmpDir + " directory: " + err.Error())
+	}
+	if err := os.MkdirAll(portsTmpDir, 0755); err != nil {
+		panic("Failed to create " + portsTmpDir + " directory: " + err.Error())
 	}
 
 	for _, menuItem := range menuItems {
@@ -1106,6 +1579,37 @@ func save() {
 			if err := os.WriteFile(fileName, bytes, 0644); err != nil {
 				panic("Failed to write " + fileName + " file: " + err.Error())
 			}
+		case *Zone:
+			fileName := filepath.Join(zonesTmpDir, safeFileNameSegment(m.ID)+".yaml")
+			bytes, err := yaml.Marshal(menuItem)
+			if err != nil {
+				panic("Failed to marshal " + menuItem.GetPath() + " to yaml: " + err.Error())
+			}
+			if err := os.WriteFile(fileName, bytes, 0644); err != nil {
+				panic("Failed to write " + fileName + " file: " + err.Error())
+			}
+		case *Equipment:
+			fileName := filepath.Join(equipmentTmpDir, safeFileNameSegment(m.ID)+".yaml")
+			bytes, err := yaml.Marshal(menuItem)
+			if err != nil {
+				panic("Failed to marshal " + menuItem.GetPath() + " to yaml: " + err.Error())
+			}
+			if err := os.WriteFile(fileName, bytes, 0644); err != nil {
+				panic("Failed to write " + fileName + " file: " + err.Error())
+			}
+		case *Port:
+			parent, ok := m.GetParent().(*Equipment)
+			if !ok {
+				panic("Port parent is not equipment for " + m.GetPath())
+			}
+			fileName := filepath.Join(portsTmpDir, safeFileNameSegment(parent.ID)+"_"+m.ID+".yaml")
+			bytes, err := yaml.Marshal(menuItem)
+			if err != nil {
+				panic("Failed to marshal " + menuItem.GetPath() + " to yaml: " + err.Error())
+			}
+			if err := os.WriteFile(fileName, bytes, 0644); err != nil {
+				panic("Failed to write " + fileName + " file: " + err.Error())
+			}
 		default:
 		}
 	}
@@ -1146,6 +1650,8 @@ func save() {
 	networksReservedIPs := map[string][]map[string]string{}
 	vlanRows := []map[string]string{}
 	ssidRows := []map[string]string{}
+	zoneRows := []map[string]string{}
+	equipmentRows := []map[string]string{}
 	summaryRows := []map[string]string{}
 	buildTreePrefix := func(ancestorHasNext []bool, isLast bool) string {
 		stringWriter := new(strings.Builder)
@@ -1336,6 +1842,134 @@ func save() {
 			"Description": markdownTableCell(defaultIfEmpty(ssid.Description, "-")),
 		})
 	}
+	zonesMenuItem := menuItems.GetByParentAndID(nil, "Zones")
+	for _, menuItem := range menuItems.GetChilds(zonesMenuItem) {
+		zone, ok := menuItem.(*Zone)
+		if !ok {
+			continue
+		}
+		vlanLabels := make([]string, 0, len(zone.VLANIDs))
+		for _, vlanID := range zone.VLANIDs {
+			vlanLabels = append(vlanLabels, renderVLANID(vlanID))
+		}
+		zoneRows = append(zoneRows, map[string]string{
+			"Name":        markdownCode(zone.DisplayName),
+			"VLANs":       markdownTableCell(defaultIfEmpty(strings.Join(vlanLabels, ", "), "-")),
+			"Description": markdownTableCell(defaultIfEmpty(zone.Description, "-")),
+		})
+	}
+	equipmentMenuItem := menuItems.GetByParentAndID(nil, "Equipment")
+	for _, menuItem := range menuItems.GetChilds(equipmentMenuItem) {
+		equipment, ok := menuItem.(*Equipment)
+		if !ok {
+			continue
+		}
+		portRows := []map[string]string{}
+		for _, child := range menuItems.GetChilds(equipment) {
+			port, ok := child.(*Port)
+			if !ok {
+				continue
+			}
+			portName := "-"
+			if strings.TrimSpace(port.Name) != "" {
+				portName = port.Name
+			}
+			portType := strings.Join(strings.Fields(strings.Join([]string{port.PortType, port.PoE, port.Speed}, " ")), " ")
+			tagged := "-"
+			switch port.TaggedVLANMode {
+			case TaggedVLANModeAllowAll:
+				tagged = "Allow All"
+			case TaggedVLANModeBlockAll:
+				tagged = "Block All"
+			case TaggedVLANModeCustom:
+				values := make([]string, 0, len(port.TaggedVLANIDs))
+				for _, vlanID := range port.TaggedVLANIDs {
+					values = append(values, renderVLANID(vlanID))
+				}
+				tagged = strings.Join(values, ", ")
+			}
+			destinationParts := []string{}
+			if port.ConnectedTo != "" {
+				destinationParts = append(destinationParts, renderPortLink(port.ConnectedTo))
+			}
+			if port.Description != "" {
+				destinationParts = append(destinationParts, port.Description)
+			}
+			destination := "-"
+			if len(destinationParts) > 0 {
+				destination = strings.Join(destinationParts, " | ")
+			}
+			portRows = append(portRows, map[string]string{
+				"Number":      markdownCode(port.ID),
+				"Name":        markdownTableCell(portName),
+				"Type":        markdownTableCell(portType),
+				"Networks":    markdownTableCell(fmt.Sprintf("Native: %s Tagged: %s", renderVLANID(port.NativeVLANID), tagged)),
+				"Destination": markdownTableCell(destination),
+			})
+		}
+		equipmentRows = append(equipmentRows, map[string]string{
+			"DisplayName":   markdownInline(equipment.DisplayName),
+			"Model":         markdownInline(equipment.Model),
+			"Description":   markdownInline(defaultIfEmpty(equipment.Description, "-")),
+			"EquipmentPath": equipment.GetPath(),
+		})
+		// Keep nested slice keyed by a synthetic index path.
+		key := equipment.GetPath()
+		for _, row := range portRows {
+			row["EquipmentPath"] = key
+		}
+	}
+	equipmentPorts := map[string][]map[string]string{}
+	for _, menuItem := range menuItems.GetChilds(equipmentMenuItem) {
+		equipment, ok := menuItem.(*Equipment)
+		if !ok {
+			continue
+		}
+		rows := []map[string]string{}
+		for _, child := range menuItems.GetChilds(equipment) {
+			port, ok := child.(*Port)
+			if !ok {
+				continue
+			}
+			portName := "-"
+			if strings.TrimSpace(port.Name) != "" {
+				portName = port.Name
+			}
+			portType := strings.Join(strings.Fields(strings.Join([]string{port.PortType, port.PoE, port.Speed}, " ")), " ")
+			tagged := "-"
+			switch port.TaggedVLANMode {
+			case TaggedVLANModeAllowAll:
+				tagged = "Allow All"
+			case TaggedVLANModeBlockAll:
+				tagged = "Block All"
+			case TaggedVLANModeCustom:
+				values := make([]string, 0, len(port.TaggedVLANIDs))
+				for _, vlanID := range port.TaggedVLANIDs {
+					values = append(values, renderVLANID(vlanID))
+				}
+				tagged = strings.Join(values, ", ")
+			}
+			destinationParts := []string{}
+			if port.ConnectedTo != "" {
+				destinationParts = append(destinationParts, renderPortLink(port.ConnectedTo))
+			}
+			if port.Description != "" {
+				destinationParts = append(destinationParts, port.Description)
+			}
+			destination := "-"
+			if len(destinationParts) > 0 {
+				destination = strings.Join(destinationParts, " | ")
+			}
+			rows = append(rows, map[string]string{
+				"Number":      markdownCode(port.ID),
+				"Name":        markdownTableCell(portName),
+				"Type":        markdownTableCell(portType),
+				"Networks":    markdownTableCell(fmt.Sprintf("Native: %s Tagged: %s", renderVLANID(port.NativeVLANID), tagged)),
+				"Destination": markdownTableCell(destination),
+			})
+		}
+		equipmentPorts[equipment.GetPath()] = rows
+	}
 
 	template := template.Must(template.New(markdownFileName).Parse(markdownTmpl))
 	input := map[string]interface{}{
@@ -1354,6 +1988,9 @@ func save() {
 		"NetworksReservedIPs":    networksReservedIPs,
 		"VLANRows":               vlanRows,
 		"SSIDRows":               ssidRows,
+		"ZoneRows":               zoneRows,
+		"EquipmentRows":          equipmentRows,
+		"EquipmentPorts":         equipmentPorts,
 		"SummaryRows":            summaryRows,
 	}
 
@@ -1481,6 +2118,20 @@ func defaultIfEmpty(value, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+func safeFileNameSegment(value string) string {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return "item"
+	}
+	safe := strings.Map(func(r rune) rune {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_' {
+			return r
+		}
+		return '_'
+	}, trimmed)
+	return strings.Trim(safe, "_")
 }
 
 func parseOptionalVLANID(value string) (int, error) {
