@@ -1,5 +1,5 @@
 allocation_mode: 1
-description: Regional primary VPC
-display_name: Primary VPC
+description: Public subnet type
+display_name: Public
 id: 10.32.0.0/18
-parent: Networks -> 10.0.0.0/10 -> 10.32.0.0/12 -> 10.32.0.0/14
+parent: Networks -> 10.0.0.0/10 -> 10.32.0.0/12 -> 10.32.0.0/14 -> 10.32.0.0/16

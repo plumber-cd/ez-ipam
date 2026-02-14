@@ -1,0 +1,5 @@
+allocation_mode: 1
+description: Regional primary VPC
+display_name: Primary VPC
+id: 10.4.0.0/16
+parent: Networks -> 10.0.0.0/10 -> 10.0.0.0/12 -> 10.4.0.0/14

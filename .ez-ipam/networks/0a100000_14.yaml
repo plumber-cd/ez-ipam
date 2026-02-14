@@ -1,5 +1,5 @@
 allocation_mode: 1
-description: Primary region
-display_name: GCP us-east-1
+description: Regional address space
+display_name: GCP region-1
 id: 10.16.0.0/14
 parent: Networks -> 10.0.0.0/10 -> 10.16.0.0/12

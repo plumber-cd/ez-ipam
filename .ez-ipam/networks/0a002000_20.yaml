@@ -1,5 +1,0 @@
-allocation_mode: 1
-description: Backend subnet type
-display_name: Backend
-id: 10.0.32.0/20
-parent: Networks -> 10.0.0.0/10 -> 10.0.0.0/12 -> 10.0.0.0/14 -> 10.0.0.0/18

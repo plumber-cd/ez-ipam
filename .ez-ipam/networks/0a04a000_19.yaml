@@ -1,0 +1,5 @@
+allocation_mode: 2
+description: Availability zone B
+display_name: AZ-b
+id: 10.4.160.0/19
+parent: Networks -> 10.0.0.0/10 -> 10.0.0.0/12 -> 10.4.0.0/14 -> 10.4.0.0/16 -> 10.4.128.0/18
