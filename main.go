@@ -863,9 +863,9 @@ func save() {
 		stringWriter := new(strings.Builder)
 		for _, hasNext := range ancestorHasNext {
 			if hasNext {
-				stringWriter.WriteString("│   ")
+				stringWriter.WriteString("| ")
 			} else {
-				stringWriter.WriteString("    ")
+				stringWriter.WriteString("  ")
 			}
 		}
 		if isLast {
@@ -940,15 +940,12 @@ func save() {
 		}
 		networksHasReservedIPs[path] = len(reserved) > 0
 		networksReservedIPs[path] = reserved
-		networkCell := fmt.Sprintf("[`%s`](#%s)", n.ID, networksAnchor[path])
-		if networkTreePrefix != "" {
-			networkCell = fmt.Sprintf("`%s` %s", networkTreePrefix, networkCell)
-		}
+		networkCell := fmt.Sprintf("%s [link](#%s)", markdownCode(networkTreePrefix+n.ID), networksAnchor[path])
 		summaryRows = append(summaryRows, map[string]string{
 			"Network":     networkCell,
 			"Name":        markdownInline(defaultIfEmpty(n.DisplayName, "-")),
 			"Allocation":  markdownInline(defaultIfEmpty(networksMode[path], "-")),
-			"Description": markdownInline(defaultIfEmpty(n.Description, "-")),
+			"Description": markdownInline(clampOverviewDescription(defaultIfEmpty(n.Description, "-"), 60)),
 		})
 
 		if len(reserved) > 0 {
@@ -956,10 +953,10 @@ func save() {
 			for i, ip := range reserved {
 				ipTreePrefix := buildTreePrefix(ipAncestorHasNext, i == len(reserved)-1)
 				summaryRows = append(summaryRows, map[string]string{
-					"Network":     fmt.Sprintf("`%s%s`", ipTreePrefix, ip["Address"]),
+					"Network":     markdownCode(ipTreePrefix + ip["Address"]),
 					"Name":        markdownInline(defaultIfEmpty(ip["DisplayName"], "-")),
 					"Allocation":  "Reserved IP",
-					"Description": markdownInline(defaultIfEmpty(ip["Description"], "-")),
+					"Description": markdownInline(clampOverviewDescription(defaultIfEmpty(ip["Description"], "-"), 60)),
 				})
 			}
 		}
@@ -1098,6 +1095,27 @@ func markdownInline(value string) string {
 	value = strings.ReplaceAll(value, "\r", " ")
 	value = strings.ReplaceAll(value, "|", "\\|")
 	return value
+}
+
+func markdownCode(value string) string {
+	value = strings.ReplaceAll(value, "\n", " ")
+	value = strings.ReplaceAll(value, "\r", " ")
+	value = strings.ReplaceAll(value, "`", "'")
+	return "`" + value + "`"
+}
+
+func clampOverviewDescription(value string, maxLen int) string {
+	if maxLen < 1 {
+		return value
+	}
+	runes := []rune(value)
+	if len(runes) <= maxLen {
+		return value
+	}
+	if maxLen <= 3 {
+		return string(runes[:maxLen])
+	}
+	return string(runes[:maxLen-3]) + "..."
 }
 
 func defaultIfEmpty(value, fallback string) string {
