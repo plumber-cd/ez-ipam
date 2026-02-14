@@ -89,7 +89,7 @@ func (s *SSID) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Rune() {
 		case 'u':
 			updateSSIDDialog.SetTitle(fmt.Sprintf("Update WiFi SSID %s", s.ID))
-			setTextFromInputField(updateSSIDDialog, "Description", s.Description)
+			setTextFromTextArea(updateSSIDDialog, "Description", s.Description)
 			updateSSIDDialog.SetFocus(0)
 			pages.ShowPage(updateSSIDPage)
 			app.SetFocus(updateSSIDDialog)

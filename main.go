@@ -605,23 +605,23 @@ func setupApp() {
 	}
 
 	{
-		height := 9
+		height := 13
 		width := 62
 		cancelDialog := func() {
 			getAndClearTextFromInputField(addVLANDialog, "VLAN ID")
 			getAndClearTextFromInputField(addVLANDialog, "Name")
-			getAndClearTextFromInputField(addVLANDialog, "Description")
+			getAndClearTextFromTextArea(addVLANDialog, "Description")
 			pages.SwitchToPage(mainPage)
 			app.SetFocus(navigationPanel)
 		}
 		addVLANDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
 			AddInputField("VLAN ID", "", formFieldWidth, nil, nil).
 			AddInputField("Name", "", formFieldWidth, nil, nil).
-			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddTextArea("Description", "", formFieldWidth, 4, 0, nil).
 			AddButton("Save", func() {
 				vlanID := getAndClearTextFromInputField(addVLANDialog, "VLAN ID")
 				name := getAndClearTextFromInputField(addVLANDialog, "Name")
-				description := getAndClearTextFromInputField(addVLANDialog, "Description")
+				description := getAndClearTextFromTextArea(addVLANDialog, "Description")
 				AddVLAN(vlanID, name, description)
 
 				pages.SwitchToPage(mainPage)
@@ -635,20 +635,20 @@ func setupApp() {
 	}
 
 	{
-		height := 9
+		height := 13
 		width := 62
 		cancelDialog := func() {
 			getAndClearTextFromInputField(updateVLANDialog, "Name")
-			getAndClearTextFromInputField(updateVLANDialog, "Description")
+			getAndClearTextFromTextArea(updateVLANDialog, "Description")
 			pages.SwitchToPage(mainPage)
 			app.SetFocus(navigationPanel)
 		}
 		updateVLANDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
 			AddInputField("Name", "", formFieldWidth, nil, nil).
-			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddTextArea("Description", "", formFieldWidth, 4, 0, nil).
 			AddButton("Save", func() {
 				name := getAndClearTextFromInputField(updateVLANDialog, "Name")
-				description := getAndClearTextFromInputField(updateVLANDialog, "Description")
+				description := getAndClearTextFromTextArea(updateVLANDialog, "Description")
 				UpdateVLAN(name, description)
 
 				pages.SwitchToPage(mainPage)
@@ -662,20 +662,20 @@ func setupApp() {
 	}
 
 	{
-		height := 9
+		height := 13
 		width := 62
 		cancelDialog := func() {
 			getAndClearTextFromInputField(addSSIDDialog, "SSID")
-			getAndClearTextFromInputField(addSSIDDialog, "Description")
+			getAndClearTextFromTextArea(addSSIDDialog, "Description")
 			pages.SwitchToPage(mainPage)
 			app.SetFocus(navigationPanel)
 		}
 		addSSIDDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
 			AddInputField("SSID", "", formFieldWidth, nil, nil).
-			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddTextArea("Description", "", formFieldWidth, 4, 0, nil).
 			AddButton("Save", func() {
 				ssidID := getAndClearTextFromInputField(addSSIDDialog, "SSID")
-				description := getAndClearTextFromInputField(addSSIDDialog, "Description")
+				description := getAndClearTextFromTextArea(addSSIDDialog, "Description")
 				AddSSID(ssidID, description)
 
 				pages.SwitchToPage(mainPage)
@@ -689,17 +689,17 @@ func setupApp() {
 	}
 
 	{
-		height := 9
+		height := 11
 		width := 62
 		cancelDialog := func() {
-			getAndClearTextFromInputField(updateSSIDDialog, "Description")
+			getAndClearTextFromTextArea(updateSSIDDialog, "Description")
 			pages.SwitchToPage(mainPage)
 			app.SetFocus(navigationPanel)
 		}
 		updateSSIDDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
-			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddTextArea("Description", "", formFieldWidth, 4, 0, nil).
 			AddButton("Save", func() {
-				description := getAndClearTextFromInputField(updateSSIDDialog, "Description")
+				description := getAndClearTextFromTextArea(updateSSIDDialog, "Description")
 				UpdateSSID(description)
 
 				pages.SwitchToPage(mainPage)
@@ -1322,7 +1322,7 @@ func save() {
 		vlanRows = append(vlanRows, map[string]string{
 			"ID":          markdownCode(vlan.ID),
 			"Name":        markdownCode(vlan.DisplayName),
-			"Description": markdownInline(defaultIfEmpty(vlan.Description, "-")),
+			"Description": markdownTableCell(defaultIfEmpty(vlan.Description, "-")),
 		})
 	}
 	ssidsMenuItem := menuItems.GetByParentAndID(nil, "WiFi SSIDs")
@@ -1333,7 +1333,7 @@ func save() {
 		}
 		ssidRows = append(ssidRows, map[string]string{
 			"ID":          markdownCode(ssid.ID),
-			"Description": markdownInline(defaultIfEmpty(ssid.Description, "-")),
+			"Description": markdownTableCell(defaultIfEmpty(ssid.Description, "-")),
 		})
 	}
 
@@ -1452,6 +1452,14 @@ func markdownCode(value string) string {
 	value = strings.ReplaceAll(value, "\r", " ")
 	value = strings.ReplaceAll(value, "`", "'")
 	return "`" + value + "`"
+}
+
+func markdownTableCell(value string) string {
+	value = strings.ReplaceAll(value, "\r\n", "\n")
+	value = strings.ReplaceAll(value, "\r", "\n")
+	value = strings.ReplaceAll(value, "|", "\\|")
+	value = strings.ReplaceAll(value, "\n", "<br>")
+	return value
 }
 
 func clampOverviewDescription(value string, maxLen int) string {

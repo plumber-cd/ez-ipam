@@ -128,7 +128,7 @@ func (v *VLAN) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKey {
 		case 'u':
 			updateVLANDialog.SetTitle(fmt.Sprintf("Update VLAN %s", v.ID))
 			setTextFromInputField(updateVLANDialog, "Name", v.DisplayName)
-			setTextFromInputField(updateVLANDialog, "Description", v.Description)
+			setTextFromTextArea(updateVLANDialog, "Description", v.Description)
 			updateVLANDialog.SetFocus(0)
 			pages.ShowPage(updateVLANPage)
 			app.SetFocus(updateVLANDialog)
