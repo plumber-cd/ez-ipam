@@ -1,6 +1,0 @@
-allocation_mode: 1
-description: Final split to /24 blocks
-display_name: Home VLAN area
-id: 192.168.0.0/22
-parent: Networks -> 192.168.0.0/16 -> 192.168.0.0/17 -> 192.168.0.0/18 -> 192.168.0.0/19
-  -> 192.168.0.0/20 -> 192.168.0.0/21

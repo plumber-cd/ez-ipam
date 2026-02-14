@@ -871,8 +871,7 @@ func TestDemoState(t *testing.T) {
 	activeCIDR := "192.168.0.0/17"
 	for prefix := 18; prefix <= 22; prefix++ {
 		moveFocusToID(t, h, activeCIDR)
-		allocateSubnetsFocused(h, "Home staged split", "Progressive split for VLAN blocks", "", fmt.Sprintf("%d", prefix))
-		h.PressEnter()
+		splitFocusedNetwork(h, fmt.Sprintf("%d", prefix))
 		childCIDRs, err := splitNetwork(activeCIDR, prefix)
 		if err != nil {
 			t.Fatalf("split %s into /%d: %v", activeCIDR, prefix, err)
@@ -881,8 +880,7 @@ func TestDemoState(t *testing.T) {
 	}
 
 	moveFocusToID(t, h, activeCIDR)
-	allocateSubnetsFocused(h, "Home VLAN area", "Final split to /24 blocks", "", "24")
-	h.PressEnter()
+	splitFocusedNetwork(h, "24")
 
 	homeCIDRs, err := splitNetwork(activeCIDR, 24)
 	if err != nil {
