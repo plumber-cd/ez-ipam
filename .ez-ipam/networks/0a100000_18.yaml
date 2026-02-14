@@ -1,5 +1,0 @@
-allocation_mode: 2
-description: Public tier
-display_name: Public
-id: 10.16.0.0/18
-parent: Networks -> 10.16.0.0/12 -> 10.16.0.0/14

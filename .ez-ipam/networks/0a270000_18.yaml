@@ -1,5 +1,0 @@
-allocation_mode: 0
-description: ""
-display_name: ""
-id: 10.39.0.0/18
-parent: Networks -> 10.32.0.0/12 -> 10.36.0.0/14

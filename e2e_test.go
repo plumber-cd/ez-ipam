@@ -728,102 +728,63 @@ func TestDemoState(t *testing.T) {
 
 	configureVpcTiers := func(vpcCIDR, vpcName string, withInfraReservations bool) {
 		moveFocusToID(t, h, vpcCIDR)
-		allocateSubnetsFocused(h, vpcName, vpcName+" multi-tier", "", "18")
-
-		h.PressEnter()
-
-		tierCIDRs, err := splitNetwork(vpcCIDR, 18)
-		if err != nil {
-			t.Fatalf("split %s into tiers: %v", vpcCIDR, err)
-		}
-		if len(tierCIDRs) < 3 {
-			t.Fatalf("expected at least 3 tier CIDRs for %s", vpcCIDR)
-		}
-
-		tiers := []struct {
-			cidr     string
-			name     string
-			reserves [][3]string
-		}{
-			{
-				cidr: tierCIDRs[0],
-				name: "Public",
-				reserves: [][3]string{
-					{"1", "gateway", "Default gateway"},
-					{"2", "dns", "Resolver"},
-					{"10", "nat", "NAT/egress"},
-				},
-			},
-			{
-				cidr: tierCIDRs[1],
-				name: "Private",
-				reserves: [][3]string{
-					{"1", "gateway", "Default gateway"},
-					{"2", "dns", "Resolver"},
-					{"10", "app-lb", "Internal LB"},
-				},
-			},
-			{
-				cidr: tierCIDRs[2],
-				name: "Backend",
-				reserves: [][3]string{
-					{"1", "gateway", "Default gateway"},
-					{"2", "dns", "Resolver"},
-					{"10", "db", "Database VIP"},
-				},
-			},
-		}
-
-		for _, tier := range tiers {
-			moveFocusToID(t, h, tier.cidr)
-			allocateHostsFocused(h, tier.name, tier.name+" tier", "")
-		}
+		allocateHostsFocused(h, vpcName, vpcName+" regional VPC", "")
 
 		if withInfraReservations {
-			for _, tier := range tiers {
-				moveFocusToID(t, h, tier.cidr)
-				h.PressEnter()
+			h.PressEnter()
 
-				base := strings.Split(tier.cidr, "/")[0]
-				octets := strings.Split(base, ".")
-				if len(octets) != 4 {
-					t.Fatalf("expected IPv4 subnet for demo tier, got %s", tier.cidr)
-				}
-				prefix3 := strings.Join(octets[:3], ".")
-				for _, r := range tier.reserves {
-					reserveIPFromCurrentNetwork(
-						h,
-						fmt.Sprintf("%s.%s", prefix3, r[0]),
-						r[1],
-						r[2],
-					)
-				}
-
-				h.PressBackspace()
+			base := strings.Split(vpcCIDR, "/")[0]
+			octets := strings.Split(base, ".")
+			if len(octets) != 4 {
+				t.Fatalf("expected IPv4 subnet for demo VPC, got %s", vpcCIDR)
 			}
-		}
+			prefix3 := strings.Join(octets[:3], ".")
+			reserveIPFromCurrentNetwork(h, fmt.Sprintf("%s.%s", prefix3, "1"), "gateway", "Default gateway")
+			reserveIPFromCurrentNetwork(h, fmt.Sprintf("%s.%s", prefix3, "2"), "dns", "Resolver")
+			reserveIPFromCurrentNetwork(h, fmt.Sprintf("%s.%s", prefix3, "10"), "nat", "NAT/egress")
 
-		h.PressBackspace()
+			h.PressBackspace()
+		}
 	}
 
 	for _, cloud := range clouds {
 		addNetworkViaDialog(h, cloud.cloudCIDR)
 		moveFocusToID(t, h, cloud.cloudCIDR)
-		allocateSubnetsFocused(h, cloud.cloudName, cloud.cloudName+" cloud supernet", "", "14")
+		allocateSubnetsFocused(h, cloud.cloudName, cloud.cloudName+" cloud supernet", "", "13")
 
 		h.PressEnter()
+		cloudHalves, err := splitNetwork(cloud.cloudCIDR, 13)
+		if err != nil || len(cloudHalves) < 1 {
+			t.Fatalf("split cloud %s into /13 failed: %v", cloud.cloudCIDR, err)
+		}
+		moveFocusToID(t, h, cloudHalves[0])
+		splitFocusedNetwork(h, "14")
 		configureVpcTiers(cloud.region1VPCCIDR, cloud.cloudName+" us-east-1 VPC", true)
 		configureVpcTiers(cloud.region2VPCCIDR, cloud.cloudName+" eu-west-1 VPC", false)
 		h.PressBackspace()
 
 		addNetworkViaDialog(h, cloud.ipv6CloudCIDR)
 		moveFocusToID(t, h, cloud.ipv6CloudCIDR)
-		allocateSubnetsFocused(h, cloud.cloudName+" IPv6", cloud.cloudName+" dual-stack IPv6 supernet", "", "36")
+		allocateSubnetsFocused(h, cloud.cloudName+" IPv6", cloud.cloudName+" dual-stack IPv6 supernet", "", "33")
 		h.PressEnter()
 
-		v6Regions, err := splitNetwork(cloud.ipv6CloudCIDR, 36)
-		if err != nil {
-			t.Fatalf("split IPv6 cloud %s: %v", cloud.ipv6CloudCIDR, err)
+		v6Halves, err := splitNetwork(cloud.ipv6CloudCIDR, 33)
+		if err != nil || len(v6Halves) < 1 {
+			t.Fatalf("split IPv6 cloud %s into /33 failed: %v", cloud.ipv6CloudCIDR, err)
+		}
+		activeV6 := v6Halves[0]
+		v6Regions := []string{}
+		for prefix := 34; prefix <= 36; prefix++ {
+			moveFocusToID(t, h, activeV6)
+			splitFocusedNetwork(h, fmt.Sprintf("%d", prefix))
+			children, err := splitNetwork(activeV6, prefix)
+			if err != nil || len(children) < 2 {
+				t.Fatalf("split %s into /%d failed: %v", activeV6, prefix, err)
+			}
+			if prefix == 36 {
+				v6Regions = children[:2]
+			}
+			activeV6 = children[0]
 		}
 		if len(v6Regions) < 2 {
 			t.Fatalf("expected at least 2 IPv6 regional ranges for %s", cloud.ipv6CloudCIDR)

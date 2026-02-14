@@ -1,5 +1,5 @@
-allocation_mode: 1
-description: Azure us-east-1 VPC multi-tier
+allocation_mode: 2
+description: Azure us-east-1 VPC regional VPC
 display_name: Azure us-east-1 VPC
 id: 10.32.0.0/14
 parent: Networks -> 10.32.0.0/12

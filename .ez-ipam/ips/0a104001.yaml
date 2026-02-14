@@ -1,4 +1,0 @@
-description: Default gateway
-display_name: gateway
-id: 10.16.64.1
-parent: Networks -> 10.16.0.0/12 -> 10.16.0.0/14 -> 10.16.64.0/18

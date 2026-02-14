@@ -1,5 +1,5 @@
-allocation_mode: 1
-description: AWS us-east-1 VPC multi-tier
+allocation_mode: 2
+description: AWS us-east-1 VPC regional VPC
 display_name: AWS us-east-1 VPC
 id: 10.0.0.0/14
 parent: Networks -> 10.0.0.0/12

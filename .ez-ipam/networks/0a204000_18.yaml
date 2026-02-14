@@ -1,5 +1,0 @@
-allocation_mode: 2
-description: Private tier
-display_name: Private
-id: 10.32.64.0/18
-parent: Networks -> 10.32.0.0/12 -> 10.32.0.0/14

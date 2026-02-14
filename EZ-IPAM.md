@@ -9,143 +9,26 @@
 | Network | Name | Allocation | VLAN | Description |
 |---------|------|------------|------|-------------|
 | `10.0.0.0/12` [link](#network-0a000000_12) | AWS | Subnet Container | - | AWS cloud supernet |
-| `│ ├── 10.0.0.0/14` [link](#network-0a000000_14) | AWS us-east-1 VPC | Subnet Container | - | AWS us-east-1 VPC multi-tier |
-| `│ │ ├── 10.0.0.0/18` [link](#network-0a000000_18) | Public | Host Pool | - | Public tier |
-| `│ │ │ ├── 10.0.0.1` | gateway | Reserved IP | - | Default gateway |
-| `│ │ │ ├── 10.0.0.2` | dns | Reserved IP | - | Resolver |
-| `│ │ │ └── 10.0.0.10` | nat | Reserved IP | - | NAT/egress |
-| `│ │ ├── 10.0.64.0/18` [link](#network-0a004000_18) | Private | Host Pool | - | Private tier |
-| `│ │ │ ├── 10.0.64.1` | gateway | Reserved IP | - | Default gateway |
-| `│ │ │ ├── 10.0.64.2` | dns | Reserved IP | - | Resolver |
-| `│ │ │ └── 10.0.64.10` | app-lb | Reserved IP | - | Internal LB |
-| `│ │ ├── 10.0.128.0/18` [link](#network-0a008000_18) | Backend | Host Pool | - | Backend tier |
-| `│ │ │ ├── 10.0.128.1` | gateway | Reserved IP | - | Default gateway |
-| `│ │ │ ├── 10.0.128.2` | dns | Reserved IP | - | Resolver |
-| `│ │ │ └── 10.0.128.10` | db | Reserved IP | - | Database VIP |
-| `│ │ ├── 10.0.192.0/18` [link](#network-0a00c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.1.0.0/18` [link](#network-0a010000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.1.64.0/18` [link](#network-0a014000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.1.128.0/18` [link](#network-0a018000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.1.192.0/18` [link](#network-0a01c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.2.0.0/18` [link](#network-0a020000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.2.64.0/18` [link](#network-0a024000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.2.128.0/18` [link](#network-0a028000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.2.192.0/18` [link](#network-0a02c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.3.0.0/18` [link](#network-0a030000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.3.64.0/18` [link](#network-0a034000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.3.128.0/18` [link](#network-0a038000_18) | - | Unallocated | - | - |
-| `│ │ └── 10.3.192.0/18` [link](#network-0a03c000_18) | - | Unallocated | - | - |
-| `│ ├── 10.4.0.0/14` [link](#network-0a040000_14) | AWS eu-west-1 VPC | Subnet Container | - | AWS eu-west-1 VPC multi-tier |
-| `│ │ ├── 10.4.0.0/18` [link](#network-0a040000_18) | Public | Host Pool | - | Public tier |
-| `│ │ ├── 10.4.64.0/18` [link](#network-0a044000_18) | Private | Host Pool | - | Private tier |
-| `│ │ ├── 10.4.128.0/18` [link](#network-0a048000_18) | Backend | Host Pool | - | Backend tier |
-| `│ │ ├── 10.4.192.0/18` [link](#network-0a04c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.5.0.0/18` [link](#network-0a050000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.5.64.0/18` [link](#network-0a054000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.5.128.0/18` [link](#network-0a058000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.5.192.0/18` [link](#network-0a05c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.6.0.0/18` [link](#network-0a060000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.6.64.0/18` [link](#network-0a064000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.6.128.0/18` [link](#network-0a068000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.6.192.0/18` [link](#network-0a06c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.7.0.0/18` [link](#network-0a070000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.7.64.0/18` [link](#network-0a074000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.7.128.0/18` [link](#network-0a078000_18) | - | Unallocated | - | - |
-| `│ │ └── 10.7.192.0/18` [link](#network-0a07c000_18) | - | Unallocated | - | - |
-| `│ ├── 10.8.0.0/14` [link](#network-0a080000_14) | - | Unallocated | - | - |
-| `│ └── 10.12.0.0/14` [link](#network-0a0c0000_14) | - | Unallocated | - | - |
+| `│ ├── 10.0.0.0/14` [link](#network-0a000000_14) | AWS us-east-1 VPC | Host Pool | - | AWS us-east-1 VPC regional VPC |
+| `│ │ ├── 10.0.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ ├── 10.0.0.2` | dns | Reserved IP | - | Resolver |
+| `│ │ └── 10.0.0.10` | nat | Reserved IP | - | NAT/egress |
+| `│ ├── 10.4.0.0/14` [link](#network-0a040000_14) | AWS eu-west-1 VPC | Host Pool | - | AWS eu-west-1 VPC regional VPC |
+| `│ └── 10.8.0.0/13` [link](#network-0a080000_13) | - | Unallocated | - | - |
 | `10.16.0.0/12` [link](#network-0a100000_12) | GCP | Subnet Container | - | GCP cloud supernet |
-| `│ ├── 10.16.0.0/14` [link](#network-0a100000_14) | GCP us-east-1 VPC | Subnet Container | - | GCP us-east-1 VPC multi-tier |
-| `│ │ ├── 10.16.0.0/18` [link](#network-0a100000_18) | Public | Host Pool | - | Public tier |
-| `│ │ │ ├── 10.16.0.1` | gateway | Reserved IP | - | Default gateway |
-| `│ │ │ ├── 10.16.0.2` | dns | Reserved IP | - | Resolver |
-| `│ │ │ └── 10.16.0.10` | nat | Reserved IP | - | NAT/egress |
-| `│ │ ├── 10.16.64.0/18` [link](#network-0a104000_18) | Private | Host Pool | - | Private tier |
-| `│ │ │ ├── 10.16.64.1` | gateway | Reserved IP | - | Default gateway |
-| `│ │ │ ├── 10.16.64.2` | dns | Reserved IP | - | Resolver |
-| `│ │ │ └── 10.16.64.10` | app-lb | Reserved IP | - | Internal LB |
-| `│ │ ├── 10.16.128.0/18` [link](#network-0a108000_18) | Backend | Host Pool | - | Backend tier |
-| `│ │ │ ├── 10.16.128.1` | gateway | Reserved IP | - | Default gateway |
-| `│ │ │ ├── 10.16.128.2` | dns | Reserved IP | - | Resolver |
-| `│ │ │ └── 10.16.128.10` | db | Reserved IP | - | Database VIP |
-| `│ │ ├── 10.16.192.0/18` [link](#network-0a10c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.17.0.0/18` [link](#network-0a110000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.17.64.0/18` [link](#network-0a114000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.17.128.0/18` [link](#network-0a118000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.17.192.0/18` [link](#network-0a11c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.18.0.0/18` [link](#network-0a120000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.18.64.0/18` [link](#network-0a124000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.18.128.0/18` [link](#network-0a128000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.18.192.0/18` [link](#network-0a12c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.19.0.0/18` [link](#network-0a130000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.19.64.0/18` [link](#network-0a134000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.19.128.0/18` [link](#network-0a138000_18) | - | Unallocated | - | - |
-| `│ │ └── 10.19.192.0/18` [link](#network-0a13c000_18) | - | Unallocated | - | - |
-| `│ ├── 10.20.0.0/14` [link](#network-0a140000_14) | GCP eu-west-1 VPC | Subnet Container | - | GCP eu-west-1 VPC multi-tier |
-| `│ │ ├── 10.20.0.0/18` [link](#network-0a140000_18) | Public | Host Pool | - | Public tier |
-| `│ │ ├── 10.20.64.0/18` [link](#network-0a144000_18) | Private | Host Pool | - | Private tier |
-| `│ │ ├── 10.20.128.0/18` [link](#network-0a148000_18) | Backend | Host Pool | - | Backend tier |
-| `│ │ ├── 10.20.192.0/18` [link](#network-0a14c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.21.0.0/18` [link](#network-0a150000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.21.64.0/18` [link](#network-0a154000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.21.128.0/18` [link](#network-0a158000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.21.192.0/18` [link](#network-0a15c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.22.0.0/18` [link](#network-0a160000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.22.64.0/18` [link](#network-0a164000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.22.128.0/18` [link](#network-0a168000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.22.192.0/18` [link](#network-0a16c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.23.0.0/18` [link](#network-0a170000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.23.64.0/18` [link](#network-0a174000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.23.128.0/18` [link](#network-0a178000_18) | - | Unallocated | - | - |
-| `│ │ └── 10.23.192.0/18` [link](#network-0a17c000_18) | - | Unallocated | - | - |
-| `│ ├── 10.24.0.0/14` [link](#network-0a180000_14) | - | Unallocated | - | - |
-| `│ └── 10.28.0.0/14` [link](#network-0a1c0000_14) | - | Unallocated | - | - |
+| `│ ├── 10.16.0.0/14` [link](#network-0a100000_14) | GCP us-east-1 VPC | Host Pool | - | GCP us-east-1 VPC regional VPC |
+| `│ │ ├── 10.16.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ ├── 10.16.0.2` | dns | Reserved IP | - | Resolver |
+| `│ │ └── 10.16.0.10` | nat | Reserved IP | - | NAT/egress |
+| `│ ├── 10.20.0.0/14` [link](#network-0a140000_14) | GCP eu-west-1 VPC | Host Pool | - | GCP eu-west-1 VPC regional VPC |
+| `│ └── 10.24.0.0/13` [link](#network-0a180000_13) | - | Unallocated | - | - |
 | `10.32.0.0/12` [link](#network-0a200000_12) | Azure | Subnet Container | - | Azure cloud supernet |
-| `│ ├── 10.32.0.0/14` [link](#network-0a200000_14) | Azure us-east-1 VPC | Subnet Container | - | Azure us-east-1 VPC multi-tier |
-| `│ │ ├── 10.32.0.0/18` [link](#network-0a200000_18) | Public | Host Pool | - | Public tier |
-| `│ │ │ ├── 10.32.0.1` | gateway | Reserved IP | - | Default gateway |
-| `│ │ │ ├── 10.32.0.2` | dns | Reserved IP | - | Resolver |
-| `│ │ │ └── 10.32.0.10` | nat | Reserved IP | - | NAT/egress |
-| `│ │ ├── 10.32.64.0/18` [link](#network-0a204000_18) | Private | Host Pool | - | Private tier |
-| `│ │ │ ├── 10.32.64.1` | gateway | Reserved IP | - | Default gateway |
-| `│ │ │ ├── 10.32.64.2` | dns | Reserved IP | - | Resolver |
-| `│ │ │ └── 10.32.64.10` | app-lb | Reserved IP | - | Internal LB |
-| `│ │ ├── 10.32.128.0/18` [link](#network-0a208000_18) | Backend | Host Pool | - | Backend tier |
-| `│ │ │ ├── 10.32.128.1` | gateway | Reserved IP | - | Default gateway |
-| `│ │ │ ├── 10.32.128.2` | dns | Reserved IP | - | Resolver |
-| `│ │ │ └── 10.32.128.10` | db | Reserved IP | - | Database VIP |
-| `│ │ ├── 10.32.192.0/18` [link](#network-0a20c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.33.0.0/18` [link](#network-0a210000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.33.64.0/18` [link](#network-0a214000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.33.128.0/18` [link](#network-0a218000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.33.192.0/18` [link](#network-0a21c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.34.0.0/18` [link](#network-0a220000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.34.64.0/18` [link](#network-0a224000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.34.128.0/18` [link](#network-0a228000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.34.192.0/18` [link](#network-0a22c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.35.0.0/18` [link](#network-0a230000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.35.64.0/18` [link](#network-0a234000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.35.128.0/18` [link](#network-0a238000_18) | - | Unallocated | - | - |
-| `│ │ └── 10.35.192.0/18` [link](#network-0a23c000_18) | - | Unallocated | - | - |
-| `│ ├── 10.36.0.0/14` [link](#network-0a240000_14) | Azure eu-west-1 VPC | Subnet Container | - | Azure eu-west-1 VPC multi-tier |
-| `│ │ ├── 10.36.0.0/18` [link](#network-0a240000_18) | Public | Host Pool | - | Public tier |
-| `│ │ ├── 10.36.64.0/18` [link](#network-0a244000_18) | Private | Host Pool | - | Private tier |
-| `│ │ ├── 10.36.128.0/18` [link](#network-0a248000_18) | Backend | Host Pool | - | Backend tier |
-| `│ │ ├── 10.36.192.0/18` [link](#network-0a24c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.37.0.0/18` [link](#network-0a250000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.37.64.0/18` [link](#network-0a254000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.37.128.0/18` [link](#network-0a258000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.37.192.0/18` [link](#network-0a25c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.38.0.0/18` [link](#network-0a260000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.38.64.0/18` [link](#network-0a264000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.38.128.0/18` [link](#network-0a268000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.38.192.0/18` [link](#network-0a26c000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.39.0.0/18` [link](#network-0a270000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.39.64.0/18` [link](#network-0a274000_18) | - | Unallocated | - | - |
-| `│ │ ├── 10.39.128.0/18` [link](#network-0a278000_18) | - | Unallocated | - | - |
-| `│ │ └── 10.39.192.0/18` [link](#network-0a27c000_18) | - | Unallocated | - | - |
-| `│ ├── 10.40.0.0/14` [link](#network-0a280000_14) | - | Unallocated | - | - |
-| `│ └── 10.44.0.0/14` [link](#network-0a2c0000_14) | - | Unallocated | - | - |
+| `│ ├── 10.32.0.0/14` [link](#network-0a200000_14) | Azure us-east-1 VPC | Host Pool | - | Azure us-east-1 VPC regional VPC |
+| `│ │ ├── 10.32.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ ├── 10.32.0.2` | dns | Reserved IP | - | Resolver |
+| `│ │ └── 10.32.0.10` | nat | Reserved IP | - | NAT/egress |
+| `│ ├── 10.36.0.0/14` [link](#network-0a240000_14) | Azure eu-west-1 VPC | Host Pool | - | Azure eu-west-1 VPC regional VPC |
+| `│ └── 10.40.0.0/13` [link](#network-0a280000_13) | - | Unallocated | - | - |
 | `192.168.0.0/16` [link](#network-c0a80000_16) | Home | Subnet Container | - | Home supernet with VLAN segments |
 | `│ ├── 192.168.0.0/24` [link](#network-c0a80000_24) | Home Infra | Host Pool | 10 (Home-Infra) | Routers and servers |
 | `│ │ ├── 192.168.0.1` | gateway | Reserved IP | 10 (Home-Infra) | Default gateway |
@@ -170,20 +53,9 @@
 | `│ ├── fd10:0:1000::/36` [link](#network-fd100000100000000000000000000000_36) | AWS eu-west-1 VPC v6 | Host Pool | - | IPv6 regional VPC in eu-west-1 |
 | `│ │ ├── fd10:0:1000::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
 | `│ │ └── fd10:0:1000::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
-| `│ ├── fd10:0:2000::/36` [link](#network-fd100000200000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd10:0:3000::/36` [link](#network-fd100000300000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd10:0:4000::/36` [link](#network-fd100000400000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd10:0:5000::/36` [link](#network-fd100000500000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd10:0:6000::/36` [link](#network-fd100000600000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd10:0:7000::/36` [link](#network-fd100000700000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd10:0:8000::/36` [link](#network-fd100000800000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd10:0:9000::/36` [link](#network-fd100000900000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd10:0:a000::/36` [link](#network-fd100000a00000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd10:0:b000::/36` [link](#network-fd100000b00000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd10:0:c000::/36` [link](#network-fd100000c00000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd10:0:d000::/36` [link](#network-fd100000d00000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd10:0:e000::/36` [link](#network-fd100000e00000000000000000000000_36) | - | Unallocated | - | - |
-| `│ └── fd10:0:f000::/36` [link](#network-fd100000f00000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd10:0:2000::/35` [link](#network-fd100000200000000000000000000000_35) | - | Unallocated | - | - |
+| `│ ├── fd10:0:4000::/34` [link](#network-fd100000400000000000000000000000_34) | - | Unallocated | - | - |
+| `│ └── fd10:0:8000::/33` [link](#network-fd100000800000000000000000000000_33) | - | Unallocated | - | - |
 | `fd20::/32` [link](#network-fd200000000000000000000000000000_32) | GCP IPv6 | Subnet Container | - | GCP dual-stack IPv6 supernet |
 | `│ ├── fd20::/36` [link](#network-fd200000000000000000000000000000_36) | GCP us-east-1 VPC v6 | Host Pool | - | IPv6 regional VPC in us-east-1 |
 | `│ │ ├── fd20::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
@@ -191,20 +63,9 @@
 | `│ ├── fd20:0:1000::/36` [link](#network-fd200000100000000000000000000000_36) | GCP eu-west-1 VPC v6 | Host Pool | - | IPv6 regional VPC in eu-west-1 |
 | `│ │ ├── fd20:0:1000::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
 | `│ │ └── fd20:0:1000::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
-| `│ ├── fd20:0:2000::/36` [link](#network-fd200000200000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd20:0:3000::/36` [link](#network-fd200000300000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd20:0:4000::/36` [link](#network-fd200000400000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd20:0:5000::/36` [link](#network-fd200000500000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd20:0:6000::/36` [link](#network-fd200000600000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd20:0:7000::/36` [link](#network-fd200000700000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd20:0:8000::/36` [link](#network-fd200000800000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd20:0:9000::/36` [link](#network-fd200000900000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd20:0:a000::/36` [link](#network-fd200000a00000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd20:0:b000::/36` [link](#network-fd200000b00000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd20:0:c000::/36` [link](#network-fd200000c00000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd20:0:d000::/36` [link](#network-fd200000d00000000000000000000000_36) | - | Unallocated | - | - |
-| `│ ├── fd20:0:e000::/36` [link](#network-fd200000e00000000000000000000000_36) | - | Unallocated | - | - |
-| `│ └── fd20:0:f000::/36` [link](#network-fd200000f00000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd20:0:2000::/35` [link](#network-fd200000200000000000000000000000_35) | - | Unallocated | - | - |
+| `│ ├── fd20:0:4000::/34` [link](#network-fd200000400000000000000000000000_34) | - | Unallocated | - | - |
+| `│ └── fd20:0:8000::/33` [link](#network-fd200000800000000000000000000000_33) | - | Unallocated | - | - |
 | `fd30::/32` [link](#network-fd300000000000000000000000000000_32) | Azure IPv6 | Subnet Container | - | Azure dual-stack IPv6 supernet |
 | `  ├── fd30::/36` [link](#network-fd300000000000000000000000000000_36) | Azure us-east-1 VPC v6 | Host Pool | - | IPv6 regional VPC in us-east-1 |
 | `  │ ├── fd30::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
@@ -212,20 +73,9 @@
 | `  ├── fd30:0:1000::/36` [link](#network-fd300000100000000000000000000000_36) | Azure eu-west-1 VPC v6 | Host Pool | - | IPv6 regional VPC in eu-west-1 |
 | `  │ ├── fd30:0:1000::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
 | `  │ └── fd30:0:1000::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
-| `  ├── fd30:0:2000::/36` [link](#network-fd300000200000000000000000000000_36) | - | Unallocated | - | - |
-| `  ├── fd30:0:3000::/36` [link](#network-fd300000300000000000000000000000_36) | - | Unallocated | - | - |
-| `  ├── fd30:0:4000::/36` [link](#network-fd300000400000000000000000000000_36) | - | Unallocated | - | - |
-| `  ├── fd30:0:5000::/36` [link](#network-fd300000500000000000000000000000_36) | - | Unallocated | - | - |
-| `  ├── fd30:0:6000::/36` [link](#network-fd300000600000000000000000000000_36) | - | Unallocated | - | - |
-| `  ├── fd30:0:7000::/36` [link](#network-fd300000700000000000000000000000_36) | - | Unallocated | - | - |
-| `  ├── fd30:0:8000::/36` [link](#network-fd300000800000000000000000000000_36) | - | Unallocated | - | - |
-| `  ├── fd30:0:9000::/36` [link](#network-fd300000900000000000000000000000_36) | - | Unallocated | - | - |
-| `  ├── fd30:0:a000::/36` [link](#network-fd300000a00000000000000000000000_36) | - | Unallocated | - | - |
-| `  ├── fd30:0:b000::/36` [link](#network-fd300000b00000000000000000000000_36) | - | Unallocated | - | - |
-| `  ├── fd30:0:c000::/36` [link](#network-fd300000c00000000000000000000000_36) | - | Unallocated | - | - |
-| `  ├── fd30:0:d000::/36` [link](#network-fd300000d00000000000000000000000_36) | - | Unallocated | - | - |
-| `  ├── fd30:0:e000::/36` [link](#network-fd300000e00000000000000000000000_36) | - | Unallocated | - | - |
-| `  └── fd30:0:f000::/36` [link](#network-fd300000f00000000000000000000000_36) | - | Unallocated | - | - |
+| `  ├── fd30:0:2000::/35` [link](#network-fd300000200000000000000000000000_35) | - | Unallocated | - | - |
+| `  ├── fd30:0:4000::/34` [link](#network-fd300000400000000000000000000000_34) | - | Unallocated | - | - |
+| `  └── fd30:0:8000::/33` [link](#network-fd300000800000000000000000000000_33) | - | Unallocated | - | - |
 
 ## VLANs
 
@@ -272,344 +122,18 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.0.0.1 - 10.3.255.254` |
 | **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Subnet Container` |
-| **Mode Meaning** | `Branch node: contains child networks.` |
-
-> AWS us-east-1 VPC multi-tier
-
----
-
-<a id="network-0a000000_18"></a>
-##### `10.0.0.0/18` -- Public
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.0.0.0/18` |
-| **Network Address** | `10.0.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.0.63.255` |
-| **Range** | `10.0.0.0 - 10.0.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.0.0.1 - 10.0.63.254` |
-| **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Host Pool` |
 | **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
-> Public tier
+> AWS us-east-1 VPC regional VPC
 
-##### Reserved IPs
+#### Reserved IPs
 
 | IP | Name | Description |
 |----|------|-------------|
 | `10.0.0.1` | `gateway` | Default gateway |
 | `10.0.0.2` | `dns` | Resolver |
 | `10.0.0.10` | `nat` | NAT/egress |
-
----
-
-<a id="network-0a004000_18"></a>
-##### `10.0.64.0/18` -- Private
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.0.64.0/18` |
-| **Network Address** | `10.0.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.0.127.255` |
-| **Range** | `10.0.64.0 - 10.0.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.0.64.1 - 10.0.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Private tier
-
-##### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `10.0.64.1` | `gateway` | Default gateway |
-| `10.0.64.2` | `dns` | Resolver |
-| `10.0.64.10` | `app-lb` | Internal LB |
-
----
-
-<a id="network-0a008000_18"></a>
-##### `10.0.128.0/18` -- Backend
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.0.128.0/18` |
-| **Network Address** | `10.0.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.0.191.255` |
-| **Range** | `10.0.128.0 - 10.0.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.0.128.1 - 10.0.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Backend tier
-
-##### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `10.0.128.1` | `gateway` | Default gateway |
-| `10.0.128.2` | `dns` | Resolver |
-| `10.0.128.10` | `db` | Database VIP |
-
----
-
-<a id="network-0a00c000_18"></a>
-##### `10.0.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.0.192.0/18` |
-| **Network Address** | `10.0.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.0.255.255` |
-| **Range** | `10.0.192.0 - 10.0.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.0.192.1 - 10.0.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a010000_18"></a>
-##### `10.1.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.1.0.0/18` |
-| **Network Address** | `10.1.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.1.63.255` |
-| **Range** | `10.1.0.0 - 10.1.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.1.0.1 - 10.1.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a014000_18"></a>
-##### `10.1.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.1.64.0/18` |
-| **Network Address** | `10.1.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.1.127.255` |
-| **Range** | `10.1.64.0 - 10.1.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.1.64.1 - 10.1.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a018000_18"></a>
-##### `10.1.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.1.128.0/18` |
-| **Network Address** | `10.1.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.1.191.255` |
-| **Range** | `10.1.128.0 - 10.1.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.1.128.1 - 10.1.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a01c000_18"></a>
-##### `10.1.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.1.192.0/18` |
-| **Network Address** | `10.1.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.1.255.255` |
-| **Range** | `10.1.192.0 - 10.1.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.1.192.1 - 10.1.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a020000_18"></a>
-##### `10.2.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.2.0.0/18` |
-| **Network Address** | `10.2.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.2.63.255` |
-| **Range** | `10.2.0.0 - 10.2.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.2.0.1 - 10.2.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a024000_18"></a>
-##### `10.2.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.2.64.0/18` |
-| **Network Address** | `10.2.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.2.127.255` |
-| **Range** | `10.2.64.0 - 10.2.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.2.64.1 - 10.2.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a028000_18"></a>
-##### `10.2.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.2.128.0/18` |
-| **Network Address** | `10.2.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.2.191.255` |
-| **Range** | `10.2.128.0 - 10.2.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.2.128.1 - 10.2.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a02c000_18"></a>
-##### `10.2.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.2.192.0/18` |
-| **Network Address** | `10.2.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.2.255.255` |
-| **Range** | `10.2.192.0 - 10.2.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.2.192.1 - 10.2.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a030000_18"></a>
-##### `10.3.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.3.0.0/18` |
-| **Network Address** | `10.3.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.3.63.255` |
-| **Range** | `10.3.0.0 - 10.3.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.3.0.1 - 10.3.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a034000_18"></a>
-##### `10.3.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.3.64.0/18` |
-| **Network Address** | `10.3.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.3.127.255` |
-| **Range** | `10.3.64.0 - 10.3.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.3.64.1 - 10.3.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a038000_18"></a>
-##### `10.3.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.3.128.0/18` |
-| **Network Address** | `10.3.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.3.191.255` |
-| **Range** | `10.3.128.0 - 10.3.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.3.128.1 - 10.3.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a03c000_18"></a>
-##### `10.3.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.3.192.0/18` |
-| **Network Address** | `10.3.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.3.255.255` |
-| **Range** | `10.3.192.0 - 10.3.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.3.192.1 - 10.3.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -627,356 +151,27 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.4.0.1 - 10.7.255.254` |
 | **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Subnet Container` |
-| **Mode Meaning** | `Branch node: contains child networks.` |
-
-> AWS eu-west-1 VPC multi-tier
-
----
-
-<a id="network-0a040000_18"></a>
-##### `10.4.0.0/18` -- Public
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.4.0.0/18` |
-| **Network Address** | `10.4.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.4.63.255` |
-| **Range** | `10.4.0.0 - 10.4.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.4.0.1 - 10.4.63.254` |
-| **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Host Pool` |
 | **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
-> Public tier
+> AWS eu-west-1 VPC regional VPC
 
 ---
 
-<a id="network-0a044000_18"></a>
-##### `10.4.64.0/18` -- Private
+<a id="network-0a080000_13"></a>
+#### `10.8.0.0/13` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `10.4.64.0/18` |
-| **Network Address** | `10.4.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.4.127.255` |
-| **Range** | `10.4.64.0 - 10.4.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.4.64.1 - 10.4.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Private tier
-
----
-
-<a id="network-0a048000_18"></a>
-##### `10.4.128.0/18` -- Backend
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.4.128.0/18` |
-| **Network Address** | `10.4.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.4.191.255` |
-| **Range** | `10.4.128.0 - 10.4.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.4.128.1 - 10.4.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Backend tier
-
----
-
-<a id="network-0a04c000_18"></a>
-##### `10.4.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.4.192.0/18` |
-| **Network Address** | `10.4.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.4.255.255` |
-| **Range** | `10.4.192.0 - 10.4.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.4.192.1 - 10.4.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a050000_18"></a>
-##### `10.5.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.5.0.0/18` |
-| **Network Address** | `10.5.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.5.63.255` |
-| **Range** | `10.5.0.0 - 10.5.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.5.0.1 - 10.5.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a054000_18"></a>
-##### `10.5.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.5.64.0/18` |
-| **Network Address** | `10.5.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.5.127.255` |
-| **Range** | `10.5.64.0 - 10.5.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.5.64.1 - 10.5.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a058000_18"></a>
-##### `10.5.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.5.128.0/18` |
-| **Network Address** | `10.5.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.5.191.255` |
-| **Range** | `10.5.128.0 - 10.5.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.5.128.1 - 10.5.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a05c000_18"></a>
-##### `10.5.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.5.192.0/18` |
-| **Network Address** | `10.5.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.5.255.255` |
-| **Range** | `10.5.192.0 - 10.5.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.5.192.1 - 10.5.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a060000_18"></a>
-##### `10.6.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.6.0.0/18` |
-| **Network Address** | `10.6.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.6.63.255` |
-| **Range** | `10.6.0.0 - 10.6.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.6.0.1 - 10.6.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a064000_18"></a>
-##### `10.6.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.6.64.0/18` |
-| **Network Address** | `10.6.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.6.127.255` |
-| **Range** | `10.6.64.0 - 10.6.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.6.64.1 - 10.6.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a068000_18"></a>
-##### `10.6.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.6.128.0/18` |
-| **Network Address** | `10.6.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.6.191.255` |
-| **Range** | `10.6.128.0 - 10.6.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.6.128.1 - 10.6.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a06c000_18"></a>
-##### `10.6.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.6.192.0/18` |
-| **Network Address** | `10.6.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.6.255.255` |
-| **Range** | `10.6.192.0 - 10.6.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.6.192.1 - 10.6.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a070000_18"></a>
-##### `10.7.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.7.0.0/18` |
-| **Network Address** | `10.7.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.7.63.255` |
-| **Range** | `10.7.0.0 - 10.7.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.7.0.1 - 10.7.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a074000_18"></a>
-##### `10.7.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.7.64.0/18` |
-| **Network Address** | `10.7.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.7.127.255` |
-| **Range** | `10.7.64.0 - 10.7.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.7.64.1 - 10.7.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a078000_18"></a>
-##### `10.7.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.7.128.0/18` |
-| **Network Address** | `10.7.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.7.191.255` |
-| **Range** | `10.7.128.0 - 10.7.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.7.128.1 - 10.7.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a07c000_18"></a>
-##### `10.7.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.7.192.0/18` |
-| **Network Address** | `10.7.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.7.255.255` |
-| **Range** | `10.7.192.0 - 10.7.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.7.192.1 - 10.7.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a080000_14"></a>
-#### `10.8.0.0/14` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.8.0.0/14` |
+| **CIDR** | `10.8.0.0/13` |
 | **Network Address** | `10.8.0.0` |
-| **Mask Bits** | `14` |
-| **Subnet Mask** | `255.252.0.0` |
-| **Broadcast Address** | `10.11.255.255` |
-| **Range** | `10.8.0.0 - 10.11.255.255` |
-| **Total Hosts** | `262,144` |
-| **Usable Range** | `10.8.0.1 - 10.11.255.254` |
-| **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a0c0000_14"></a>
-#### `10.12.0.0/14` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.12.0.0/14` |
-| **Network Address** | `10.12.0.0` |
-| **Mask Bits** | `14` |
-| **Subnet Mask** | `255.252.0.0` |
+| **Mask Bits** | `13` |
+| **Subnet Mask** | `255.248.0.0` |
 | **Broadcast Address** | `10.15.255.255` |
-| **Range** | `10.12.0.0 - 10.15.255.255` |
-| **Total Hosts** | `262,144` |
-| **Usable Range** | `10.12.0.1 - 10.15.255.254` |
-| **Usable Hosts** | `262,142` |
+| **Range** | `10.8.0.0 - 10.15.255.255` |
+| **Total Hosts** | `524,288` |
+| **Usable Range** | `10.8.0.1 - 10.15.255.254` |
+| **Usable Hosts** | `524,286` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
@@ -1017,344 +212,18 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.16.0.1 - 10.19.255.254` |
 | **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Subnet Container` |
-| **Mode Meaning** | `Branch node: contains child networks.` |
-
-> GCP us-east-1 VPC multi-tier
-
----
-
-<a id="network-0a100000_18"></a>
-##### `10.16.0.0/18` -- Public
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.16.0.0/18` |
-| **Network Address** | `10.16.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.16.63.255` |
-| **Range** | `10.16.0.0 - 10.16.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.16.0.1 - 10.16.63.254` |
-| **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Host Pool` |
 | **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
-> Public tier
+> GCP us-east-1 VPC regional VPC
 
-##### Reserved IPs
+#### Reserved IPs
 
 | IP | Name | Description |
 |----|------|-------------|
 | `10.16.0.1` | `gateway` | Default gateway |
 | `10.16.0.2` | `dns` | Resolver |
 | `10.16.0.10` | `nat` | NAT/egress |
-
----
-
-<a id="network-0a104000_18"></a>
-##### `10.16.64.0/18` -- Private
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.16.64.0/18` |
-| **Network Address** | `10.16.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.16.127.255` |
-| **Range** | `10.16.64.0 - 10.16.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.16.64.1 - 10.16.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Private tier
-
-##### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `10.16.64.1` | `gateway` | Default gateway |
-| `10.16.64.2` | `dns` | Resolver |
-| `10.16.64.10` | `app-lb` | Internal LB |
-
----
-
-<a id="network-0a108000_18"></a>
-##### `10.16.128.0/18` -- Backend
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.16.128.0/18` |
-| **Network Address** | `10.16.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.16.191.255` |
-| **Range** | `10.16.128.0 - 10.16.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.16.128.1 - 10.16.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Backend tier
-
-##### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `10.16.128.1` | `gateway` | Default gateway |
-| `10.16.128.2` | `dns` | Resolver |
-| `10.16.128.10` | `db` | Database VIP |
-
----
-
-<a id="network-0a10c000_18"></a>
-##### `10.16.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.16.192.0/18` |
-| **Network Address** | `10.16.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.16.255.255` |
-| **Range** | `10.16.192.0 - 10.16.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.16.192.1 - 10.16.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a110000_18"></a>
-##### `10.17.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.17.0.0/18` |
-| **Network Address** | `10.17.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.17.63.255` |
-| **Range** | `10.17.0.0 - 10.17.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.17.0.1 - 10.17.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a114000_18"></a>
-##### `10.17.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.17.64.0/18` |
-| **Network Address** | `10.17.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.17.127.255` |
-| **Range** | `10.17.64.0 - 10.17.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.17.64.1 - 10.17.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a118000_18"></a>
-##### `10.17.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.17.128.0/18` |
-| **Network Address** | `10.17.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.17.191.255` |
-| **Range** | `10.17.128.0 - 10.17.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.17.128.1 - 10.17.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a11c000_18"></a>
-##### `10.17.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.17.192.0/18` |
-| **Network Address** | `10.17.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.17.255.255` |
-| **Range** | `10.17.192.0 - 10.17.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.17.192.1 - 10.17.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a120000_18"></a>
-##### `10.18.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.18.0.0/18` |
-| **Network Address** | `10.18.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.18.63.255` |
-| **Range** | `10.18.0.0 - 10.18.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.18.0.1 - 10.18.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a124000_18"></a>
-##### `10.18.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.18.64.0/18` |
-| **Network Address** | `10.18.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.18.127.255` |
-| **Range** | `10.18.64.0 - 10.18.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.18.64.1 - 10.18.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a128000_18"></a>
-##### `10.18.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.18.128.0/18` |
-| **Network Address** | `10.18.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.18.191.255` |
-| **Range** | `10.18.128.0 - 10.18.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.18.128.1 - 10.18.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a12c000_18"></a>
-##### `10.18.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.18.192.0/18` |
-| **Network Address** | `10.18.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.18.255.255` |
-| **Range** | `10.18.192.0 - 10.18.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.18.192.1 - 10.18.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a130000_18"></a>
-##### `10.19.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.19.0.0/18` |
-| **Network Address** | `10.19.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.19.63.255` |
-| **Range** | `10.19.0.0 - 10.19.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.19.0.1 - 10.19.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a134000_18"></a>
-##### `10.19.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.19.64.0/18` |
-| **Network Address** | `10.19.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.19.127.255` |
-| **Range** | `10.19.64.0 - 10.19.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.19.64.1 - 10.19.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a138000_18"></a>
-##### `10.19.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.19.128.0/18` |
-| **Network Address** | `10.19.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.19.191.255` |
-| **Range** | `10.19.128.0 - 10.19.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.19.128.1 - 10.19.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a13c000_18"></a>
-##### `10.19.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.19.192.0/18` |
-| **Network Address** | `10.19.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.19.255.255` |
-| **Range** | `10.19.192.0 - 10.19.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.19.192.1 - 10.19.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1372,356 +241,27 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.20.0.1 - 10.23.255.254` |
 | **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Subnet Container` |
-| **Mode Meaning** | `Branch node: contains child networks.` |
-
-> GCP eu-west-1 VPC multi-tier
-
----
-
-<a id="network-0a140000_18"></a>
-##### `10.20.0.0/18` -- Public
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.20.0.0/18` |
-| **Network Address** | `10.20.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.20.63.255` |
-| **Range** | `10.20.0.0 - 10.20.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.20.0.1 - 10.20.63.254` |
-| **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Host Pool` |
 | **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
-> Public tier
+> GCP eu-west-1 VPC regional VPC
 
 ---
 
-<a id="network-0a144000_18"></a>
-##### `10.20.64.0/18` -- Private
+<a id="network-0a180000_13"></a>
+#### `10.24.0.0/13` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `10.20.64.0/18` |
-| **Network Address** | `10.20.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.20.127.255` |
-| **Range** | `10.20.64.0 - 10.20.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.20.64.1 - 10.20.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Private tier
-
----
-
-<a id="network-0a148000_18"></a>
-##### `10.20.128.0/18` -- Backend
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.20.128.0/18` |
-| **Network Address** | `10.20.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.20.191.255` |
-| **Range** | `10.20.128.0 - 10.20.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.20.128.1 - 10.20.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Backend tier
-
----
-
-<a id="network-0a14c000_18"></a>
-##### `10.20.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.20.192.0/18` |
-| **Network Address** | `10.20.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.20.255.255` |
-| **Range** | `10.20.192.0 - 10.20.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.20.192.1 - 10.20.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a150000_18"></a>
-##### `10.21.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.21.0.0/18` |
-| **Network Address** | `10.21.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.21.63.255` |
-| **Range** | `10.21.0.0 - 10.21.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.21.0.1 - 10.21.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a154000_18"></a>
-##### `10.21.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.21.64.0/18` |
-| **Network Address** | `10.21.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.21.127.255` |
-| **Range** | `10.21.64.0 - 10.21.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.21.64.1 - 10.21.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a158000_18"></a>
-##### `10.21.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.21.128.0/18` |
-| **Network Address** | `10.21.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.21.191.255` |
-| **Range** | `10.21.128.0 - 10.21.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.21.128.1 - 10.21.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a15c000_18"></a>
-##### `10.21.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.21.192.0/18` |
-| **Network Address** | `10.21.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.21.255.255` |
-| **Range** | `10.21.192.0 - 10.21.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.21.192.1 - 10.21.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a160000_18"></a>
-##### `10.22.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.22.0.0/18` |
-| **Network Address** | `10.22.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.22.63.255` |
-| **Range** | `10.22.0.0 - 10.22.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.22.0.1 - 10.22.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a164000_18"></a>
-##### `10.22.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.22.64.0/18` |
-| **Network Address** | `10.22.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.22.127.255` |
-| **Range** | `10.22.64.0 - 10.22.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.22.64.1 - 10.22.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a168000_18"></a>
-##### `10.22.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.22.128.0/18` |
-| **Network Address** | `10.22.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.22.191.255` |
-| **Range** | `10.22.128.0 - 10.22.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.22.128.1 - 10.22.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a16c000_18"></a>
-##### `10.22.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.22.192.0/18` |
-| **Network Address** | `10.22.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.22.255.255` |
-| **Range** | `10.22.192.0 - 10.22.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.22.192.1 - 10.22.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a170000_18"></a>
-##### `10.23.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.23.0.0/18` |
-| **Network Address** | `10.23.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.23.63.255` |
-| **Range** | `10.23.0.0 - 10.23.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.23.0.1 - 10.23.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a174000_18"></a>
-##### `10.23.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.23.64.0/18` |
-| **Network Address** | `10.23.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.23.127.255` |
-| **Range** | `10.23.64.0 - 10.23.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.23.64.1 - 10.23.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a178000_18"></a>
-##### `10.23.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.23.128.0/18` |
-| **Network Address** | `10.23.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.23.191.255` |
-| **Range** | `10.23.128.0 - 10.23.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.23.128.1 - 10.23.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a17c000_18"></a>
-##### `10.23.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.23.192.0/18` |
-| **Network Address** | `10.23.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.23.255.255` |
-| **Range** | `10.23.192.0 - 10.23.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.23.192.1 - 10.23.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a180000_14"></a>
-#### `10.24.0.0/14` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.24.0.0/14` |
+| **CIDR** | `10.24.0.0/13` |
 | **Network Address** | `10.24.0.0` |
-| **Mask Bits** | `14` |
-| **Subnet Mask** | `255.252.0.0` |
-| **Broadcast Address** | `10.27.255.255` |
-| **Range** | `10.24.0.0 - 10.27.255.255` |
-| **Total Hosts** | `262,144` |
-| **Usable Range** | `10.24.0.1 - 10.27.255.254` |
-| **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a1c0000_14"></a>
-#### `10.28.0.0/14` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.28.0.0/14` |
-| **Network Address** | `10.28.0.0` |
-| **Mask Bits** | `14` |
-| **Subnet Mask** | `255.252.0.0` |
+| **Mask Bits** | `13` |
+| **Subnet Mask** | `255.248.0.0` |
 | **Broadcast Address** | `10.31.255.255` |
-| **Range** | `10.28.0.0 - 10.31.255.255` |
-| **Total Hosts** | `262,144` |
-| **Usable Range** | `10.28.0.1 - 10.31.255.254` |
-| **Usable Hosts** | `262,142` |
+| **Range** | `10.24.0.0 - 10.31.255.255` |
+| **Total Hosts** | `524,288` |
+| **Usable Range** | `10.24.0.1 - 10.31.255.254` |
+| **Usable Hosts** | `524,286` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
@@ -1762,344 +302,18 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.32.0.1 - 10.35.255.254` |
 | **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Subnet Container` |
-| **Mode Meaning** | `Branch node: contains child networks.` |
-
-> Azure us-east-1 VPC multi-tier
-
----
-
-<a id="network-0a200000_18"></a>
-##### `10.32.0.0/18` -- Public
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.32.0.0/18` |
-| **Network Address** | `10.32.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.32.63.255` |
-| **Range** | `10.32.0.0 - 10.32.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.32.0.1 - 10.32.63.254` |
-| **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Host Pool` |
 | **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
-> Public tier
+> Azure us-east-1 VPC regional VPC
 
-##### Reserved IPs
+#### Reserved IPs
 
 | IP | Name | Description |
 |----|------|-------------|
 | `10.32.0.1` | `gateway` | Default gateway |
 | `10.32.0.2` | `dns` | Resolver |
 | `10.32.0.10` | `nat` | NAT/egress |
-
----
-
-<a id="network-0a204000_18"></a>
-##### `10.32.64.0/18` -- Private
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.32.64.0/18` |
-| **Network Address** | `10.32.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.32.127.255` |
-| **Range** | `10.32.64.0 - 10.32.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.32.64.1 - 10.32.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Private tier
-
-##### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `10.32.64.1` | `gateway` | Default gateway |
-| `10.32.64.2` | `dns` | Resolver |
-| `10.32.64.10` | `app-lb` | Internal LB |
-
----
-
-<a id="network-0a208000_18"></a>
-##### `10.32.128.0/18` -- Backend
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.32.128.0/18` |
-| **Network Address** | `10.32.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.32.191.255` |
-| **Range** | `10.32.128.0 - 10.32.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.32.128.1 - 10.32.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Backend tier
-
-##### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `10.32.128.1` | `gateway` | Default gateway |
-| `10.32.128.2` | `dns` | Resolver |
-| `10.32.128.10` | `db` | Database VIP |
-
----
-
-<a id="network-0a20c000_18"></a>
-##### `10.32.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.32.192.0/18` |
-| **Network Address** | `10.32.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.32.255.255` |
-| **Range** | `10.32.192.0 - 10.32.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.32.192.1 - 10.32.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a210000_18"></a>
-##### `10.33.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.33.0.0/18` |
-| **Network Address** | `10.33.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.33.63.255` |
-| **Range** | `10.33.0.0 - 10.33.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.33.0.1 - 10.33.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a214000_18"></a>
-##### `10.33.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.33.64.0/18` |
-| **Network Address** | `10.33.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.33.127.255` |
-| **Range** | `10.33.64.0 - 10.33.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.33.64.1 - 10.33.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a218000_18"></a>
-##### `10.33.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.33.128.0/18` |
-| **Network Address** | `10.33.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.33.191.255` |
-| **Range** | `10.33.128.0 - 10.33.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.33.128.1 - 10.33.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a21c000_18"></a>
-##### `10.33.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.33.192.0/18` |
-| **Network Address** | `10.33.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.33.255.255` |
-| **Range** | `10.33.192.0 - 10.33.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.33.192.1 - 10.33.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a220000_18"></a>
-##### `10.34.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.34.0.0/18` |
-| **Network Address** | `10.34.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.34.63.255` |
-| **Range** | `10.34.0.0 - 10.34.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.34.0.1 - 10.34.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a224000_18"></a>
-##### `10.34.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.34.64.0/18` |
-| **Network Address** | `10.34.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.34.127.255` |
-| **Range** | `10.34.64.0 - 10.34.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.34.64.1 - 10.34.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a228000_18"></a>
-##### `10.34.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.34.128.0/18` |
-| **Network Address** | `10.34.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.34.191.255` |
-| **Range** | `10.34.128.0 - 10.34.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.34.128.1 - 10.34.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a22c000_18"></a>
-##### `10.34.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.34.192.0/18` |
-| **Network Address** | `10.34.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.34.255.255` |
-| **Range** | `10.34.192.0 - 10.34.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.34.192.1 - 10.34.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a230000_18"></a>
-##### `10.35.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.35.0.0/18` |
-| **Network Address** | `10.35.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.35.63.255` |
-| **Range** | `10.35.0.0 - 10.35.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.35.0.1 - 10.35.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a234000_18"></a>
-##### `10.35.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.35.64.0/18` |
-| **Network Address** | `10.35.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.35.127.255` |
-| **Range** | `10.35.64.0 - 10.35.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.35.64.1 - 10.35.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a238000_18"></a>
-##### `10.35.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.35.128.0/18` |
-| **Network Address** | `10.35.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.35.191.255` |
-| **Range** | `10.35.128.0 - 10.35.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.35.128.1 - 10.35.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a23c000_18"></a>
-##### `10.35.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.35.192.0/18` |
-| **Network Address** | `10.35.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.35.255.255` |
-| **Range** | `10.35.192.0 - 10.35.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.35.192.1 - 10.35.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2117,356 +331,27 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.36.0.1 - 10.39.255.254` |
 | **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Subnet Container` |
-| **Mode Meaning** | `Branch node: contains child networks.` |
-
-> Azure eu-west-1 VPC multi-tier
-
----
-
-<a id="network-0a240000_18"></a>
-##### `10.36.0.0/18` -- Public
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.36.0.0/18` |
-| **Network Address** | `10.36.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.36.63.255` |
-| **Range** | `10.36.0.0 - 10.36.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.36.0.1 - 10.36.63.254` |
-| **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Host Pool` |
 | **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
-> Public tier
+> Azure eu-west-1 VPC regional VPC
 
 ---
 
-<a id="network-0a244000_18"></a>
-##### `10.36.64.0/18` -- Private
+<a id="network-0a280000_13"></a>
+#### `10.40.0.0/13` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `10.36.64.0/18` |
-| **Network Address** | `10.36.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.36.127.255` |
-| **Range** | `10.36.64.0 - 10.36.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.36.64.1 - 10.36.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Private tier
-
----
-
-<a id="network-0a248000_18"></a>
-##### `10.36.128.0/18` -- Backend
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.36.128.0/18` |
-| **Network Address** | `10.36.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.36.191.255` |
-| **Range** | `10.36.128.0 - 10.36.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.36.128.1 - 10.36.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Backend tier
-
----
-
-<a id="network-0a24c000_18"></a>
-##### `10.36.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.36.192.0/18` |
-| **Network Address** | `10.36.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.36.255.255` |
-| **Range** | `10.36.192.0 - 10.36.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.36.192.1 - 10.36.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a250000_18"></a>
-##### `10.37.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.37.0.0/18` |
-| **Network Address** | `10.37.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.37.63.255` |
-| **Range** | `10.37.0.0 - 10.37.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.37.0.1 - 10.37.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a254000_18"></a>
-##### `10.37.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.37.64.0/18` |
-| **Network Address** | `10.37.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.37.127.255` |
-| **Range** | `10.37.64.0 - 10.37.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.37.64.1 - 10.37.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a258000_18"></a>
-##### `10.37.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.37.128.0/18` |
-| **Network Address** | `10.37.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.37.191.255` |
-| **Range** | `10.37.128.0 - 10.37.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.37.128.1 - 10.37.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a25c000_18"></a>
-##### `10.37.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.37.192.0/18` |
-| **Network Address** | `10.37.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.37.255.255` |
-| **Range** | `10.37.192.0 - 10.37.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.37.192.1 - 10.37.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a260000_18"></a>
-##### `10.38.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.38.0.0/18` |
-| **Network Address** | `10.38.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.38.63.255` |
-| **Range** | `10.38.0.0 - 10.38.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.38.0.1 - 10.38.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a264000_18"></a>
-##### `10.38.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.38.64.0/18` |
-| **Network Address** | `10.38.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.38.127.255` |
-| **Range** | `10.38.64.0 - 10.38.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.38.64.1 - 10.38.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a268000_18"></a>
-##### `10.38.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.38.128.0/18` |
-| **Network Address** | `10.38.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.38.191.255` |
-| **Range** | `10.38.128.0 - 10.38.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.38.128.1 - 10.38.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a26c000_18"></a>
-##### `10.38.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.38.192.0/18` |
-| **Network Address** | `10.38.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.38.255.255` |
-| **Range** | `10.38.192.0 - 10.38.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.38.192.1 - 10.38.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a270000_18"></a>
-##### `10.39.0.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.39.0.0/18` |
-| **Network Address** | `10.39.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.39.63.255` |
-| **Range** | `10.39.0.0 - 10.39.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.39.0.1 - 10.39.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a274000_18"></a>
-##### `10.39.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.39.64.0/18` |
-| **Network Address** | `10.39.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.39.127.255` |
-| **Range** | `10.39.64.0 - 10.39.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.39.64.1 - 10.39.127.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a278000_18"></a>
-##### `10.39.128.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.39.128.0/18` |
-| **Network Address** | `10.39.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.39.191.255` |
-| **Range** | `10.39.128.0 - 10.39.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.39.128.1 - 10.39.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a27c000_18"></a>
-##### `10.39.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.39.192.0/18` |
-| **Network Address** | `10.39.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.39.255.255` |
-| **Range** | `10.39.192.0 - 10.39.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.39.192.1 - 10.39.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a280000_14"></a>
-#### `10.40.0.0/14` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.40.0.0/14` |
+| **CIDR** | `10.40.0.0/13` |
 | **Network Address** | `10.40.0.0` |
-| **Mask Bits** | `14` |
-| **Subnet Mask** | `255.252.0.0` |
-| **Broadcast Address** | `10.43.255.255` |
-| **Range** | `10.40.0.0 - 10.43.255.255` |
-| **Total Hosts** | `262,144` |
-| **Usable Range** | `10.40.0.1 - 10.43.255.254` |
-| **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-0a2c0000_14"></a>
-#### `10.44.0.0/14` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.44.0.0/14` |
-| **Network Address** | `10.44.0.0` |
-| **Mask Bits** | `14` |
-| **Subnet Mask** | `255.252.0.0` |
+| **Mask Bits** | `13` |
+| **Subnet Mask** | `255.248.0.0` |
 | **Broadcast Address** | `10.47.255.255` |
-| **Range** | `10.44.0.0 - 10.47.255.255` |
-| **Total Hosts** | `262,144` |
-| **Usable Range** | `10.44.0.1 - 10.47.255.254` |
-| **Usable Hosts** | `262,142` |
+| **Range** | `10.40.0.0 - 10.47.255.255` |
+| **Total Hosts** | `524,288` |
+| **Usable Range** | `10.40.0.1 - 10.47.255.254` |
+| **Usable Hosts** | `524,286` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
@@ -2781,225 +666,49 @@
 
 ---
 
-<a id="network-fd100000200000000000000000000000_36"></a>
-#### `fd10:0:2000::/36` _(Unallocated)_
+<a id="network-fd100000200000000000000000000000_35"></a>
+#### `fd10:0:2000::/35` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `fd10:0:2000::/36` |
+| **CIDR** | `fd10:0:2000::/35` |
 | **Network Address** | `fd10:0:2000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:2000:: - fd10:0:2fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
+| **Mask Bits** | `35` |
+| **Subnet Mask** | `ffff:ffff:e000::` |
+| **Range** | `fd10:0:2000:: - fd10:0:3fff:ffff:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `536,870,912` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
-<a id="network-fd100000300000000000000000000000_36"></a>
-#### `fd10:0:3000::/36` _(Unallocated)_
+<a id="network-fd100000400000000000000000000000_34"></a>
+#### `fd10:0:4000::/34` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `fd10:0:3000::/36` |
-| **Network Address** | `fd10:0:3000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:3000:: - fd10:0:3fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000400000000000000000000000_36"></a>
-#### `fd10:0:4000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:4000::/36` |
+| **CIDR** | `fd10:0:4000::/34` |
 | **Network Address** | `fd10:0:4000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:4000:: - fd10:0:4fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
+| **Mask Bits** | `34` |
+| **Subnet Mask** | `ffff:ffff:c000::` |
+| **Range** | `fd10:0:4000:: - fd10:0:7fff:ffff:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `1,073,741,824` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
-<a id="network-fd100000500000000000000000000000_36"></a>
-#### `fd10:0:5000::/36` _(Unallocated)_
+<a id="network-fd100000800000000000000000000000_33"></a>
+#### `fd10:0:8000::/33` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `fd10:0:5000::/36` |
-| **Network Address** | `fd10:0:5000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:5000:: - fd10:0:5fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000600000000000000000000000_36"></a>
-#### `fd10:0:6000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:6000::/36` |
-| **Network Address** | `fd10:0:6000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:6000:: - fd10:0:6fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000700000000000000000000000_36"></a>
-#### `fd10:0:7000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:7000::/36` |
-| **Network Address** | `fd10:0:7000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:7000:: - fd10:0:7fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000800000000000000000000000_36"></a>
-#### `fd10:0:8000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:8000::/36` |
+| **CIDR** | `fd10:0:8000::/33` |
 | **Network Address** | `fd10:0:8000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:8000:: - fd10:0:8fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000900000000000000000000000_36"></a>
-#### `fd10:0:9000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:9000::/36` |
-| **Network Address** | `fd10:0:9000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:9000:: - fd10:0:9fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000a00000000000000000000000_36"></a>
-#### `fd10:0:a000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:a000::/36` |
-| **Network Address** | `fd10:0:a000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:a000:: - fd10:0:afff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000b00000000000000000000000_36"></a>
-#### `fd10:0:b000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:b000::/36` |
-| **Network Address** | `fd10:0:b000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:b000:: - fd10:0:bfff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000c00000000000000000000000_36"></a>
-#### `fd10:0:c000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:c000::/36` |
-| **Network Address** | `fd10:0:c000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:c000:: - fd10:0:cfff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000d00000000000000000000000_36"></a>
-#### `fd10:0:d000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:d000::/36` |
-| **Network Address** | `fd10:0:d000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:d000:: - fd10:0:dfff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000e00000000000000000000000_36"></a>
-#### `fd10:0:e000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:e000::/36` |
-| **Network Address** | `fd10:0:e000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:e000:: - fd10:0:efff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000f00000000000000000000000_36"></a>
-#### `fd10:0:f000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:f000::/36` |
-| **Network Address** | `fd10:0:f000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:f000:: - fd10:0:ffff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
+| **Mask Bits** | `33` |
+| **Subnet Mask** | `ffff:ffff:8000::` |
+| **Range** | `fd10:0:8000:: - fd10:0:ffff:ffff:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `2,147,483,648` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
@@ -3073,225 +782,49 @@
 
 ---
 
-<a id="network-fd200000200000000000000000000000_36"></a>
-#### `fd20:0:2000::/36` _(Unallocated)_
+<a id="network-fd200000200000000000000000000000_35"></a>
+#### `fd20:0:2000::/35` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `fd20:0:2000::/36` |
+| **CIDR** | `fd20:0:2000::/35` |
 | **Network Address** | `fd20:0:2000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:2000:: - fd20:0:2fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
+| **Mask Bits** | `35` |
+| **Subnet Mask** | `ffff:ffff:e000::` |
+| **Range** | `fd20:0:2000:: - fd20:0:3fff:ffff:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `536,870,912` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
-<a id="network-fd200000300000000000000000000000_36"></a>
-#### `fd20:0:3000::/36` _(Unallocated)_
+<a id="network-fd200000400000000000000000000000_34"></a>
+#### `fd20:0:4000::/34` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `fd20:0:3000::/36` |
-| **Network Address** | `fd20:0:3000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:3000:: - fd20:0:3fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000400000000000000000000000_36"></a>
-#### `fd20:0:4000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:4000::/36` |
+| **CIDR** | `fd20:0:4000::/34` |
 | **Network Address** | `fd20:0:4000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:4000:: - fd20:0:4fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
+| **Mask Bits** | `34` |
+| **Subnet Mask** | `ffff:ffff:c000::` |
+| **Range** | `fd20:0:4000:: - fd20:0:7fff:ffff:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `1,073,741,824` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
-<a id="network-fd200000500000000000000000000000_36"></a>
-#### `fd20:0:5000::/36` _(Unallocated)_
+<a id="network-fd200000800000000000000000000000_33"></a>
+#### `fd20:0:8000::/33` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `fd20:0:5000::/36` |
-| **Network Address** | `fd20:0:5000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:5000:: - fd20:0:5fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000600000000000000000000000_36"></a>
-#### `fd20:0:6000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:6000::/36` |
-| **Network Address** | `fd20:0:6000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:6000:: - fd20:0:6fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000700000000000000000000000_36"></a>
-#### `fd20:0:7000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:7000::/36` |
-| **Network Address** | `fd20:0:7000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:7000:: - fd20:0:7fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000800000000000000000000000_36"></a>
-#### `fd20:0:8000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:8000::/36` |
+| **CIDR** | `fd20:0:8000::/33` |
 | **Network Address** | `fd20:0:8000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:8000:: - fd20:0:8fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000900000000000000000000000_36"></a>
-#### `fd20:0:9000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:9000::/36` |
-| **Network Address** | `fd20:0:9000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:9000:: - fd20:0:9fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000a00000000000000000000000_36"></a>
-#### `fd20:0:a000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:a000::/36` |
-| **Network Address** | `fd20:0:a000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:a000:: - fd20:0:afff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000b00000000000000000000000_36"></a>
-#### `fd20:0:b000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:b000::/36` |
-| **Network Address** | `fd20:0:b000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:b000:: - fd20:0:bfff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000c00000000000000000000000_36"></a>
-#### `fd20:0:c000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:c000::/36` |
-| **Network Address** | `fd20:0:c000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:c000:: - fd20:0:cfff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000d00000000000000000000000_36"></a>
-#### `fd20:0:d000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:d000::/36` |
-| **Network Address** | `fd20:0:d000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:d000:: - fd20:0:dfff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000e00000000000000000000000_36"></a>
-#### `fd20:0:e000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:e000::/36` |
-| **Network Address** | `fd20:0:e000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:e000:: - fd20:0:efff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000f00000000000000000000000_36"></a>
-#### `fd20:0:f000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:f000::/36` |
-| **Network Address** | `fd20:0:f000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:f000:: - fd20:0:ffff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
+| **Mask Bits** | `33` |
+| **Subnet Mask** | `ffff:ffff:8000::` |
+| **Range** | `fd20:0:8000:: - fd20:0:ffff:ffff:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `2,147,483,648` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
@@ -3365,225 +898,49 @@
 
 ---
 
-<a id="network-fd300000200000000000000000000000_36"></a>
-#### `fd30:0:2000::/36` _(Unallocated)_
+<a id="network-fd300000200000000000000000000000_35"></a>
+#### `fd30:0:2000::/35` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `fd30:0:2000::/36` |
+| **CIDR** | `fd30:0:2000::/35` |
 | **Network Address** | `fd30:0:2000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:2000:: - fd30:0:2fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
+| **Mask Bits** | `35` |
+| **Subnet Mask** | `ffff:ffff:e000::` |
+| **Range** | `fd30:0:2000:: - fd30:0:3fff:ffff:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `536,870,912` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
-<a id="network-fd300000300000000000000000000000_36"></a>
-#### `fd30:0:3000::/36` _(Unallocated)_
+<a id="network-fd300000400000000000000000000000_34"></a>
+#### `fd30:0:4000::/34` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `fd30:0:3000::/36` |
-| **Network Address** | `fd30:0:3000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:3000:: - fd30:0:3fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000400000000000000000000000_36"></a>
-#### `fd30:0:4000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:4000::/36` |
+| **CIDR** | `fd30:0:4000::/34` |
 | **Network Address** | `fd30:0:4000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:4000:: - fd30:0:4fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
+| **Mask Bits** | `34` |
+| **Subnet Mask** | `ffff:ffff:c000::` |
+| **Range** | `fd30:0:4000:: - fd30:0:7fff:ffff:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `1,073,741,824` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
-<a id="network-fd300000500000000000000000000000_36"></a>
-#### `fd30:0:5000::/36` _(Unallocated)_
+<a id="network-fd300000800000000000000000000000_33"></a>
+#### `fd30:0:8000::/33` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `fd30:0:5000::/36` |
-| **Network Address** | `fd30:0:5000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:5000:: - fd30:0:5fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000600000000000000000000000_36"></a>
-#### `fd30:0:6000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:6000::/36` |
-| **Network Address** | `fd30:0:6000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:6000:: - fd30:0:6fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000700000000000000000000000_36"></a>
-#### `fd30:0:7000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:7000::/36` |
-| **Network Address** | `fd30:0:7000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:7000:: - fd30:0:7fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000800000000000000000000000_36"></a>
-#### `fd30:0:8000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:8000::/36` |
+| **CIDR** | `fd30:0:8000::/33` |
 | **Network Address** | `fd30:0:8000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:8000:: - fd30:0:8fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000900000000000000000000000_36"></a>
-#### `fd30:0:9000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:9000::/36` |
-| **Network Address** | `fd30:0:9000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:9000:: - fd30:0:9fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000a00000000000000000000000_36"></a>
-#### `fd30:0:a000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:a000::/36` |
-| **Network Address** | `fd30:0:a000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:a000:: - fd30:0:afff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000b00000000000000000000000_36"></a>
-#### `fd30:0:b000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:b000::/36` |
-| **Network Address** | `fd30:0:b000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:b000:: - fd30:0:bfff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000c00000000000000000000000_36"></a>
-#### `fd30:0:c000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:c000::/36` |
-| **Network Address** | `fd30:0:c000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:c000:: - fd30:0:cfff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000d00000000000000000000000_36"></a>
-#### `fd30:0:d000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:d000::/36` |
-| **Network Address** | `fd30:0:d000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:d000:: - fd30:0:dfff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000e00000000000000000000000_36"></a>
-#### `fd30:0:e000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:e000::/36` |
-| **Network Address** | `fd30:0:e000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:e000:: - fd30:0:efff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000f00000000000000000000000_36"></a>
-#### `fd30:0:f000::/36` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:f000::/36` |
-| **Network Address** | `fd30:0:f000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:f000:: - fd30:0:ffff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
+| **Mask Bits** | `33` |
+| **Subnet Mask** | `ffff:ffff:8000::` |
+| **Range** | `fd30:0:8000:: - fd30:0:ffff:ffff:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `2,147,483,648` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 

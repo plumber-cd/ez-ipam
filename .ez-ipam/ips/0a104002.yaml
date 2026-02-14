@@ -1,4 +1,0 @@
-description: Resolver
-display_name: dns
-id: 10.16.64.2
-parent: Networks -> 10.16.0.0/12 -> 10.16.0.0/14 -> 10.16.64.0/18
