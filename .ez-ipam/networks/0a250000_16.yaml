@@ -1,5 +1,0 @@
-allocation_mode: 1
-description: Private tier across AZs
-display_name: Private
-id: 10.37.0.0/16
-parent: Networks -> 10.32.0.0/12 -> 10.36.0.0/14

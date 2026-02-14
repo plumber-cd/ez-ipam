@@ -1,5 +1,5 @@
-allocation_mode: 2
-description: Private hosts in AZ-a
-display_name: Private AZ-a
+allocation_mode: 0
+description: ""
+display_name: ""
 id: 10.1.0.0/18
-parent: Networks -> 10.0.0.0/12 -> 10.0.0.0/14 -> 10.1.0.0/16
+parent: Networks -> 10.0.0.0/12 -> 10.0.0.0/14

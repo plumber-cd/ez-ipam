@@ -1,5 +1,5 @@
-allocation_mode: 0
-description: ""
-display_name: ""
+allocation_mode: 2
+description: Backend tier
+display_name: Backend
 id: 10.20.128.0/18
-parent: Networks -> 10.16.0.0/12 -> 10.20.0.0/14 -> 10.20.0.0/16
+parent: Networks -> 10.16.0.0/12 -> 10.20.0.0/14

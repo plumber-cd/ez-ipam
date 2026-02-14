@@ -1,4 +1,0 @@
-description: Database VIP
-display_name: db
-id: 10.34.0.10
-parent: Networks -> 10.32.0.0/12 -> 10.32.0.0/14 -> 10.34.0.0/16 -> 10.34.0.0/18

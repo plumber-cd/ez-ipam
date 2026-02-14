@@ -1,5 +1,5 @@
-allocation_mode: 0
-description: ""
-display_name: ""
+allocation_mode: 2
+description: Private tier
+display_name: Private
 id: 10.4.64.0/18
-parent: Networks -> 10.0.0.0/12 -> 10.4.0.0/14 -> 10.4.0.0/16
+parent: Networks -> 10.0.0.0/12 -> 10.4.0.0/14

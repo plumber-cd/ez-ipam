@@ -1,5 +1,0 @@
-allocation_mode: 1
-description: Public tier across AZs
-display_name: Public
-id: 10.4.0.0/16
-parent: Networks -> 10.0.0.0/12 -> 10.4.0.0/14

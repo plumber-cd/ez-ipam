@@ -1,5 +1,0 @@
-allocation_mode: 1
-description: Backend tier across AZs
-display_name: Backend
-id: 10.18.0.0/16
-parent: Networks -> 10.16.0.0/12 -> 10.16.0.0/14

@@ -728,11 +728,11 @@ func TestDemoState(t *testing.T) {
 
 	configureVpcTiers := func(vpcCIDR, vpcName string, withInfraReservations bool) {
 		moveFocusToID(t, h, vpcCIDR)
-		allocateSubnetsFocused(h, vpcName, vpcName+" multi-tier", "", "16")
+		allocateSubnetsFocused(h, vpcName, vpcName+" multi-tier", "", "18")
 
 		h.PressEnter()
 
-		tierCIDRs, err := splitNetwork(vpcCIDR, 16)
+		tierCIDRs, err := splitNetwork(vpcCIDR, 18)
 		if err != nil {
 			t.Fatalf("split %s into tiers: %v", vpcCIDR, err)
 		}
@@ -743,7 +743,6 @@ func TestDemoState(t *testing.T) {
 		tiers := []struct {
 			cidr     string
 			name     string
-			azACIDR  string
 			reserves [][3]string
 		}{
 			{
@@ -775,34 +774,20 @@ func TestDemoState(t *testing.T) {
 			},
 		}
 
-		for i := range tiers {
-			azCIDRs, err := splitNetwork(tiers[i].cidr, 18)
-			if err != nil {
-				t.Fatalf("split %s into AZ subnets: %v", tiers[i].cidr, err)
-			}
-			if len(azCIDRs) < 3 {
-				t.Fatalf("expected at least 3 AZ CIDRs for %s", tiers[i].cidr)
-			}
-			tiers[i].azACIDR = azCIDRs[0]
-		}
-
 		for _, tier := range tiers {
 			moveFocusToID(t, h, tier.cidr)
-			allocateSubnetsFocused(h, tier.name, tier.name+" tier across AZs", "", "18")
+			allocateHostsFocused(h, tier.name, tier.name+" tier", "")
 		}
 
 		if withInfraReservations {
 			for _, tier := range tiers {
 				moveFocusToID(t, h, tier.cidr)
 				h.PressEnter()
-				moveFocusToID(t, h, tier.azACIDR)
-				allocateHostsFocused(h, tier.name+" AZ-a", tier.name+" hosts in AZ-a", "")
-				h.PressEnter()
 
-				base := strings.Split(tier.azACIDR, "/")[0]
+				base := strings.Split(tier.cidr, "/")[0]
 				octets := strings.Split(base, ".")
 				if len(octets) != 4 {
-					t.Fatalf("expected IPv4 subnet for demo tier, got %s", tier.azACIDR)
+					t.Fatalf("expected IPv4 subnet for demo tier, got %s", tier.cidr)
 				}
 				prefix3 := strings.Join(octets[:3], ".")
 				for _, r := range tier.reserves {
@@ -814,7 +799,6 @@ func TestDemoState(t *testing.T) {
 					)
 				}
 
-				h.PressBackspace()
 				h.PressBackspace()
 			}
 		}

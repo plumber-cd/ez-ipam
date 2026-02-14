@@ -1,0 +1,4 @@
+description: Database VIP
+display_name: db
+id: 10.32.128.10
+parent: Networks -> 10.32.0.0/12 -> 10.32.0.0/14 -> 10.32.128.0/18

@@ -2,4 +2,4 @@ allocation_mode: 0
 description: ""
 display_name: ""
 id: 10.33.128.0/18
-parent: Networks -> 10.32.0.0/12 -> 10.32.0.0/14 -> 10.33.0.0/16
+parent: Networks -> 10.32.0.0/12 -> 10.32.0.0/14

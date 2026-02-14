@@ -1,4 +1,4 @@
 description: Default gateway
 display_name: gateway
 id: 10.32.0.1
-parent: Networks -> 10.32.0.0/12 -> 10.32.0.0/14 -> 10.32.0.0/16 -> 10.32.0.0/18
+parent: Networks -> 10.32.0.0/12 -> 10.32.0.0/14 -> 10.32.0.0/18
