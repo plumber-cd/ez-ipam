@@ -45,7 +45,9 @@ func (f *MenuFolder) GetPath() string {
 	if f.ParentPath == "" {
 		return f.ID
 	}
-	return f.GetParent().GetPath() + " -> " + f.ID
+	// ParentPath already stores the full parent chain. Avoid resolving through
+	// current in-memory graph so load order or broken test data don't panic.
+	return f.ParentPath + " -> " + f.ID
 }
 
 func (f *MenuFolder) CurrentMenuInputCapture(event *tcell.EventKey) *tcell.EventKey {

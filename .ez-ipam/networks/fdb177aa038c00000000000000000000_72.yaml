@@ -1,5 +1,0 @@
-allocation_mode: 0
-description: ""
-display_name: Test IPv6
-id: fdb1:77aa:038c::0/72
-parent: Networks

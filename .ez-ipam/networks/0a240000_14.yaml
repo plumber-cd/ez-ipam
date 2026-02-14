@@ -1,0 +1,5 @@
+allocation_mode: 1
+description: Azure eu-west-1 VPC multi-tier
+display_name: Azure eu-west-1 VPC
+id: 10.36.0.0/14
+parent: Networks -> 10.32.0.0/12

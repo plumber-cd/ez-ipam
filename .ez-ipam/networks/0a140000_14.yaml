@@ -1,0 +1,5 @@
+allocation_mode: 1
+description: GCP eu-west-1 VPC multi-tier
+display_name: GCP eu-west-1 VPC
+id: 10.20.0.0/14
+parent: Networks -> 10.16.0.0/12

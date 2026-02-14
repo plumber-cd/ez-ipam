@@ -1,0 +1,4 @@
+description: Internal LB
+display_name: app-lb
+id: 10.1.0.10
+parent: Networks -> 10.0.0.0/12 -> 10.0.0.0/14 -> 10.1.0.0/16 -> 10.1.0.0/18

@@ -2,7 +2,8 @@ package main
 
 import (
 	_ "embed"
-	"html/template"
+	"fmt"
+	"text/template"
 
 	"os"
 	"path/filepath"
@@ -24,10 +25,14 @@ const (
 	updateNetworkAllocationPage    = "*update_network_allocation*"
 	deallocateNetworkPage          = "*deallocate_network*"
 	deleteNetworkPage              = "*delete_network*"
+	reserveIPPage                  = "*reserve_ip*"
+	updateIPReservationPage        = "*update_ip_reservation*"
+	unreserveIPPage                = "*unreserve_ip*"
 	quitPage                       = "*quit*"
 
 	dataDirName      = ".ez-ipam"
 	networksDirName  = "networks"
+	ipsDirName       = "ips"
 	markdownFileName = "EZ-IPAM.md"
 )
 
@@ -43,19 +48,38 @@ var (
 	detailsPanel    *tview.TextView
 	statusLine      *tview.TextView
 	keysLine        *tview.TextView
+	detailsFlex     *tview.Flex
 
 	newNetworkDialog                 *tview.Form
 	splitNetworkDialog               *tview.Form
-	summarizeNetworkDialog           *tview.Modal
+	summarizeNetworkDialog           *tview.Form
 	allocateNetworkSubnetsModeDialog *tview.Form
 	allocateNetworkHostsModeDialog   *tview.Form
 	updateNetworkAllocationDialog    *tview.Form
 	deallocateNetworkDialog          *tview.Modal
 	deleteNetworkDialog              *tview.Modal
+	reserveIPDialog                  *tview.Form
+	updateIPReservationDialog        *tview.Form
+	unreserveIPDialog                *tview.Modal
 	quitDialog                       *tview.Modal
+
+	summarizeCandidates []*Network
+	summarizeFromIndex  int
+	summarizeToIndex    int
 )
 
-func main() {
+func resetState() {
+	menuItems = MenuItems{}
+	currentMenuItem = nil
+	currentMenuFocus = nil
+	currentMenuItemKeys = []string{}
+	currentFocusKeys = []string{}
+	summarizeCandidates = nil
+	summarizeFromIndex = 0
+	summarizeToIndex = 0
+}
+
+func setupApp() {
 	{
 		app = tview.NewApplication()
 		pages = tview.NewPages()
@@ -75,7 +99,7 @@ func main() {
 		navigationPanel.SetBorder(true).SetTitle("Menu")
 		middleFlex.AddItem(navigationPanel, 0, 1, false)
 
-		detailsFlex := tview.NewFlex().SetDirection(tview.FlexRow)
+		detailsFlex = tview.NewFlex().SetDirection(tview.FlexRow)
 		middleFlex.AddItem(detailsFlex, 0, 2, false)
 
 		detailsPanel = tview.NewTextView()
@@ -90,7 +114,12 @@ func main() {
 		statusLine = tview.NewTextView()
 		statusLine.SetBorder(true)
 		statusLine.SetTitle("Status")
-		detailsFlex.AddItem(statusLine, 3, 1, false)
+		statusLine.SetWrap(true)
+		statusLine.SetWordWrap(true)
+		statusLine.SetChangedFunc(func() {
+			resizeStatusLine()
+		})
+		detailsFlex.AddItem(statusLine, 3, 0, false)
 
 		pages.AddPage(mainPage, rootFlex, true, true)
 	}
@@ -104,11 +133,30 @@ func main() {
 	statusLine.SetFocusFunc(func() {
 		app.SetFocus(navigationPanel)
 	})
+	keysLine.SetFocusFunc(func() {
+		app.SetFocus(navigationPanel)
+	})
+
+	mouseSelectArmed := true
+	navigationPanel.SetMouseCapture(func(action tview.MouseAction, event *tcell.EventMouse) (tview.MouseAction, *tcell.EventMouse) {
+		switch action {
+		case tview.MouseLeftClick:
+			// Single click should only highlight an item.
+			mouseSelectArmed = false
+		case tview.MouseLeftDoubleClick:
+			// Double click should navigate like Enter.
+			mouseSelectArmed = true
+			return tview.MouseLeftClick, event
+		}
+
+		return action, event
+	})
 
 	navigationPanel.SetChangedFunc(func(index int, mainText, secondaryText string, shortcut rune) {
 		selected := menuItems.GetByParentAndID(currentMenuItem, mainText)
 		if selected == nil {
-			panic("Failed to find currently changed menu item!")
+			// Ignore stale changed events produced by list mouse callbacks while menu changes.
+			return
 		}
 
 		currentMenuFocus = selected
@@ -117,9 +165,14 @@ func main() {
 	})
 
 	navigationPanel.SetSelectedFunc(func(index int, mainText, secondaryText string, shortcut rune) {
+		if !mouseSelectArmed {
+			mouseSelectArmed = true
+			return
+		}
+
 		selected := menuItems.GetByParentAndID(currentMenuItem, mainText)
 		if selected == nil {
-			panic("Failed to find currently selected menu item!")
+			return
 		}
 
 		oldMenuItem := currentMenuItem
@@ -172,6 +225,7 @@ func main() {
 				return tcell.NewEventKey(tcell.KeyRight, tcell.RuneRArrow, tcell.ModNone)
 			case 'q':
 				pages.ShowPage(quitPage)
+				quitDialog.SetFocus(1)
 				app.SetFocus(quitDialog)
 				return nil
 			}
@@ -191,9 +245,74 @@ func main() {
 		return event
 	})
 
+	mouseBlocker := func() *tview.Box {
+		box := tview.NewBox()
+		box.SetMouseCapture(func(action tview.MouseAction, event *tcell.EventMouse) (tview.MouseAction, *tcell.EventMouse) {
+			return action, nil
+		})
+		return box
+	}
+	createDialogPage := func(content tview.Primitive, width, height int) tview.Primitive {
+		return tview.NewFlex().SetDirection(tview.FlexColumn).
+			AddItem(mouseBlocker(), 0, 1, false).
+			AddItem(
+				tview.NewFlex().SetDirection(tview.FlexRow).
+					AddItem(mouseBlocker(), 0, 1, false).
+					AddItem(content, height, 1, false).
+					AddItem(mouseBlocker(), 0, 1, false),
+				width, 1, false).
+			AddItem(mouseBlocker(), 0, 1, false)
+	}
+	submitPrimaryFormButton := func(form *tview.Form) {
+		if form.GetButtonCount() == 0 {
+			return
+		}
+		handler := form.GetButton(0).InputHandler()
+		if handler == nil {
+			return
+		}
+		handler(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone), func(p tview.Primitive) {
+			app.SetFocus(p)
+		})
+	}
+	wireDialogFormKeys := func(form *tview.Form, onCancel func()) {
+		form.SetCancelFunc(onCancel)
+		form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+			formItemIndex, _ := form.GetFocusedItemIndex()
+			if formItemIndex >= 0 {
+				switch form.GetFormItem(formItemIndex).(type) {
+				case *tview.DropDown:
+					// Let dropdown handle Enter/Escape itself:
+					// - Enter selects/toggles options
+					// - Escape closes the options list
+					return event
+				}
+			}
+
+			switch event.Key() {
+			case tcell.KeyEscape:
+				onCancel()
+				return nil
+			case tcell.KeyEnter:
+				if formItemIndex >= 0 {
+					if _, ok := form.GetFormItem(formItemIndex).(*tview.TextArea); ok {
+						return event
+					}
+				}
+				submitPrimaryFormButton(form)
+				return nil
+			}
+			return event
+		})
+	}
 	{
 		height := 7
 		width := 51
+		cancelDialog := func() {
+			getAndClearTextFromInputField(newNetworkDialog, "CIDR")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
 		newNetworkDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
 			AddInputField("CIDR", "", 42, nil, nil).
 			AddButton("Save", func() {
@@ -201,131 +320,150 @@ func main() {
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
 			}).
-			AddButton("Cancel", func() {
-				getAndClearTextFromInputField(newNetworkDialog, "CIDR")
-
-				pages.SwitchToPage(mainPage)
-				app.SetFocus(navigationPanel)
-			})
-		newNetworkDialog.SetBorder(true).SetTitle("New Network")
-		newNetworkDialogFlex := tview.NewFlex().SetDirection(tview.FlexColumn).
-			AddItem(nil, 0, 1, false).
-			AddItem(
-				tview.NewFlex().SetDirection(tview.FlexRow).
-					AddItem(nil, 0, 1, false).
-					AddItem(newNetworkDialog, height, 1, false).
-					AddItem(nil, 0, 1, false),
-				width, 1, false).
-			AddItem(nil, 0, 1, false)
+			AddButton("Cancel", cancelDialog)
+		newNetworkDialog.SetBorder(true).SetTitle("Add Network")
+		wireDialogFormKeys(newNetworkDialog, cancelDialog)
+		newNetworkDialogFlex := createDialogPage(newNetworkDialog, width, height)
 		pages.AddPage(newNetworkPage, newNetworkDialogFlex, true, false)
 	}
 
 	{
 		height := 7
 		width := 66
+		cancelDialog := func() {
+			getAndClearTextFromInputField(splitNetworkDialog, "New Prefix Length")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
 		splitNetworkDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
-			AddInputField("New Networks Prefix", "", 42, nil, nil).
+			AddInputField("New Prefix Length", "", 42, nil, nil).
 			AddButton("Save", func() {
-				newPrefix := getAndClearTextFromInputField(splitNetworkDialog, "New Networks Prefix")
+				newPrefix := getAndClearTextFromInputField(splitNetworkDialog, "New Prefix Length")
 				newPrefix = strings.TrimLeft(newPrefix, "/")
 				newPrefixInt, err := strconv.Atoi(newPrefix)
 				if err != nil {
 					statusLine.Clear()
-					statusLine.SetText("Invalid new prefix, should be a number representing smaller networks than this parent " + err.Error())
+					statusLine.SetText("Invalid prefix length. Enter a number larger than the current prefix: " + err.Error())
+					return
 				}
 				SplitNetwork(newPrefixInt)
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
 			}).
-			AddButton("Cancel", func() {
-				getAndClearTextFromInputField(splitNetworkDialog, "New Networks Prefix")
-
-				pages.SwitchToPage(mainPage)
-				app.SetFocus(navigationPanel)
-			})
-		splitNetworkDialog.SetBorder(true)
-		splitNetworkDialogFlex := tview.NewFlex().SetDirection(tview.FlexColumn).
-			AddItem(nil, 0, 1, false).
-			AddItem(
-				tview.NewFlex().SetDirection(tview.FlexRow).
-					AddItem(nil, 0, 1, false).
-					AddItem(splitNetworkDialog, height, 1, false).
-					AddItem(nil, 0, 1, false),
-				width, 1, false).
-			AddItem(nil, 0, 1, false)
+			AddButton("Cancel", cancelDialog)
+		splitNetworkDialog.SetBorder(true).SetTitle("Split Network")
+		wireDialogFormKeys(splitNetworkDialog, cancelDialog)
+		splitNetworkDialogFlex := createDialogPage(splitNetworkDialog, width, height)
 		pages.AddPage(splitNetworkPage, splitNetworkDialogFlex, true, false)
 	}
 
 	{
-		summarizeNetworkDialog = tview.NewModal().
-			AddButtons([]string{"Yes", "No"}).
-			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-				switch buttonLabel {
-				case "Yes":
-					SummarizeNetwork()
-					fallthrough
-				case "No":
-					fallthrough
-				default:
-					summarizeNetworkDialog.SetText("")
-					pages.SwitchToPage(mainPage)
-					app.SetFocus(navigationPanel)
+		height := 9
+		width := 72
+		cancelDialog := func() {
+			summarizeCandidates = nil
+			summarizeFromIndex = 0
+			summarizeToIndex = 0
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		summarizeNetworkDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddDropDown("From", nil, 0, func(option string, optionIndex int) {
+				if optionIndex >= 0 {
+					summarizeFromIndex = optionIndex
 				}
-			})
-		pages.AddPage(summarizeNetworkPage, summarizeNetworkDialog, true, false)
+			}).
+			AddDropDown("To", nil, 0, func(option string, optionIndex int) {
+				if optionIndex >= 0 {
+					summarizeToIndex = optionIndex
+				}
+			}).
+			AddButton("Summarize", func() {
+				SummarizeNetworkSelection(summarizeCandidates, summarizeFromIndex, summarizeToIndex)
+				summarizeCandidates = nil
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		summarizeNetworkDialog.SetBorder(true).SetTitle("Summarize Networks")
+		_, fromItem := getFormItemByLabel(summarizeNetworkDialog, "From")
+		fromDropdown, ok := fromItem.(*tview.DropDown)
+		if !ok {
+			panic("failed to cast summarize From dropdown")
+		}
+		fromDropdown.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+			if event.Key() == tcell.KeyRune {
+				return nil
+			}
+			return event
+		})
+
+		_, toItem := getFormItemByLabel(summarizeNetworkDialog, "To")
+		toDropdown, ok := toItem.(*tview.DropDown)
+		if !ok {
+			panic("failed to cast summarize To dropdown")
+		}
+		toDropdown.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+			if event.Key() == tcell.KeyRune {
+				return nil
+			}
+			return event
+		})
+		wireDialogFormKeys(summarizeNetworkDialog, cancelDialog)
+		pages.AddPage(summarizeNetworkPage, createDialogPage(summarizeNetworkDialog, width, height), true, false)
 	}
 
 	{
-		height := 15
-		width := 59
+		height := 13
+		width := 64
+		cancelDialog := func() {
+			getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Name")
+			getAndClearTextFromTextArea(allocateNetworkSubnetsModeDialog, "Description")
+			getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Prefix Len")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
 		allocateNetworkSubnetsModeDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
-			AddInputField("Display Name", "", 40, nil, nil).
-			AddTextArea("Description", "", 48, 5, 0, nil).
-			AddInputField("Subnets Prefix", "", 40, nil, nil).
+			AddInputField("Name", "", 42, nil, nil).
+			AddTextArea("Description", "", 50, 3, 0, nil).
+			AddInputField("Prefix Len", "", 42, nil, nil).
 			AddButton("Save", func() {
-				displayName := getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Display Name")
+				displayName := getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Name")
 				description := getAndClearTextFromTextArea(allocateNetworkSubnetsModeDialog, "Description")
-				subnetsPrefix := getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Subnets Prefix")
+				subnetsPrefix := getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Prefix Len")
 				subnetsPrefix = strings.TrimLeft(subnetsPrefix, "/")
 				subnetsPrefixInt, err := strconv.Atoi(subnetsPrefix)
 				if err != nil {
 					statusLine.Clear()
-					statusLine.SetText("Invalid subnets prefix, should be a number representing smaller networks than this parent " + err.Error())
+					statusLine.SetText("Invalid subnet prefix length: " + err.Error())
+					return
 				}
 				AllocateNetworkInSubnetsMode(displayName, description, subnetsPrefixInt)
 
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
 			}).
-			AddButton("Cancel", func() {
-				getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Display Name")
-				getAndClearTextFromTextArea(allocateNetworkSubnetsModeDialog, "Description")
-				getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Subnets Prefix")
-
-				pages.SwitchToPage(mainPage)
-				app.SetFocus(navigationPanel)
-			})
-		allocateNetworkSubnetsModeDialog.SetBorder(true)
-		allocateNetworkSubnetsModeFlex := tview.NewFlex().SetDirection(tview.FlexColumn).
-			AddItem(nil, 0, 1, false).
-			AddItem(
-				tview.NewFlex().SetDirection(tview.FlexRow).
-					AddItem(nil, 0, 1, false).
-					AddItem(allocateNetworkSubnetsModeDialog, height, 1, false).
-					AddItem(nil, 0, 1, false),
-				width, 1, false).
-			AddItem(nil, 0, 1, false)
+			AddButton("Cancel", cancelDialog)
+		allocateNetworkSubnetsModeDialog.SetBorder(true).SetTitle("Allocate Subnets")
+		wireDialogFormKeys(allocateNetworkSubnetsModeDialog, cancelDialog)
+		allocateNetworkSubnetsModeFlex := createDialogPage(allocateNetworkSubnetsModeDialog, width, height)
 		pages.AddPage(allocateNetworkSubnetsModePage, allocateNetworkSubnetsModeFlex, true, false)
 	}
 
 	{
-		height := 13
-		width := 57
+		height := 11
+		width := 62
+		cancelDialog := func() {
+			getAndClearTextFromInputField(allocateNetworkHostsModeDialog, "Name")
+			getAndClearTextFromTextArea(allocateNetworkHostsModeDialog, "Description")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
 		allocateNetworkHostsModeDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
-			AddInputField("Display Name", "", 40, nil, nil).
-			AddTextArea("Description", "", 48, 5, 0, nil).
+			AddInputField("Name", "", 42, nil, nil).
+			AddTextArea("Description", "", 50, 3, 0, nil).
 			AddButton("Save", func() {
-				displayName := getAndClearTextFromInputField(allocateNetworkHostsModeDialog, "Display Name")
+				displayName := getAndClearTextFromInputField(allocateNetworkHostsModeDialog, "Name")
 				description := getAndClearTextFromTextArea(allocateNetworkHostsModeDialog, "Description")
 
 				AllocateNetworkInHostsMode(displayName, description)
@@ -333,62 +471,120 @@ func main() {
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
 			}).
-			AddButton("Cancel", func() {
-				getAndClearTextFromInputField(allocateNetworkHostsModeDialog, "Display Name")
-				getAndClearTextFromTextArea(allocateNetworkHostsModeDialog, "Description")
-
-				pages.SwitchToPage(mainPage)
-				app.SetFocus(navigationPanel)
-			})
-		allocateNetworkHostsModeDialog.SetBorder(true)
-		allocateNetworkHostsModeFlex := tview.NewFlex().SetDirection(tview.FlexColumn).
-			AddItem(nil, 0, 1, false).
-			AddItem(
-				tview.NewFlex().SetDirection(tview.FlexRow).
-					AddItem(nil, 0, 1, false).
-					AddItem(allocateNetworkHostsModeDialog, height, 1, false).
-					AddItem(nil, 0, 1, false),
-				width, 1, false).
-			AddItem(nil, 0, 1, false)
+			AddButton("Cancel", cancelDialog)
+		allocateNetworkHostsModeDialog.SetBorder(true).SetTitle("Allocate Hosts")
+		wireDialogFormKeys(allocateNetworkHostsModeDialog, cancelDialog)
+		allocateNetworkHostsModeFlex := createDialogPage(allocateNetworkHostsModeDialog, width, height)
 		pages.AddPage(allocateNetworkHostsModePage, allocateNetworkHostsModeFlex, true, false)
 	}
 
 	{
-		height := 13
-		width := 59
+		height := 11
+		width := 62
+		cancelDialog := func() {
+			getAndClearTextFromInputField(updateNetworkAllocationDialog, "Name")
+			getAndClearTextFromTextArea(updateNetworkAllocationDialog, "Description")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
 		updateNetworkAllocationDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
-			AddInputField("Display Name", "", 42, nil, nil).
-			AddTextArea("Description", "", 48, 5, 0, nil).
+			AddInputField("Name", "", 42, nil, nil).
+			AddTextArea("Description", "", 50, 3, 0, nil).
 			AddButton("Save", func() {
-				displayName := getAndClearTextFromInputField(updateNetworkAllocationDialog, "Display Name")
+				displayName := getAndClearTextFromInputField(updateNetworkAllocationDialog, "Name")
 				description := getAndClearTextFromTextArea(updateNetworkAllocationDialog, "Description")
 				UpdateNetworkAllocation(displayName, description)
 
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
 			}).
-			AddButton("Cancel", func() {
-				getAndClearTextFromInputField(updateNetworkAllocationDialog, "Display Name")
-				getAndClearTextFromTextArea(updateNetworkAllocationDialog, "Description")
-
-				pages.SwitchToPage(mainPage)
-				app.SetFocus(navigationPanel)
-			})
-		updateNetworkAllocationDialog.SetBorder(true)
-		updateNetworkAllocationFlex := tview.NewFlex().SetDirection(tview.FlexColumn).
-			AddItem(nil, 0, 1, false).
-			AddItem(
-				tview.NewFlex().SetDirection(tview.FlexRow).
-					AddItem(nil, 0, 1, false).
-					AddItem(updateNetworkAllocationDialog, height, 1, false).
-					AddItem(nil, 0, 1, false),
-				width, 1, false).
-			AddItem(nil, 0, 1, false)
+			AddButton("Cancel", cancelDialog)
+		updateNetworkAllocationDialog.SetBorder(true).SetTitle("Update Allocation")
+		wireDialogFormKeys(updateNetworkAllocationDialog, cancelDialog)
+		updateNetworkAllocationFlex := createDialogPage(updateNetworkAllocationDialog, width, height)
 		pages.AddPage(updateNetworkAllocationPage, updateNetworkAllocationFlex, true, false)
 	}
 
 	{
+		height := 11
+		width := 64
+		cancelDialog := func() {
+			getAndClearTextFromInputField(reserveIPDialog, "IP Address")
+			getAndClearTextFromInputField(reserveIPDialog, "Name")
+			getAndClearTextFromInputField(reserveIPDialog, "Description")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		reserveIPDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("IP Address", "", 42, nil, nil).
+			AddInputField("Name", "", 42, nil, nil).
+			AddInputField("Description", "", 42, nil, nil).
+			AddButton("Save", func() {
+				address := getAndClearTextFromInputField(reserveIPDialog, "IP Address")
+				displayName := getAndClearTextFromInputField(reserveIPDialog, "Name")
+				description := getAndClearTextFromInputField(reserveIPDialog, "Description")
+				ReserveIP(address, displayName, description)
+
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		reserveIPDialog.SetBorder(true).SetTitle("Reserve IP")
+		wireDialogFormKeys(reserveIPDialog, cancelDialog)
+		reserveIPFlex := createDialogPage(reserveIPDialog, width, height)
+		pages.AddPage(reserveIPPage, reserveIPFlex, true, false)
+	}
+
+	{
+		height := 9
+		width := 62
+		cancelDialog := func() {
+			getAndClearTextFromInputField(updateIPReservationDialog, "Name")
+			getAndClearTextFromInputField(updateIPReservationDialog, "Description")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		updateIPReservationDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("Name", "", 42, nil, nil).
+			AddInputField("Description", "", 42, nil, nil).
+			AddButton("Save", func() {
+				displayName := getAndClearTextFromInputField(updateIPReservationDialog, "Name")
+				description := getAndClearTextFromInputField(updateIPReservationDialog, "Description")
+				UpdateIPReservation(displayName, description)
+
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		updateIPReservationDialog.SetBorder(true).SetTitle("Update IP Reservation")
+		wireDialogFormKeys(updateIPReservationDialog, cancelDialog)
+		updateIPReservationFlex := createDialogPage(updateIPReservationDialog, width, height)
+		pages.AddPage(updateIPReservationPage, updateIPReservationFlex, true, false)
+	}
+
+	{
+		unreserveIPDialog = tview.NewModal().
+			SetText("Unreserve this IP address?").
+			AddButtons([]string{"Yes", "No"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				switch buttonLabel {
+				case "Yes":
+					UnreserveIP()
+					fallthrough
+				case "No":
+					fallthrough
+				default:
+					unreserveIPDialog.SetText("")
+					pages.SwitchToPage(mainPage)
+					app.SetFocus(navigationPanel)
+				}
+			})
+		pages.AddPage(unreserveIPPage, unreserveIPDialog, true, false)
+	}
+
+	{
 		deallocateNetworkDialog = tview.NewModal().
+			SetText("Deallocate this network and remove its subnets?").
 			AddButtons([]string{"Yes", "No"}).
 			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 				switch buttonLabel {
@@ -408,6 +604,7 @@ func main() {
 
 	{
 		deleteNetworkDialog = tview.NewModal().
+			SetText("Delete this top-level network and all of its subnets?").
 			AddButtons([]string{"Yes", "No"}).
 			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 				switch buttonLabel {
@@ -444,9 +641,17 @@ func main() {
 
 	app.SetRoot(pages, true)
 	app.EnableMouse(true)
+	app.SetBeforeDrawFunc(func(screen tcell.Screen) bool {
+		// Keep status panel height in sync with terminal resizes.
+		resizeStatusLine()
+		return false
+	})
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyCtrlC:
+			pages.ShowPage(quitPage)
+			quitDialog.SetFocus(1)
+			app.SetFocus(quitDialog)
 			return nil
 		case tcell.KeyCtrlS:
 			save()
@@ -470,6 +675,10 @@ func main() {
 
 	load()
 
+}
+
+func main() {
+	setupApp()
 	if err := app.Run(); err != nil {
 		panic(err)
 	}
@@ -480,10 +689,8 @@ func load() {
 		MenuFolder: &MenuFolder{
 			ID: "Networks",
 		},
-		Index: 0,
-		Description: `
-            In the network menu you can slice and dice the network
-        `,
+		Index:       0,
+		Description: "Manage your address space here.\n\nUse Enter or double-click to open items.\nUse Backspace to go up one level.",
 	}
 	menuItems.MustAdd(networks)
 
@@ -494,6 +701,7 @@ func load() {
 
 	dataDir := filepath.Join(currentDir, dataDirName)
 	networkDir := filepath.Join(dataDir, networksDirName)
+	ipsDir := filepath.Join(dataDir, ipsDirName)
 
 	networkFiles, err := os.ReadDir(networkDir)
 	if err != nil {
@@ -522,6 +730,33 @@ func load() {
 		menuItems[network.GetPath()] = network
 	}
 
+	ipFiles, err := os.ReadDir(ipsDir)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			panic("Failed to read " + ipsDir + " directory: " + err.Error())
+		}
+		if err := os.MkdirAll(ipsDir, 0755); err != nil {
+			panic("Failed to create " + ipsDir + " directory: " + err.Error())
+		}
+	}
+	for _, ipFile := range ipFiles {
+		if ipFile.IsDir() {
+			continue
+		}
+
+		bytes, err := os.ReadFile(filepath.Join(ipsDir, ipFile.Name()))
+		if err != nil {
+			panic("Failed to read " + ipFile.Name() + " file: " + err.Error())
+		}
+
+		ip := &IP{}
+		if err := yaml.Unmarshal(bytes, ip); err != nil {
+			panic("Failed to unmarshal " + ipFile.Name() + " file: " + err.Error())
+		}
+
+		menuItems[ip.GetPath()] = ip
+	}
+
 	for _, menuItem := range menuItems {
 		if err := menuItem.Validate(); err != nil {
 			panic("Failed to load " + menuItem.GetPath() + ": " + err.Error())
@@ -539,19 +774,24 @@ func save() {
 
 	dataDir := filepath.Join(currentDir, dataDirName)
 	dataTmpDir := dataDir + ".tmp"
+	dataOldDir := dataDir + ".old"
 
 	networksTmpDir := filepath.Join(dataTmpDir, networksDirName)
-	if err := os.RemoveAll(networksTmpDir); err != nil {
-		panic("Failed to remove " + networksTmpDir + " directory: " + err.Error())
+	ipsTmpDir := filepath.Join(dataTmpDir, ipsDirName)
+	if err := os.RemoveAll(dataTmpDir); err != nil {
+		panic("Failed to remove " + dataTmpDir + " directory: " + err.Error())
 	}
 	if err := os.MkdirAll(networksTmpDir, 0755); err != nil {
 		panic("Failed to create " + networksTmpDir + " directory: " + err.Error())
+	}
+	if err := os.MkdirAll(ipsTmpDir, 0755); err != nil {
+		panic("Failed to create " + ipsTmpDir + " directory: " + err.Error())
 	}
 
 	for _, menuItem := range menuItems {
 		switch m := menuItem.(type) {
 		case *MenuStatic:
-		// This is not serializable
+			// This is not serializable
 		case *Network:
 			id, err := CIDRToIdentifier(m.ID)
 			if err != nil {
@@ -566,61 +806,204 @@ func save() {
 			if err := os.WriteFile(fileName, bytes, 0644); err != nil {
 				panic("Failed to write " + fileName + " file: " + err.Error())
 			}
+		case *IP:
+			id, err := IPToIdentifier(m.ID)
+			if err != nil {
+				panic("Failed to convert " + m.ID + " to identifier: " + err.Error())
+			}
+
+			fileName := filepath.Join(ipsTmpDir, id+".yaml")
+			bytes, err := yaml.Marshal(menuItem)
+			if err != nil {
+				panic("Failed to marshal " + menuItem.GetPath() + " to yaml: " + err.Error())
+			}
+			if err := os.WriteFile(fileName, bytes, 0644); err != nil {
+				panic("Failed to write " + fileName + " file: " + err.Error())
+			}
 		default:
 		}
 	}
 
-	if err := os.RemoveAll(dataDir); err != nil {
-		panic("Failed to remove " + dataDir + " directory: " + err.Error())
+	if err := os.RemoveAll(dataOldDir); err != nil {
+		panic("Failed to remove " + dataOldDir + " directory: " + err.Error())
+	}
+	if _, err := os.Stat(dataDir); err == nil {
+		if err := os.Rename(dataDir, dataOldDir); err != nil {
+			panic("Failed to rename " + dataDir + " to " + dataOldDir + " directory: " + err.Error())
+		}
+	} else if !os.IsNotExist(err) {
+		panic("Failed to stat " + dataDir + " directory: " + err.Error())
 	}
 	if err := os.Rename(dataTmpDir, dataDir); err != nil {
+		// best-effort rollback
+		if _, rollbackErr := os.Stat(dataOldDir); rollbackErr == nil {
+			_ = os.Rename(dataOldDir, dataDir)
+		}
 		panic("Failed to rename " + dataTmpDir + " to " + dataDir + " directory: " + err.Error())
 	}
+	if err := os.RemoveAll(dataOldDir); err != nil {
+		panic("Failed to remove " + dataOldDir + " directory: " + err.Error())
+	}
 
-	networksIndex := []string{}
-	networksDisplayNames := map[string]string{}
+	networksOrder := []string{}
+	networksCIDR := map[string]string{}
+	networksDisplayName := map[string]string{}
+	networksTitle := map[string]string{}
+	networksMode := map[string]string{}
+	networksDescription := map[string]string{}
+	networksDepth := map[string]int{}
+	networksHeading := map[string]string{}
+	networksAnchor := map[string]string{}
 	networksDataIndex := map[string][]string{}
 	networksData := map[string]map[string]string{}
-	networksOpts := map[string]map[string]int{}
-	var recursivelyPopulateNetworksData func(n *Network)
-	recursivelyPopulateNetworksData = func(n *Network) {
+	networksHasReservedIPs := map[string]bool{}
+	networksReservedIPs := map[string][]map[string]string{}
+	summaryRows := []map[string]string{}
+	buildTreePrefix := func(ancestorHasNext []bool, isLast bool) string {
+		stringWriter := new(strings.Builder)
+		for _, hasNext := range ancestorHasNext {
+			if hasNext {
+				stringWriter.WriteString("│   ")
+			} else {
+				stringWriter.WriteString("    ")
+			}
+		}
+		if isLast {
+			stringWriter.WriteString("└── ")
+		} else {
+			stringWriter.WriteString("├── ")
+		}
+		return stringWriter.String()
+	}
+
+	var recursivelyPopulateNetworksData func(n *Network, depth int, ancestorHasNext []bool, isLast bool)
+	recursivelyPopulateNetworksData = func(n *Network, depth int, ancestorHasNext []bool, isLast bool) {
 		index, data, err := n.RenderDetailsMap()
 		if err != nil {
 			panic("Failed to render details map for " + n.GetPath() + ": " + err.Error())
 		}
-		networksIndex = append(networksIndex, n.GetID())
-		networksDisplayNames[n.GetID()] = n.GetID()
-		networksDataIndex[n.GetID()] = index
-		networksData[n.GetID()] = data
-		networksOpts[n.GetID()] = map[string]int{
-			"AllocationMode": int(n.AllocationMode),
+
+		path := n.GetPath()
+		cidrIdentifier, err := CIDRToIdentifier(n.ID)
+		if err != nil {
+			panic("Failed to build anchor for " + n.ID + ": " + err.Error())
 		}
+		networksOrder = append(networksOrder, path)
+		networksCIDR[path] = n.ID
+		networksDisplayName[path] = n.DisplayName
+		networksDescription[path] = n.Description
+		networksAnchor[path] = "network-" + cidrIdentifier
+		networksDataIndex[path] = index
+		networksData[path] = data
+		networksDepth[path] = depth
+		headingLevel := 3 + depth
+		if headingLevel > 6 {
+			headingLevel = 6
+		}
+		networksHeading[path] = strings.Repeat("#", headingLevel)
+		networkTreePrefix := ""
+		if depth > 0 {
+			networkTreePrefix = buildTreePrefix(ancestorHasNext, isLast)
+		}
+
+		switch n.AllocationMode {
+		case AllocationModeUnallocated:
+			networksMode[path] = "Unallocated"
+			networksTitle[path] = fmt.Sprintf("`%s` _(Unallocated)_", n.ID)
+		case AllocationModeSubnets:
+			networksMode[path] = "Subnets"
+			if n.DisplayName != "" {
+				networksTitle[path] = fmt.Sprintf("`%s` -- %s", n.ID, n.DisplayName)
+			} else {
+				networksTitle[path] = fmt.Sprintf("`%s`", n.ID)
+			}
+		case AllocationModeHosts:
+			networksMode[path] = "Hosts"
+			if n.DisplayName != "" {
+				networksTitle[path] = fmt.Sprintf("`%s` -- %s", n.ID, n.DisplayName)
+			} else {
+				networksTitle[path] = fmt.Sprintf("`%s`", n.ID)
+			}
+		}
+
+		reserved := []map[string]string{}
+		for _, child := range menuItems.GetChilds(n) {
+			ip, ok := child.(*IP)
+			if !ok {
+				continue
+			}
+			reserved = append(reserved, map[string]string{
+				"Address":     ip.ID,
+				"DisplayName": ip.DisplayName,
+				"Description": ip.Description,
+			})
+		}
+		networksHasReservedIPs[path] = len(reserved) > 0
+		networksReservedIPs[path] = reserved
+		summaryRows = append(summaryRows, map[string]string{
+			"Network":     networkTreePrefix + fmt.Sprintf("[`%s`](#%s)", n.ID, networksAnchor[path]),
+			"Name":        ternaryText(n.DisplayName, "`"+n.DisplayName+"`", "-"),
+			"Allocation":  networksMode[path],
+			"Description": ternaryText(n.Description, n.Description, "-"),
+		})
+
+		if len(reserved) > 0 {
+			ipAncestorHasNext := append(append([]bool{}, ancestorHasNext...), !isLast)
+			for i, ip := range reserved {
+				ipTreePrefix := buildTreePrefix(ipAncestorHasNext, i == len(reserved)-1)
+				summaryRows = append(summaryRows, map[string]string{
+					"Network":     ipTreePrefix + fmt.Sprintf("`%s`", ip["Address"]),
+					"Name":        ternaryText(ip["DisplayName"], "`"+ip["DisplayName"]+"`", "-"),
+					"Allocation":  "Reserved IP",
+					"Description": ternaryText(ip["Description"], ip["Description"], "-"),
+				})
+			}
+		}
+
 		childs := menuItems.GetChilds(n)
+		networkChildren := make([]*Network, 0, len(childs))
 		for _, child := range childs {
 			nn, ok := child.(*Network)
 			if !ok {
-				panic("Failed to cast " + child.GetPath() + " to network")
+				continue
 			}
-			recursivelyPopulateNetworksData(nn)
+			networkChildren = append(networkChildren, nn)
+		}
+		for i, childNetwork := range networkChildren {
+			childAncestors := append(append([]bool{}, ancestorHasNext...), !isLast)
+			recursivelyPopulateNetworksData(childNetwork, depth+1, childAncestors, i == len(networkChildren)-1)
 		}
 	}
 
 	networksMenuItem := menuItems.GetByParentAndID(nil, "Networks")
+	topLevelNetworks := make([]*Network, 0, len(menuItems.GetChilds(networksMenuItem)))
 	for _, menuItem := range menuItems.GetChilds(networksMenuItem) {
 		n, ok := menuItem.(*Network)
 		if !ok {
 			panic("Failed to cast " + menuItem.GetPath() + " to network")
 		}
-		recursivelyPopulateNetworksData(n)
+		topLevelNetworks = append(topLevelNetworks, n)
+	}
+	for i, topLevelNetwork := range topLevelNetworks {
+		recursivelyPopulateNetworksData(topLevelNetwork, 0, []bool{}, i == len(topLevelNetworks)-1)
 	}
 
 	template := template.Must(template.New(markdownFileName).Parse(markdownTmpl))
 	input := map[string]interface{}{
-		"NetworksIndex":        networksIndex,
-		"NetworksDisplayNames": networksDisplayNames,
-		"NetworksDataIndex":    networksDataIndex,
-		"NetworksData":         networksData,
-		"NetworksOpts":         networksOpts,
+		"NetworksOrder":          networksOrder,
+		"NetworksCIDR":           networksCIDR,
+		"NetworksDisplayName":    networksDisplayName,
+		"NetworksTitle":          networksTitle,
+		"NetworksMode":           networksMode,
+		"NetworksDescription":    networksDescription,
+		"NetworksDepth":          networksDepth,
+		"NetworksHeading":        networksHeading,
+		"NetworksAnchor":         networksAnchor,
+		"NetworksDataIndex":      networksDataIndex,
+		"NetworksData":           networksData,
+		"NetworksHasReservedIPs": networksHasReservedIPs,
+		"NetworksReservedIPs":    networksReservedIPs,
+		"SummaryRows":            summaryRows,
 	}
 
 	mdFile, err := os.Create(filepath.Join(currentDir, markdownFileName))
@@ -634,7 +1017,7 @@ func save() {
 	}
 
 	statusLine.Clear()
-	statusLine.SetText("Saved")
+	statusLine.SetText("Saved to .ez-ipam/ and EZ-IPAM.md")
 }
 
 func reloadMenu(focusedItem MenuItem) {
@@ -657,6 +1040,60 @@ func reloadMenu(focusedItem MenuItem) {
 func updateKeysLine() {
 	keysLine.Clear()
 	keysLine.SetText(" " + strings.Join(append(append(globalKeys, currentMenuItemKeys...), currentFocusKeys...), " | "))
+}
+
+func resizeStatusLine() {
+	if statusLine == nil || detailsFlex == nil {
+		return
+	}
+
+	_, _, innerWidth, _ := statusLine.GetInnerRect()
+	if innerWidth <= 0 {
+		detailsFlex.ResizeItem(statusLine, 3, 0)
+		return
+	}
+
+	text := statusLine.GetText(false)
+	requiredLines := wrappedLineCount(text, innerWidth)
+	height := requiredLines + 2 // account for top and bottom border
+	if height < 3 {
+		height = 3
+	}
+
+	detailsFlex.ResizeItem(statusLine, height, 0)
+}
+
+func wrappedLineCount(text string, width int) int {
+	if width <= 0 {
+		return 1
+	}
+
+	totalLines := 0
+	for _, line := range strings.Split(text, "\n") {
+		if line == "" {
+			totalLines++
+			continue
+		}
+		wrapped := tview.WordWrap(line, width)
+		if len(wrapped) == 0 {
+			totalLines++
+			continue
+		}
+		totalLines += len(wrapped)
+	}
+
+	if totalLines < 1 {
+		return 1
+	}
+
+	return totalLines
+}
+
+func ternaryText(value, ifNonEmpty, ifEmpty string) string {
+	if strings.TrimSpace(value) != "" {
+		return ifNonEmpty
+	}
+	return ifEmpty
 }
 
 func getFormItemByLabel(form *tview.Form, label string) (int, tview.FormItem) {

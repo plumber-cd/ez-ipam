@@ -1,0 +1,5 @@
+allocation_mode: 1
+description: GCP dual-stack IPv6 supernet
+display_name: GCP IPv6
+id: fd20::/32
+parent: Networks

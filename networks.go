@@ -13,13 +13,14 @@ import (
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/rivo/tview"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
 
 type NetworkValidationRules struct {
 	IgnoreOverlapsWith []*Network
-	Substitudes        map[string]*Network
+	Substitutes        map[string]*Network
 }
 
 func AddNewNetwork(cidr string) {
@@ -92,16 +93,22 @@ func SplitNetwork(newPrefix int) {
 func SummarizeNetwork() {
 	focusedNetwork, ok := currentMenuFocus.(*Network)
 	if !ok {
-		panic("SummarizeNetwork called on non-Network")
+		statusLine.Clear()
+		statusLine.SetText("Error summarizing network: selected item is not a network")
+		return
 	}
 
 	if focusedNetwork.AllocationMode != AllocationModeUnallocated {
-		panic("SummarizeNetwork called on allocated Network")
+		statusLine.Clear()
+		statusLine.SetText("Error summarizing network: network is allocated")
+		return
 	}
 
 	summarizeable, summarizeableNetworks, newNetwork := findSummarizableRangeForNetwork(focusedNetwork)
 	if !summarizeable {
-		panic("Trying to summarize unsummarizable range")
+		statusLine.Clear()
+		statusLine.SetText("Error summarizing network: no summarizable unallocated range found")
+		return
 	}
 
 	newMenuItem := &Network{
@@ -117,6 +124,11 @@ func SummarizeNetwork() {
 	}
 
 	for _, summarizeableNeighbor := range summarizeableNetworks {
+		if summarizeableNeighbor == nil {
+			statusLine.Clear()
+			statusLine.SetText("Error summarizing network: internal mapping error")
+			return
+		}
 		menuItems.Delete(summarizeableNeighbor)
 	}
 
@@ -126,6 +138,78 @@ func SummarizeNetwork() {
 
 	statusLine.Clear()
 	statusLine.SetText("Summarized network " + newMenuItem.GetID())
+}
+
+func SummarizeNetworkSelection(candidates []*Network, fromIndex, toIndex int) {
+	if len(candidates) < 2 {
+		statusLine.Clear()
+		statusLine.SetText("Error summarizing network: at least two unallocated sibling networks are required")
+		return
+	}
+
+	if fromIndex > toIndex {
+		fromIndex, toIndex = toIndex, fromIndex
+	}
+	if fromIndex < 0 || toIndex >= len(candidates) {
+		statusLine.Clear()
+		statusLine.SetText("Error summarizing network: invalid selection range")
+		return
+	}
+	if toIndex-fromIndex < 1 {
+		statusLine.Clear()
+		statusLine.SetText("Error summarizing network: select at least two networks")
+		return
+	}
+
+	selected := candidates[fromIndex : toIndex+1]
+	parent := selected[0].GetParent()
+	selectedCIDRs := make([]string, 0, len(selected))
+	for _, n := range selected {
+		if n == nil {
+			statusLine.Clear()
+			statusLine.SetText("Error summarizing network: invalid selection")
+			return
+		}
+		if n.GetParent() != parent {
+			statusLine.Clear()
+			statusLine.SetText("Error summarizing network: selected networks must share the same parent")
+			return
+		}
+		if n.AllocationMode != AllocationModeUnallocated {
+			statusLine.Clear()
+			statusLine.SetText("Error summarizing network: only unallocated networks can be summarized")
+			return
+		}
+		selectedCIDRs = append(selectedCIDRs, n.ID)
+	}
+
+	newNetwork, err := summarizeCIDRs(selectedCIDRs)
+	if err != nil {
+		statusLine.Clear()
+		statusLine.SetText("Error summarizing network: " + err.Error())
+		return
+	}
+
+	newMenuItem := &Network{
+		MenuFolder: &MenuFolder{
+			ID:         newNetwork,
+			ParentPath: parent.GetPath(),
+		},
+	}
+	if err := newMenuItem.ValidateWithRules(&NetworkValidationRules{IgnoreOverlapsWith: selected}); err != nil {
+		statusLine.Clear()
+		statusLine.SetText("Error validating summarized network: " + err.Error())
+		return
+	}
+
+	for _, old := range selected {
+		menuItems.Delete(old)
+	}
+	menuItems.MustAdd(newMenuItem)
+	reloadMenu(newMenuItem)
+
+	statusLine.Clear()
+	statusLine.SetText("Summarized networks into " + newMenuItem.GetID())
 }
 
 func AllocateNetworkInSubnetsMode(displayName, description string, subnetsPrefix int) {
@@ -148,7 +232,7 @@ func AllocateNetworkInSubnetsMode(displayName, description string, subnetsPrefix
 	mod(&copy)
 	if err := copy.ValidateWithRules(
 		&NetworkValidationRules{
-			Substitudes: map[string]*Network{
+			Substitutes: map[string]*Network{
 				focusedNetwork.ID: &copy,
 			},
 		},
@@ -175,7 +259,7 @@ func AllocateNetworkInSubnetsMode(displayName, description string, subnetsPrefix
 		}
 		if err := newMenuItem.ValidateWithRules(
 			&NetworkValidationRules{
-				Substitudes: map[string]*Network{
+				Substitutes: map[string]*Network{
 					focusedNetwork.ID: &copy,
 				},
 			},
@@ -224,7 +308,7 @@ func AllocateNetworkInHostsMode(displayName, description string) {
 	mod(&copy)
 	if err := copy.ValidateWithRules(
 		&NetworkValidationRules{
-			Substitudes: map[string]*Network{
+			Substitutes: map[string]*Network{
 				focusedNetwork.ID: &copy,
 			},
 		},
@@ -266,7 +350,7 @@ func UpdateNetworkAllocation(displayName, description string) {
 	mod(&copy)
 	if err := copy.ValidateWithRules(
 		&NetworkValidationRules{
-			Substitudes: map[string]*Network{
+			Substitutes: map[string]*Network{
 				focusedNetwork.ID: &copy,
 			},
 		},
@@ -309,7 +393,7 @@ func DeallocateNetwork() {
 	mod(&copy)
 	if err := copy.ValidateWithRules(
 		&NetworkValidationRules{
-			Substitudes: map[string]*Network{
+			Substitutes: map[string]*Network{
 				focusedNetwork.ID: &copy,
 			},
 		},
@@ -355,6 +439,39 @@ func DeleteNetwork() {
 
 	statusLine.Clear()
 	statusLine.SetText("Deleted network: " + focusedNetwork.GetPath())
+}
+
+func getUnallocatedSiblingNetworks(network *Network) []*Network {
+	unallocated := []*Network{}
+	for _, sibling := range menuItems.GetChilds(network.GetParent()) {
+		n, ok := sibling.(*Network)
+		if !ok {
+			continue
+		}
+		if n.AllocationMode == AllocationModeUnallocated {
+			unallocated = append(unallocated, n)
+		}
+	}
+	return unallocated
+}
+
+func hasAnySummarizableRange(candidates []*Network) bool {
+	if len(candidates) < 2 {
+		return false
+	}
+
+	cidrs := make([]string, 0, len(candidates))
+	for _, n := range candidates {
+		cidrs = append(cidrs, n.ID)
+	}
+	for i := range cidrs {
+		summarizeable, _, _ := findSummarizableRange(cidrs, i)
+		if summarizeable {
+			return true
+		}
+	}
+
+	return false
 }
 
 type AllocationMode uint8
@@ -416,7 +533,7 @@ func (n *Network) ValidateWithRules(rules *NetworkValidationRules) error {
 			return fmt.Errorf("Parent must be Networks for Network=%s", n.GetPath())
 		}
 	case *Network:
-		if substitute, ok := rules.Substitudes[p.ID]; ok {
+		if substitute, ok := rules.Substitutes[p.ID]; ok {
 			if substitute == nil {
 				break
 			}
@@ -451,7 +568,7 @@ func (n *Network) ValidateWithRules(rules *NetworkValidationRules) error {
 			panic("Non-network child found in Networks")
 		}
 
-		if substitute, ok := rules.Substitudes[otherNetwork.ID]; ok {
+		if substitute, ok := rules.Substitutes[otherNetwork.ID]; ok {
 			if substitute == nil {
 				continue
 			}
@@ -489,9 +606,6 @@ func (n *Network) ValidateWithRules(rules *NetworkValidationRules) error {
 	if n.AllocationMode != AllocationModeUnallocated {
 		if n.DisplayName == "" {
 			return fmt.Errorf("DisplayName must be set for allocated Network=%s", n.GetPath())
-		}
-		if n.Description == "" {
-			return fmt.Errorf("Description must be set for allocated Network=%s", n.GetPath())
 		}
 	}
 
@@ -572,9 +686,8 @@ func (n *Network) OnChangedFunc() {
 			"<A> Allocate Hosts",
 			"<s> Split",
 		}
-		summarizeable, _, _ := findSummarizableRangeForNetwork(n)
-		if summarizeable {
-			currentFocusKeys = append(currentFocusKeys, "<S> Summarize")
+		if hasAnySummarizableRange(getUnallocatedSiblingNetworks(n)) {
+			currentFocusKeys = append(currentFocusKeys, "<S> Summarize Range")
 		}
 	}
 	if !parentIsNetwork {
@@ -585,13 +698,37 @@ func (n *Network) OnChangedFunc() {
 func (n *Network) OnSelectedFunc() {
 	positionLine.Clear()
 	positionLine.SetText(n.GetPath())
-	currentMenuItemKeys = []string{}
+	if n.AllocationMode == AllocationModeHosts {
+		currentMenuItemKeys = []string{"<r> Reserve IP"}
+	} else {
+		currentMenuItemKeys = []string{}
+	}
 }
 
 func (n *Network) OnDoneFunc() {
 	positionLine.Clear()
 	positionLine.SetText(n.GetPath())
 	currentMenuItemKeys = []string{}
+}
+
+func (n *Network) CurrentMenuInputCapture(event *tcell.EventKey) *tcell.EventKey {
+	switch event.Key() {
+	case tcell.KeyRune:
+		switch event.Rune() {
+		case 'r':
+			if n.AllocationMode != AllocationModeHosts {
+				return event
+			}
+
+			reserveIPDialog.SetTitle(fmt.Sprintf("Reserve IP in %s", n.ID))
+			reserveIPDialog.SetFocus(0)
+			pages.ShowPage(reserveIPPage)
+			app.SetFocus(reserveIPDialog)
+			return nil
+		}
+	}
+
+	return event
 }
 
 func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKey {
@@ -603,7 +740,7 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 				return event
 			}
 
-			allocateNetworkSubnetsModeDialog.SetTitle(fmt.Sprintf("Allocate in Subnets mode for %s", n.GetID()))
+			allocateNetworkSubnetsModeDialog.SetTitle(fmt.Sprintf("Allocate Subnets for %s", n.ID))
 			allocateNetworkSubnetsModeDialog.SetFocus(0)
 			pages.ShowPage(allocateNetworkSubnetsModePage)
 			app.SetFocus(allocateNetworkSubnetsModeDialog)
@@ -613,7 +750,7 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 				return event
 			}
 
-			allocateNetworkHostsModeDialog.SetTitle(fmt.Sprintf("Allocate in Hosts mode for %s", n.GetID()))
+			allocateNetworkHostsModeDialog.SetTitle(fmt.Sprintf("Allocate Hosts for %s", n.ID))
 			allocateNetworkHostsModeDialog.SetFocus(0)
 			pages.ShowPage(allocateNetworkHostsModePage)
 			app.SetFocus(allocateNetworkHostsModeDialog)
@@ -623,8 +760,8 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 				return event
 			}
 
-			updateNetworkAllocationDialog.SetTitle(fmt.Sprintf("Update Network Allocation %s", n.GetID()))
-			setTextFromInputField(updateNetworkAllocationDialog, "Display Name", n.DisplayName)
+			updateNetworkAllocationDialog.SetTitle(fmt.Sprintf("Update Allocation for %s", n.ID))
+			setTextFromInputField(updateNetworkAllocationDialog, "Name", n.DisplayName)
 			setTextFromTextArea(updateNetworkAllocationDialog, "Description", n.Description)
 			updateNetworkAllocationDialog.SetFocus(0)
 			pages.ShowPage(updateNetworkAllocationPage)
@@ -635,7 +772,7 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 				return event
 			}
 
-			splitNetworkDialog.SetTitle(fmt.Sprintf("Split Network %s", n.GetID()))
+			splitNetworkDialog.SetTitle(fmt.Sprintf("Split %s", n.ID))
 			splitNetworkDialog.SetFocus(0)
 			pages.ShowPage(splitNetworkPage)
 			app.SetFocus(splitNetworkDialog)
@@ -645,19 +782,52 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 				return event
 			}
 
-			summarizeable, summarizeableNetworks, newCIDR := findSummarizableRangeForNetwork(n)
-			if !summarizeable {
+			candidates := getUnallocatedSiblingNetworks(n)
+			if !hasAnySummarizableRange(candidates) {
 				return event
 			}
-			stringWriter := new(strings.Builder)
-			stringWriter.WriteString("Are you sure you want to summarize the following networks?\n")
-			for _, summarizeableNetwork := range summarizeableNetworks {
-				stringWriter.WriteString(summarizeableNetwork.GetID())
-				stringWriter.WriteString("\n")
-			}
-			stringWriter.WriteString("New summarized network will be: " + newCIDR)
 
-			summarizeNetworkDialog.SetText(stringWriter.String())
+			options := make([]string, 0, len(candidates))
+			focusedIndex := 0
+			for i, candidate := range candidates {
+				options = append(options, candidate.GetID())
+				if candidate == n {
+					focusedIndex = i
+				}
+			}
+
+			summarizeCandidates = candidates
+			summarizeFromIndex = focusedIndex
+			summarizeToIndex = focusedIndex
+			if focusedIndex < len(options)-1 {
+				summarizeToIndex = focusedIndex + 1
+			} else if focusedIndex > 0 {
+				summarizeFromIndex = focusedIndex - 1
+			}
+
+			_, fromItem := getFormItemByLabel(summarizeNetworkDialog, "From")
+			fromDropdown, ok := fromItem.(*tview.DropDown)
+			if !ok {
+				panic("Failed to cast summarize From dropdown")
+			}
+			fromDropdown.SetOptions(options, func(option string, optionIndex int) {
+				if optionIndex >= 0 {
+					summarizeFromIndex = optionIndex
+				}
+			}).SetCurrentOption(summarizeFromIndex)
+
+			_, toItem := getFormItemByLabel(summarizeNetworkDialog, "To")
+			toDropdown, ok := toItem.(*tview.DropDown)
+			if !ok {
+				panic("Failed to cast summarize To dropdown")
+			}
+			toDropdown.SetOptions(options, func(option string, optionIndex int) {
+				if optionIndex >= 0 {
+					summarizeToIndex = optionIndex
+				}
+			}).SetCurrentOption(summarizeToIndex)
+
+			summarizeNetworkDialog.SetTitle(fmt.Sprintf("Summarize in %s", n.GetParent().GetID()))
 			summarizeNetworkDialog.SetFocus(0)
 			pages.ShowPage(summarizeNetworkPage)
 			app.SetFocus(summarizeNetworkDialog)
@@ -667,8 +837,8 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 				return event
 			}
 
-			deallocateNetworkDialog.SetText(fmt.Sprintf("Are you sure you want to deallocate network %s? This will automatically delete any subnets.", n.GetID()))
-			deallocateNetworkDialog.SetFocus(0)
+			deallocateNetworkDialog.SetText(fmt.Sprintf("Deallocate %s?\n\nAll child subnets will be removed.", n.GetID()))
+			deallocateNetworkDialog.SetFocus(1)
 			pages.ShowPage(deallocateNetworkPage)
 			app.SetFocus(deallocateNetworkDialog)
 			return nil
@@ -682,8 +852,8 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 				return event
 			}
 
-			deleteNetworkDialog.SetText(fmt.Sprintf("Are you sure you want to delete network %s? This will automatically delete any subnets.", n.GetID()))
-			deleteNetworkDialog.SetFocus(0)
+			deleteNetworkDialog.SetText(fmt.Sprintf("Delete %s?\n\nAll child subnets will be removed.", n.GetID()))
+			deleteNetworkDialog.SetFocus(1)
 			pages.ShowPage(deleteNetworkPage)
 			app.SetFocus(deleteNetworkDialog)
 			return nil
@@ -699,7 +869,7 @@ func (n *Network) RenderDetailsMap() ([]string, map[string]string, error) {
 	p := message.NewPrinter(language.English) // sorry, rest of the world
 
 	index = append(index, "CIDR")
-	result["CIDR"] = p.Sprintf(n.ID)
+	result["CIDR"] = n.ID
 
 	_, ipnet, err := net.ParseCIDR(n.ID)
 	if err != nil {
@@ -811,76 +981,9 @@ func (n *Network) RenderDetails() string {
 	return stringWriter.String()
 }
 
-func broadcastAddress(ip netip.Addr, maskSize int) []byte {
-	ipBytes := ip.AsSlice()
-	for i := len(ipBytes) - 1; maskSize < (len(ipBytes) * 8); maskSize++ {
-		byteIndex := i
-		bitIndex := 7 - (maskSize % 8)
-		ipBytes[byteIndex] |= 1 << uint(bitIndex)
-		if bitIndex == 0 {
-			i--
-		}
-	}
-	return ipBytes
-}
-
-func nextIP(ip netip.Addr) netip.Addr {
-	ipBytes := ip.AsSlice()
-	for i := len(ipBytes) - 1; i >= 0; i-- {
-		if ipBytes[i] < 255 {
-			ipBytes[i]++
-			newIP, ok := netip.AddrFromSlice(ipBytes)
-			if !ok {
-				return ip
-			}
-			return newIP
-		}
-		ipBytes[i] = 0
-	}
-	return ip
-}
-
-func prevIP(ip netip.Addr) netip.Addr {
-	ipBytes := ip.AsSlice()
-	for i := len(ipBytes) - 1; i >= 0; i-- {
-		if ipBytes[i] > 0 {
-			ipBytes[i]--
-			newIP, ok := netip.AddrFromSlice(ipBytes)
-			if !ok {
-				return ip
-			}
-			return newIP
-		}
-		ipBytes[i] = 255
-	}
-	return ip
-}
-
-func subnetMaskFromBits(bits int) string {
-	var mask uint32 = ^uint32(0) << (32 - bits)
-	return fmt.Sprintf("%d.%d.%d.%d",
-		byte(mask>>24),
-		byte(mask>>16),
-		byte(mask>>8),
-		byte(mask))
-}
-
 func ipToBigInt(addr netip.Addr) *big.Int {
 	ip := addr.AsSlice()
 	return new(big.Int).SetBytes(ip)
-}
-
-func bigIntToIP(bi *big.Int, isIPv6 bool) (netip.Addr, bool) {
-	ipBytes := bi.Bytes()
-	if isIPv6 && len(ipBytes) < 16 {
-		padding := make([]byte, 16-len(ipBytes))
-		ipBytes = append(padding, ipBytes...)
-	} else if !isIPv6 && len(ipBytes) < 4 {
-		padding := make([]byte, 4-len(ipBytes))
-		ipBytes = append(padding, ipBytes...)
-	}
-
-	return netip.AddrFromSlice(ipBytes)
 }
 
 func bigIntToAddr(i *big.Int, isIPv4 bool) netip.Addr {
@@ -958,6 +1061,15 @@ func CIDRToIdentifier(cidr string) (string, error) {
 	return identifier, nil
 }
 
+func IPToIdentifier(ipStr string) (string, error) {
+	addr, err := netip.ParseAddr(ipStr)
+	if err != nil {
+		return "", fmt.Errorf("invalid IP: %w", err)
+	}
+
+	return hex.EncodeToString(addr.AsSlice()), nil
+}
+
 func splitNetwork(cidr string, newSize int) ([]string, error) {
 	prefix, err := netip.ParsePrefix(cidr)
 	if err != nil {
@@ -988,7 +1100,7 @@ func splitNetwork(cidr string, newSize int) ([]string, error) {
 	step.Lsh(step, uint(addrLen-newSize))
 
 	currIP := ipToBigInt(addr)
-	isIPv6 := addr.Is6()
+	isIPv4 := addr.Is4()
 
 	for i := 0; i < (1 << (newSize - origSize)); i++ {
 		nextPrefix := netip.PrefixFrom(addr, newSize)
@@ -996,8 +1108,8 @@ func splitNetwork(cidr string, newSize int) ([]string, error) {
 
 		currIP.Add(currIP, step)
 
-		nextAddr, ok := bigIntToIP(currIP, isIPv6)
-		if !ok {
+		nextAddr := bigIntToAddr(currIP, isIPv4)
+		if !nextAddr.IsValid() {
 			return nil, fmt.Errorf("failed to convert bigInt %d to IP", currIP)
 		}
 		addr = nextAddr
@@ -1119,10 +1231,6 @@ func findSummarizableRange(cidrs []string, index int) (bool, []string, string) {
 
 func findSummarizableRangeForNetwork(network *Network) (bool, []*Network, string) {
 	neighbors := menuItems.GetChilds(network.GetParent())
-	if len(neighbors) <= 2 {
-		// Cannot summarize the only two remaining networks - it would amount to the parent network
-		return false, nil, ""
-	}
 
 	unallocatedNeighbors := []*Network{}
 	unallocatedNeighborsCIDRs := []string{}
@@ -1163,14 +1271,15 @@ func findSummarizableRangeForNetwork(network *Network) (bool, []*Network, string
 	}
 
 	summarizeable, summarizeableCIDRs, newNetwork := findSummarizableRange(unallocatedNeighborsCIDRs, index)
-	if len(neighbors) == len(summarizeableCIDRs) {
+	_, parentIsNetwork := network.GetParent().(*Network)
+	if parentIsNetwork && len(neighbors) == len(summarizeableCIDRs) {
 		originalUnallocatedNeighbors := unallocatedNeighbors
 		originalUnallocatedNeighborsCIDRs := unallocatedNeighborsCIDRs
 		originalIndex := index
 
 		isFirst := index == 0
 
-		// Unless this is a first one itself, try without the first
+		// Unless this is the first one itself, try without the first.
 		if !isFirst {
 			unallocatedNeighbors = unallocatedNeighbors[1:]
 			unallocatedNeighborsCIDRs = unallocatedNeighborsCIDRs[1:]
@@ -1178,9 +1287,8 @@ func findSummarizableRangeForNetwork(network *Network) (bool, []*Network, string
 			summarizeable, summarizeableCIDRs, newNetwork = findSummarizableRange(unallocatedNeighborsCIDRs, index)
 		}
 
-		// If still no dice or it was the first one - try to summarize without the last one
+		// If still no result (or we started on first), try without the last.
 		if isFirst || !summarizeable {
-			// Try to leave out last network of the list
 			unallocatedNeighbors = originalUnallocatedNeighbors[:len(originalUnallocatedNeighbors)-1]
 			unallocatedNeighborsCIDRs = originalUnallocatedNeighborsCIDRs[:len(originalUnallocatedNeighborsCIDRs)-1]
 			index = originalIndex
@@ -1194,6 +1302,9 @@ func findSummarizableRangeForNetwork(network *Network) (bool, []*Network, string
 			if neighbor.ID == cidr {
 				summarizeableNetworks[i] = neighbor
 			}
+		}
+		if summarizeableNetworks[i] == nil {
+			return false, nil, ""
 		}
 	}
 

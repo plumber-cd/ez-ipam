@@ -1,0 +1,25 @@
+┌──────────────────────────────────Navigation──────────────────────────────────┐
+│Networks                                                                      │
+└──────────────────────────────────────────────────────────────────────────────┘
+╔══════════Menu══════════╗┌───────────────────────Details──────────────────────┐
+║10.0.0.0/24 (Hosts)     ║│CIDR                : fd00::/64                     │
+║10.0.1.0/24 (*)         ║│Network Address     : fd00::                        │
+║fd00::/64 (*)           ║│Mask Bits           : 64                            │
+║                        ║│Subnet Mask         : ffff:ffff:ffff:ffff::         │
+║                        ║│Range               : fd00:: -                      │
+║                        ║│fd00::ffff:ffff:ffff:ffff                           │
+║                        ║│Total /64 Networks  : 1                             │
+║                        ║│Allocation Mode     : Unallocated                   │
+║                        ║│                                                    │
+║                        ║│                                                    │
+║                        ║│                                                    │
+║                        ║│                                                    │
+║                        ║│                                                    │
+║                        ║│                                                    │
+║                        ║└────────────────────────────────────────────────────┘
+║                        ║┌───────────────────────Status───────────────────────┐
+║                        ║│Error splitting network: splitting would create     │
+║                        ║│65536 subnets, current limit is 1024 due to         │
+║                        ║│performance issues                                  │
+╚════════════════════════╝└────────────────────────────────────────────────────┘
+ <enter>/<double-click> Open | <backspace> Back | <q> Quit | <ctrl+s> Save |    

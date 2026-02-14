@@ -1,0 +1,5 @@
+allocation_mode: 2
+description: Public hosts in AZ-a
+display_name: Public AZ-a
+id: 10.16.0.0/18
+parent: Networks -> 10.16.0.0/12 -> 10.16.0.0/14 -> 10.16.0.0/16

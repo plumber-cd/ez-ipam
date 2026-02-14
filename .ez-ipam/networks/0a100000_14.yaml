@@ -1,0 +1,5 @@
+allocation_mode: 1
+description: GCP us-east-1 VPC multi-tier
+display_name: GCP us-east-1 VPC
+id: 10.16.0.0/14
+parent: Networks -> 10.16.0.0/12

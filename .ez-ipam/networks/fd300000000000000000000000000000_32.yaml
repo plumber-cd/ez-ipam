@@ -1,0 +1,5 @@
+allocation_mode: 1
+description: Azure dual-stack IPv6 supernet
+display_name: Azure IPv6
+id: fd30::/32
+parent: Networks

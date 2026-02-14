@@ -77,7 +77,7 @@ func (m MenuItems) GetByParentAndID(parent MenuItem, name string) MenuItem {
 }
 
 var (
-	globalKeys          = []string{"<q> Quit", "<ctrl+s> Save"}
+	globalKeys          = []string{"<enter>/<double-click> Open", "<backspace> Back", "<q> Quit", "<ctrl+s> Save"}
 	menuItems           = MenuItems{}
 	currentMenuItem     MenuItem
 	currentMenuItemKeys = []string{}

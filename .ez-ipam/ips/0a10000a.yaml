@@ -1,0 +1,4 @@
+description: NAT/egress
+display_name: nat
+id: 10.16.0.10
+parent: Networks -> 10.16.0.0/12 -> 10.16.0.0/14 -> 10.16.0.0/16 -> 10.16.0.0/18
