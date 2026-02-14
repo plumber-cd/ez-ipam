@@ -13,6 +13,8 @@
 | `20` | `Home-Users` | User devices |
 | `30` | `Home-IoT` | IoT devices |
 
+## Networks
+
 | Network | Name | Allocation | VLAN | Description |
 |---------|------|------------|------|-------------|
 | `10.0.0.0/10` [link](#network-0a000000_10) | Cloud | Subnet Container | - | Cloud supernet |
