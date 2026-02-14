@@ -2,22 +2,22 @@
 │Networks                                                                      │
 └──────────────────────────────────────────────────────────────────────────────┘
 ╔══════════Menu══════════╗┌───────────────────────Details──────────────────────┐
-║10.0.0.0/12 (AWS)       ║│CIDR                : fd30::/32                     │
-║10.16.0.0/12 (GCP)      ║│Network Address     : fd30::                        │
-║10.32.0.0/12 (Azure)    ║│Mask Bits           : 32                            │
-║fd10::/32 (AWS IPv6)    ║│Subnet Mask         : ffff:ffff::                   │
-║fd20::/32 (GCP IPv6)    ║│Range               : fd30:: -                      │
-║fd30::/32 (Azure IPv6)  ║│fd30:0:ffff:ffff:ffff:ffff:ffff:ffff                │
-║                        ║│Total /64 Networks  : 4,294,967,296                 │
+║10.0.0.0/12 (AWS)       ║│CIDR                : 192.168.0.0/16                │
+║10.16.0.0/12 (GCP)      ║│Network Address     : 192.168.0.0                   │
+║10.32.0.0/12 (Azure)    ║│Mask Bits           : 16                            │
+║192.168.0.0/16 (Home)   ║│Subnet Mask         : 255.255.0.0                   │
+║fd10::/32 (AWS IPv6)    ║│Broadcast Address   : 192.168.255.255               │
+║fd20::/32 (GCP IPv6)    ║│Range               : 192.168.0.0 - 192.168.255.255 │
+║fd30::/32 (Azure IPv6)  ║│Total Hosts         : 65,536                        │
+║                        ║│Usable Range        : 192.168.0.1 - 192.168.255.254 │
+║                        ║│Usable Hosts        : 65,534                        │
 ║                        ║│Allocation Mode     : Subnet Container              │
 ║                        ║│Mode Meaning        : Branch node: contains child   │
 ║                        ║│networks.                                           │
 ║                        ║│                                                    │
 ║                        ║│                                                    │
 ║                        ║│                                                    │
-║                        ║│Azure dual-stack IPv6 supernet                      │
-║                        ║│                                                    │
-║                        ║│                                                    │
+║                        ║│Home supernet with VLAN segments                    │
 ║                        ║└────────────────────────────────────────────────────┘
 ║                        ║┌───────────────────────Status───────────────────────┐
 ║                        ║│Saved to .ez-ipam/ and EZ-IPAM.md                   │

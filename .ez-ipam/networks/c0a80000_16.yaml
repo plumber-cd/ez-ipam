@@ -1,0 +1,5 @@
+allocation_mode: 1
+description: Home supernet with VLAN segments
+display_name: Home
+id: 192.168.0.0/16
+parent: Networks

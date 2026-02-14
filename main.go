@@ -28,11 +28,15 @@ const (
 	reserveIPPage                  = "*reserve_ip*"
 	updateIPReservationPage        = "*update_ip_reservation*"
 	unreserveIPPage                = "*unreserve_ip*"
+	addVLANPage                    = "*add_vlan*"
+	updateVLANPage                 = "*update_vlan*"
+	deleteVLANPage                 = "*delete_vlan*"
 	quitPage                       = "*quit*"
 
 	dataDirName      = ".ez-ipam"
 	networksDirName  = "networks"
 	ipsDirName       = "ips"
+	vlansDirName     = "vlans"
 	markdownFileName = "EZ-IPAM.md"
 	formFieldWidth   = 42
 )
@@ -62,6 +66,9 @@ var (
 	reserveIPDialog                  *tview.Form
 	updateIPReservationDialog        *tview.Form
 	unreserveIPDialog                *tview.Modal
+	addVLANDialog                    *tview.Form
+	updateVLANDialog                 *tview.Form
+	deleteVLANDialog                 *tview.Modal
 	quitDialog                       *tview.Modal
 
 	summarizeCandidates []*Network
@@ -415,11 +422,12 @@ func setupApp() {
 	}
 
 	{
-		height := 13
+		height := 17
 		width := 64
 		cancelDialog := func() {
 			getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Name")
 			getAndClearTextFromTextArea(allocateNetworkSubnetsModeDialog, "Description")
+			getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "VLAN ID")
 			getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Child Prefix Len")
 			pages.SwitchToPage(mainPage)
 			app.SetFocus(navigationPanel)
@@ -427,10 +435,18 @@ func setupApp() {
 		allocateNetworkSubnetsModeDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
 			AddInputField("Name", "", formFieldWidth, nil, nil).
 			AddTextArea("Description", "", formFieldWidth, 3, 0, nil).
+			AddInputField("VLAN ID", "", formFieldWidth, nil, nil).
 			AddInputField("Child Prefix Len", "", formFieldWidth, nil, nil).
 			AddButton("Save", func() {
 				displayName := getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Name")
 				description := getAndClearTextFromTextArea(allocateNetworkSubnetsModeDialog, "Description")
+				vlanText := getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "VLAN ID")
+				vlanID, err := parseOptionalVLANID(vlanText)
+				if err != nil {
+					statusLine.Clear()
+					statusLine.SetText("Invalid VLAN ID: " + err.Error())
+					return
+				}
 				subnetsPrefix := getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Child Prefix Len")
 				subnetsPrefix = strings.TrimLeft(subnetsPrefix, "/")
 				subnetsPrefixInt, err := strconv.Atoi(subnetsPrefix)
@@ -439,7 +455,7 @@ func setupApp() {
 					statusLine.SetText("Invalid subnet prefix length: " + err.Error())
 					return
 				}
-				AllocateNetworkInSubnetsMode(displayName, description, subnetsPrefixInt)
+				AllocateNetworkInSubnetsMode(displayName, description, subnetsPrefixInt, vlanID)
 
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
@@ -452,22 +468,31 @@ func setupApp() {
 	}
 
 	{
-		height := 11
+		height := 13
 		width := 62
 		cancelDialog := func() {
 			getAndClearTextFromInputField(allocateNetworkHostsModeDialog, "Name")
 			getAndClearTextFromTextArea(allocateNetworkHostsModeDialog, "Description")
+			getAndClearTextFromInputField(allocateNetworkHostsModeDialog, "VLAN ID")
 			pages.SwitchToPage(mainPage)
 			app.SetFocus(navigationPanel)
 		}
 		allocateNetworkHostsModeDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
 			AddInputField("Name", "", formFieldWidth, nil, nil).
 			AddTextArea("Description", "", formFieldWidth, 3, 0, nil).
+			AddInputField("VLAN ID", "", formFieldWidth, nil, nil).
 			AddButton("Save", func() {
 				displayName := getAndClearTextFromInputField(allocateNetworkHostsModeDialog, "Name")
 				description := getAndClearTextFromTextArea(allocateNetworkHostsModeDialog, "Description")
+				vlanText := getAndClearTextFromInputField(allocateNetworkHostsModeDialog, "VLAN ID")
+				vlanID, err := parseOptionalVLANID(vlanText)
+				if err != nil {
+					statusLine.Clear()
+					statusLine.SetText("Invalid VLAN ID: " + err.Error())
+					return
+				}
 
-				AllocateNetworkInHostsMode(displayName, description)
+				AllocateNetworkInHostsMode(displayName, description, vlanID)
 
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
@@ -480,21 +505,30 @@ func setupApp() {
 	}
 
 	{
-		height := 11
+		height := 13
 		width := 62
 		cancelDialog := func() {
 			getAndClearTextFromInputField(updateNetworkAllocationDialog, "Name")
 			getAndClearTextFromTextArea(updateNetworkAllocationDialog, "Description")
+			getAndClearTextFromInputField(updateNetworkAllocationDialog, "VLAN ID")
 			pages.SwitchToPage(mainPage)
 			app.SetFocus(navigationPanel)
 		}
 		updateNetworkAllocationDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
 			AddInputField("Name", "", formFieldWidth, nil, nil).
 			AddTextArea("Description", "", formFieldWidth, 3, 0, nil).
+			AddInputField("VLAN ID", "", formFieldWidth, nil, nil).
 			AddButton("Save", func() {
 				displayName := getAndClearTextFromInputField(updateNetworkAllocationDialog, "Name")
 				description := getAndClearTextFromTextArea(updateNetworkAllocationDialog, "Description")
-				UpdateNetworkAllocation(displayName, description)
+				vlanText := getAndClearTextFromInputField(updateNetworkAllocationDialog, "VLAN ID")
+				vlanID, err := parseOptionalVLANID(vlanText)
+				if err != nil {
+					statusLine.Clear()
+					statusLine.SetText("Invalid VLAN ID: " + err.Error())
+					return
+				}
+				UpdateNetworkAllocation(displayName, description, vlanID)
 
 				pages.SwitchToPage(mainPage)
 				app.SetFocus(navigationPanel)
@@ -564,6 +598,63 @@ func setupApp() {
 	}
 
 	{
+		height := 9
+		width := 62
+		cancelDialog := func() {
+			getAndClearTextFromInputField(addVLANDialog, "VLAN ID")
+			getAndClearTextFromInputField(addVLANDialog, "Name")
+			getAndClearTextFromInputField(addVLANDialog, "Description")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		addVLANDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("VLAN ID", "", formFieldWidth, nil, nil).
+			AddInputField("Name", "", formFieldWidth, nil, nil).
+			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddButton("Save", func() {
+				vlanID := getAndClearTextFromInputField(addVLANDialog, "VLAN ID")
+				name := getAndClearTextFromInputField(addVLANDialog, "Name")
+				description := getAndClearTextFromInputField(addVLANDialog, "Description")
+				AddVLAN(vlanID, name, description)
+
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		addVLANDialog.SetBorder(true).SetTitle("Add VLAN")
+		wireDialogFormKeys(addVLANDialog, cancelDialog)
+		addVLANFlex := createDialogPage(addVLANDialog, width, height)
+		pages.AddPage(addVLANPage, addVLANFlex, true, false)
+	}
+
+	{
+		height := 9
+		width := 62
+		cancelDialog := func() {
+			getAndClearTextFromInputField(updateVLANDialog, "Name")
+			getAndClearTextFromInputField(updateVLANDialog, "Description")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		updateVLANDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("Name", "", formFieldWidth, nil, nil).
+			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddButton("Save", func() {
+				name := getAndClearTextFromInputField(updateVLANDialog, "Name")
+				description := getAndClearTextFromInputField(updateVLANDialog, "Description")
+				UpdateVLAN(name, description)
+
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		updateVLANDialog.SetBorder(true).SetTitle("Update VLAN")
+		wireDialogFormKeys(updateVLANDialog, cancelDialog)
+		updateVLANFlex := createDialogPage(updateVLANDialog, width, height)
+		pages.AddPage(updateVLANPage, updateVLANFlex, true, false)
+	}
+
+	{
 		unreserveIPDialog = tview.NewModal().
 			SetText("Unreserve this IP address?").
 			AddButtons([]string{"Yes", "No"}).
@@ -581,6 +672,26 @@ func setupApp() {
 				}
 			})
 		pages.AddPage(unreserveIPPage, unreserveIPDialog, true, false)
+	}
+
+	{
+		deleteVLANDialog = tview.NewModal().
+			SetText("Delete this VLAN?").
+			AddButtons([]string{"Yes", "No"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				switch buttonLabel {
+				case "Yes":
+					DeleteVLAN()
+					fallthrough
+				case "No":
+					fallthrough
+				default:
+					deleteVLANDialog.SetText("")
+					pages.SwitchToPage(mainPage)
+					app.SetFocus(navigationPanel)
+				}
+			})
+		pages.AddPage(deleteVLANPage, deleteVLANDialog, true, false)
 	}
 
 	{
@@ -694,6 +805,14 @@ func load() {
 		Description: "Manage your address space here.\n\nUse Enter or double-click to open items.\nUse Backspace to go up one level.",
 	}
 	menuItems.MustAdd(networks)
+	vlans := &MenuStatic{
+		MenuFolder: &MenuFolder{
+			ID: "VLANs",
+		},
+		Index:       1,
+		Description: "Manage VLAN IDs and their metadata here.",
+	}
+	menuItems.MustAdd(vlans)
 
 	currentDir, err := os.Getwd()
 	if err != nil {
@@ -703,6 +822,7 @@ func load() {
 	dataDir := filepath.Join(currentDir, dataDirName)
 	networkDir := filepath.Join(dataDir, networksDirName)
 	ipsDir := filepath.Join(dataDir, ipsDirName)
+	vlansDir := filepath.Join(dataDir, vlansDirName)
 
 	networkFiles, err := os.ReadDir(networkDir)
 	if err != nil {
@@ -757,6 +877,32 @@ func load() {
 
 		menuItems[ip.GetPath()] = ip
 	}
+	vlanFiles, err := os.ReadDir(vlansDir)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			panic("Failed to read " + vlansDir + " directory: " + err.Error())
+		}
+		if err := os.MkdirAll(vlansDir, 0755); err != nil {
+			panic("Failed to create " + vlansDir + " directory: " + err.Error())
+		}
+	}
+	for _, vlanFile := range vlanFiles {
+		if vlanFile.IsDir() {
+			continue
+		}
+
+		bytes, err := os.ReadFile(filepath.Join(vlansDir, vlanFile.Name()))
+		if err != nil {
+			panic("Failed to read " + vlanFile.Name() + " file: " + err.Error())
+		}
+
+		vlan := &VLAN{}
+		if err := yaml.Unmarshal(bytes, vlan); err != nil {
+			panic("Failed to unmarshal " + vlanFile.Name() + " file: " + err.Error())
+		}
+
+		menuItems[vlan.GetPath()] = vlan
+	}
 
 	for _, menuItem := range menuItems {
 		if err := menuItem.Validate(); err != nil {
@@ -779,6 +925,7 @@ func save() {
 
 	networksTmpDir := filepath.Join(dataTmpDir, networksDirName)
 	ipsTmpDir := filepath.Join(dataTmpDir, ipsDirName)
+	vlansTmpDir := filepath.Join(dataTmpDir, vlansDirName)
 	if err := os.RemoveAll(dataTmpDir); err != nil {
 		panic("Failed to remove " + dataTmpDir + " directory: " + err.Error())
 	}
@@ -787,6 +934,9 @@ func save() {
 	}
 	if err := os.MkdirAll(ipsTmpDir, 0755); err != nil {
 		panic("Failed to create " + ipsTmpDir + " directory: " + err.Error())
+	}
+	if err := os.MkdirAll(vlansTmpDir, 0755); err != nil {
+		panic("Failed to create " + vlansTmpDir + " directory: " + err.Error())
 	}
 
 	for _, menuItem := range menuItems {
@@ -814,6 +964,15 @@ func save() {
 			}
 
 			fileName := filepath.Join(ipsTmpDir, id+".yaml")
+			bytes, err := yaml.Marshal(menuItem)
+			if err != nil {
+				panic("Failed to marshal " + menuItem.GetPath() + " to yaml: " + err.Error())
+			}
+			if err := os.WriteFile(fileName, bytes, 0644); err != nil {
+				panic("Failed to write " + fileName + " file: " + err.Error())
+			}
+		case *VLAN:
+			fileName := filepath.Join(vlansTmpDir, m.ID+".yaml")
 			bytes, err := yaml.Marshal(menuItem)
 			if err != nil {
 				panic("Failed to marshal " + menuItem.GetPath() + " to yaml: " + err.Error())
@@ -859,6 +1018,7 @@ func save() {
 	networksData := map[string]map[string]string{}
 	networksHasReservedIPs := map[string]bool{}
 	networksReservedIPs := map[string][]map[string]string{}
+	vlanRows := []map[string]string{}
 	summaryRows := []map[string]string{}
 	buildTreePrefix := func(ancestorHasNext []bool, isLast bool) string {
 		stringWriter := new(strings.Builder)
@@ -942,10 +1102,29 @@ func save() {
 		networksHasReservedIPs[path] = len(reserved) > 0
 		networksReservedIPs[path] = reserved
 		networkCell := fmt.Sprintf("%s [link](#%s)", markdownCode(networkTreePrefix+n.ID), networksAnchor[path])
+		vlanValue := "-"
+		if n.VLANID > 0 {
+			vlanValue = strconv.Itoa(n.VLANID)
+			vlansMenu := menuItems.GetByParentAndID(nil, "VLANs")
+			if vlansMenu != nil {
+				for _, menuItem := range menuItems.GetChilds(vlansMenu) {
+					vlan, ok := menuItem.(*VLAN)
+					if !ok {
+						continue
+					}
+					if vlan.ID == strconv.Itoa(n.VLANID) {
+						vlanValue = fmt.Sprintf("%s (%s)", vlan.ID, vlan.DisplayName)
+						break
+					}
+				}
+			}
+		}
+
 		summaryRows = append(summaryRows, map[string]string{
 			"Network":     networkCell,
 			"Name":        markdownInline(defaultIfEmpty(n.DisplayName, "-")),
 			"Allocation":  markdownInline(defaultIfEmpty(networksMode[path], "-")),
+			"VLAN":        markdownInline(vlanValue),
 			"Description": markdownInline(clampOverviewDescription(defaultIfEmpty(n.Description, "-"), 60)),
 		})
 
@@ -957,6 +1136,7 @@ func save() {
 					"Network":     markdownCode(ipTreePrefix + ip["Address"]),
 					"Name":        markdownInline(defaultIfEmpty(ip["DisplayName"], "-")),
 					"Allocation":  "Reserved IP",
+					"VLAN":        "-",
 					"Description": markdownInline(clampOverviewDescription(defaultIfEmpty(ip["Description"], "-"), 60)),
 				})
 			}
@@ -989,6 +1169,18 @@ func save() {
 	for i, topLevelNetwork := range topLevelNetworks {
 		recursivelyPopulateNetworksData(topLevelNetwork, 0, []bool{}, i == len(topLevelNetworks)-1)
 	}
+	vlansMenuItem := menuItems.GetByParentAndID(nil, "VLANs")
+	for _, menuItem := range menuItems.GetChilds(vlansMenuItem) {
+		vlan, ok := menuItem.(*VLAN)
+		if !ok {
+			continue
+		}
+		vlanRows = append(vlanRows, map[string]string{
+			"ID":          markdownCode(vlan.ID),
+			"Name":        markdownCode(vlan.DisplayName),
+			"Description": markdownInline(defaultIfEmpty(vlan.Description, "-")),
+		})
+	}
 
 	template := template.Must(template.New(markdownFileName).Parse(markdownTmpl))
 	input := map[string]interface{}{
@@ -1005,6 +1197,7 @@ func save() {
 		"NetworksData":           networksData,
 		"NetworksHasReservedIPs": networksHasReservedIPs,
 		"NetworksReservedIPs":    networksReservedIPs,
+		"VLANRows":              vlanRows,
 		"SummaryRows":            summaryRows,
 	}
 
@@ -1124,6 +1317,21 @@ func defaultIfEmpty(value, fallback string) string {
 		return fallback
 	}
 	return value
+}
+
+func parseOptionalVLANID(value string) (int, error) {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return 0, nil
+	}
+	vlanID, err := strconv.Atoi(trimmed)
+	if err != nil {
+		return 0, err
+	}
+	if vlanID < 1 || vlanID > 4094 {
+		return 0, fmt.Errorf("must be in range 1-4094")
+	}
+	return vlanID, nil
 }
 
 func getFormItemByLabel(form *tview.Form, label string) (int, tview.FormItem) {

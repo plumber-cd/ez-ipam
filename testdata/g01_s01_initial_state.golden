@@ -3,7 +3,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 ╔══════════Menu══════════╗┌───────────────────────Details──────────────────────┐
 ║Networks                ║│Manage your address space here.                     │
-║                        ║│                                                    │
+║VLANs                   ║│                                                    │
 ║                        ║│Use Enter or double-click to open items.            │
 ║                        ║│Use Backspace to go up one level.                   │
 ║                        ║│                                                    │

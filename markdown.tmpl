@@ -6,10 +6,22 @@
 
 > Legend: `Subnet Container` holds child networks, `Host Pool` holds reservable IPs, and `Reserved IP` is a concrete host reservation.
 
-| Network | Name | Allocation | Description |
-|---------|------|------------|-------------|
+| Network | Name | Allocation | VLAN | Description |
+|---------|------|------------|------|-------------|
 {{- range $row := .SummaryRows }}
-| {{ index $row "Network" }} | {{ index $row "Name" }} | {{ index $row "Allocation" }} | {{ index $row "Description" }} |
+| {{ index $row "Network" }} | {{ index $row "Name" }} | {{ index $row "Allocation" }} | {{ index $row "VLAN" }} | {{ index $row "Description" }} |
+{{- end }}
+
+## VLANs
+
+| VLAN ID | Name | Description |
+|---------|------|-------------|
+{{- if .VLANRows }}
+{{- range $row := .VLANRows }}
+| {{ index $row "ID" }} | {{ index $row "Name" }} | {{ index $row "Description" }} |
+{{- end }}
+{{- else }}
+| - | - | - |
 {{- end }}
 
 ## Detailed Networks

@@ -56,6 +56,10 @@ func (m *MenuStatic) OnSelectedFunc() {
 		currentMenuItemKeys = []string{
 			"<n> New Network",
 		}
+	case "VLANs":
+		currentMenuItemKeys = []string{
+			"<v> New VLAN",
+		}
 	default:
 		currentMenuItemKeys = []string{}
 	}
@@ -77,6 +81,17 @@ func (m *MenuStatic) CurrentMenuInputCapture(event *tcell.EventKey) *tcell.Event
 				newNetworkDialog.SetFocus(0)
 				pages.ShowPage(newNetworkPage)
 				app.SetFocus(newNetworkDialog)
+				return nil
+			}
+		}
+	case "VLANs":
+		switch event.Key() {
+		case tcell.KeyRune:
+			switch event.Rune() {
+			case 'v':
+				addVLANDialog.SetFocus(0)
+				pages.ShowPage(addVLANPage)
+				app.SetFocus(addVLANDialog)
 				return nil
 			}
 		}

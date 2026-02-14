@@ -212,7 +212,7 @@ func SummarizeNetworkSelection(candidates []*Network, fromIndex, toIndex int) {
 	statusLine.SetText("Summarized networks into " + newMenuItem.GetID())
 }
 
-func AllocateNetworkInSubnetsMode(displayName, description string, subnetsPrefix int) {
+func AllocateNetworkInSubnetsMode(displayName, description string, subnetsPrefix int, vlanID int) {
 	focusedNetwork, ok := currentMenuFocus.(*Network)
 	if !ok {
 		panic("AllocateNetworkInSubnetsMode called on non-Network")
@@ -226,6 +226,7 @@ func AllocateNetworkInSubnetsMode(displayName, description string, subnetsPrefix
 		n.AllocationMode = AllocationModeSubnets
 		n.DisplayName = displayName
 		n.Description = description
+		n.VLANID = vlanID
 	}
 
 	copy := *focusedNetwork
@@ -288,7 +289,7 @@ func AllocateNetworkInSubnetsMode(displayName, description string, subnetsPrefix
 	statusLine.SetText("Allocated network: " + focusedNetwork.GetPath())
 }
 
-func AllocateNetworkInHostsMode(displayName, description string) {
+func AllocateNetworkInHostsMode(displayName, description string, vlanID int) {
 	focusedNetwork, ok := currentMenuFocus.(*Network)
 	if !ok {
 		panic("AllocateNetworkInHostsMode called on non-Network")
@@ -302,6 +303,7 @@ func AllocateNetworkInHostsMode(displayName, description string) {
 		n.AllocationMode = AllocationModeHosts
 		n.DisplayName = displayName
 		n.Description = description
+		n.VLANID = vlanID
 	}
 
 	copy := *focusedNetwork
@@ -331,7 +333,7 @@ func AllocateNetworkInHostsMode(displayName, description string) {
 	statusLine.SetText("Allocated network: " + focusedNetwork.GetPath())
 }
 
-func UpdateNetworkAllocation(displayName, description string) {
+func UpdateNetworkAllocation(displayName, description string, vlanID int) {
 	focusedNetwork, ok := currentMenuFocus.(*Network)
 	if !ok {
 		panic("UpdateNetworkAllocation called on non-Network")
@@ -344,6 +346,7 @@ func UpdateNetworkAllocation(displayName, description string) {
 	mod := func(n *Network) {
 		n.DisplayName = displayName
 		n.Description = description
+		n.VLANID = vlanID
 	}
 
 	copy := *focusedNetwork
@@ -387,6 +390,7 @@ func DeallocateNetwork() {
 		n.AllocationMode = AllocationModeUnallocated
 		n.DisplayName = ""
 		n.Description = ""
+		n.VLANID = 0
 	}
 
 	copy := *focusedNetwork
@@ -487,6 +491,7 @@ type Network struct {
 	AllocationMode AllocationMode `json:"allocation_mode"`
 	DisplayName    string         `json:"display_name"`
 	Description    string         `json:"description"`
+	VLANID         int            `json:"vlan_id,omitempty"`
 }
 
 func (n *Network) Validate() error {
@@ -606,6 +611,26 @@ func (n *Network) ValidateWithRules(rules *NetworkValidationRules) error {
 	if n.AllocationMode != AllocationModeUnallocated {
 		if n.DisplayName == "" {
 			return fmt.Errorf("DisplayName must be set for allocated Network=%s", n.GetPath())
+		}
+	}
+	if n.VLANID > 0 {
+		vlansRoot := menuItems.GetByParentAndID(nil, "VLANs")
+		if vlansRoot == nil {
+			return fmt.Errorf("VLANs root not found for Network=%s", n.GetPath())
+		}
+		found := false
+		for _, menuItem := range menuItems.GetChilds(vlansRoot) {
+			vlan, ok := menuItem.(*VLAN)
+			if !ok {
+				continue
+			}
+			if vlan.ID == fmt.Sprintf("%d", n.VLANID) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return fmt.Errorf("VLAN ID %d not found for Network=%s", n.VLANID, n.GetPath())
 		}
 	}
 
@@ -771,6 +796,11 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 			updateNetworkAllocationDialog.SetTitle(fmt.Sprintf("Update Metadata for %s", n.ID))
 			setTextFromInputField(updateNetworkAllocationDialog, "Name", n.DisplayName)
 			setTextFromTextArea(updateNetworkAllocationDialog, "Description", n.Description)
+			if n.VLANID > 0 {
+				setTextFromInputField(updateNetworkAllocationDialog, "VLAN ID", fmt.Sprintf("%d", n.VLANID))
+			} else {
+				setTextFromInputField(updateNetworkAllocationDialog, "VLAN ID", "")
+			}
 			updateNetworkAllocationDialog.SetFocus(0)
 			pages.ShowPage(updateNetworkAllocationPage)
 			app.SetFocus(updateNetworkAllocationDialog)
@@ -970,6 +1000,24 @@ func (n *Network) RenderDetailsMap() ([]string, map[string]string, error) {
 	}
 	if n.AllocationMode != AllocationModeUnallocated {
 		result["Description"] = n.Description
+	}
+	if n.VLANID > 0 {
+		vlanName := "<unknown>"
+		vlansRoot := menuItems.GetByParentAndID(nil, "VLANs")
+		if vlansRoot != nil {
+			for _, menuItem := range menuItems.GetChilds(vlansRoot) {
+				vlan, ok := menuItem.(*VLAN)
+				if !ok {
+					continue
+				}
+				if vlan.ID == fmt.Sprintf("%d", n.VLANID) {
+					vlanName = vlan.DisplayName
+					break
+				}
+			}
+		}
+		index = append(index, "VLAN")
+		result["VLAN"] = fmt.Sprintf("%d (%s)", n.VLANID, vlanName)
 	}
 
 	return index, result, nil

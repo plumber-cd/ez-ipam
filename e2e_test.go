@@ -82,33 +82,39 @@ func splitFocusedNetwork(h *TestHarness, newPrefix string) {
 	h.PressEnter()
 }
 
-func allocateSubnetsFocused(h *TestHarness, name, description, prefix string) {
+func allocateSubnetsFocused(h *TestHarness, name, description, vlanID, prefix string) {
 	h.PressRune('a')
 	h.AssertScreenContains("Subnet Container")
 	h.TypeText(name)
 	h.PressTab()
 	h.TypeText(description)
 	h.PressTab()
+	h.TypeText(vlanID)
+	h.PressTab()
 	h.TypeText(prefix)
 	h.PressEnter()
 }
 
-func allocateHostsFocused(h *TestHarness, name, description string) {
+func allocateHostsFocused(h *TestHarness, name, description, vlanID string) {
 	h.PressRune('A')
 	h.AssertScreenContains("Host Pool")
 	h.TypeText(name)
 	h.PressTab()
 	h.TypeText(description)
 	h.PressTab()
+	h.TypeText(vlanID)
+	h.PressTab()
 	h.PressEnter()
 }
 
-func updateAllocationFocused(h *TestHarness, nameSuffix, descriptionSuffix string) {
+func updateAllocationFocused(h *TestHarness, nameSuffix, descriptionSuffix, vlanID string) {
 	h.PressRune('u')
 	h.AssertScreenContains("Update Metadata")
 	h.TypeText(nameSuffix)
 	h.PressTab()
 	h.TypeText(descriptionSuffix)
+	h.PressTab()
+	h.TypeText(vlanID)
 	h.PressTab()
 	h.PressEnter()
 }
@@ -117,6 +123,34 @@ func reserveIPFromCurrentNetwork(h *TestHarness, ip, name, description string) {
 	h.PressRune('r')
 	h.AssertScreenContains("Reserve IP")
 	h.TypeText(ip)
+	h.PressTab()
+	h.TypeText(name)
+	h.PressTab()
+	h.TypeText(description)
+	h.PressTab()
+	h.PressEnter()
+}
+
+func navigateToVLANs(t *testing.T, h *TestHarness) {
+	t.Helper()
+	h.PressBackspace()
+	moveFocusToID(t, h, "VLANs")
+	h.PressEnter()
+	h.AssertScreenContains("│VLANs")
+}
+
+func navigateToNetworksRoot(t *testing.T, h *TestHarness) {
+	t.Helper()
+	h.PressBackspace()
+	moveFocusToID(t, h, "Networks")
+	h.PressEnter()
+	h.AssertScreenContains("│Networks")
+}
+
+func addVLANViaDialog(h *TestHarness, id, name, description string) {
+	h.PressRune('v')
+	h.AssertScreenContains("Add VLAN")
+	h.TypeText(id)
 	h.PressTab()
 	h.TypeText(name)
 	h.PressTab()
@@ -178,7 +212,7 @@ func TestVimNavigationAndKeysLineContext(t *testing.T) {
 	h.AssertScreenContains("│Networks")
 
 	moveFocusToID(t, h, "10.0.0.0/24")
-	allocateHostsFocused(h, "Web", "Tier")
+	allocateHostsFocused(h, "Web", "Tier", "")
 	h.AssertScreenContains("Allocated network")
 	h.PressEnter()
 	menuKeys, _ = currentKeys()
@@ -338,13 +372,13 @@ func TestAllocateSubnetsBranches(t *testing.T) {
 
 	t.Run("empty_name", func(t *testing.T) {
 		h := setup(t)
-		allocateSubnetsFocused(h, "", "", "25")
+		allocateSubnetsFocused(h, "", "", "", "25")
 		h.AssertStatusContains("Error allocating network")
 	})
 
 	t.Run("invalid_prefix", func(t *testing.T) {
 		h := setup(t)
-		allocateSubnetsFocused(h, "Prod", "desc", "bad")
+		allocateSubnetsFocused(h, "Prod", "desc", "", "bad")
 		if !strings.Contains(currentStatusText(), "Invalid subnet prefix length") {
 			t.Fatalf("expected invalid subnet prefix error, got %q", currentStatusText())
 		}
@@ -352,7 +386,7 @@ func TestAllocateSubnetsBranches(t *testing.T) {
 
 	t.Run("valid", func(t *testing.T) {
 		h := setup(t)
-		allocateSubnetsFocused(h, "Prod", "desc", "25")
+		allocateSubnetsFocused(h, "Prod", "desc", "", "25")
 		h.AssertStatusContains("Allocated network")
 	})
 }
@@ -363,10 +397,10 @@ func TestAllocateHostsBranches(t *testing.T) {
 	addNetworkViaDialog(h, "192.168.1.0/24")
 	moveFocusToID(t, h, "192.168.1.0/24")
 
-	allocateHostsFocused(h, "", "")
+	allocateHostsFocused(h, "", "", "")
 	h.AssertStatusContains("Error allocating network")
 
-	allocateHostsFocused(h, "Office", "LAN")
+	allocateHostsFocused(h, "Office", "LAN", "")
 	h.AssertStatusContains("Allocated network")
 }
 
@@ -375,9 +409,9 @@ func TestUpdateAllocationAndDeallocate(t *testing.T) {
 	h.NavigateToNetworks()
 	addNetworkViaDialog(h, "10.0.0.0/24")
 	moveFocusToID(t, h, "10.0.0.0/24")
-	allocateHostsFocused(h, "Web", "servers")
+	allocateHostsFocused(h, "Web", "servers", "")
 
-	updateAllocationFocused(h, "-2", " updated")
+	updateAllocationFocused(h, "-2", " updated", "")
 	h.AssertStatusContains("Allocated network updated")
 	h.AssertScreenContains("10.0.0.0/24 (Web-2)")
 
@@ -398,7 +432,7 @@ func TestReserveUpdateUnreserveIPBranches(t *testing.T) {
 	h.NavigateToNetworks()
 	addNetworkViaDialog(h, "192.168.1.0/24")
 	moveFocusToID(t, h, "192.168.1.0/24")
-	allocateHostsFocused(h, "Office", "LAN")
+	allocateHostsFocused(h, "Office", "LAN", "")
 	h.PressEnter()
 
 	reserveIPFromCurrentNetwork(h, "192.168.1.1", "gateway", "gw")
@@ -431,6 +465,87 @@ func TestReserveUpdateUnreserveIPBranches(t *testing.T) {
 	h.AssertScreenContains("(gateway-1)?")
 	h.ConfirmModal()
 	h.AssertStatusContains("Unreserved IP")
+}
+
+func TestAddVLANBranches(t *testing.T) {
+	h := NewTestHarness(t)
+	navigateToVLANs(t, h)
+
+	addVLANViaDialog(h, "100", "Management", "infra management")
+	h.AssertStatusContains("Added VLAN")
+
+	addVLANViaDialog(h, "0", "Invalid", "bad")
+	h.AssertStatusContains("Error adding VLAN")
+	addVLANViaDialog(h, "4095", "Invalid", "bad")
+	h.AssertStatusContains("Error adding VLAN")
+	addVLANViaDialog(h, "bad", "Invalid", "bad")
+	h.AssertStatusContains("Error adding VLAN")
+	addVLANViaDialog(h, "101", "", "missing name")
+	h.AssertStatusContains("Error adding VLAN")
+	addVLANViaDialog(h, "100", "Duplicate", "dup")
+	h.AssertStatusContains("Error adding VLAN")
+}
+
+func TestUpdateAndDeleteVLAN(t *testing.T) {
+	h := NewTestHarness(t)
+	navigateToVLANs(t, h)
+	addVLANViaDialog(h, "200", "Users", "user segment")
+	moveFocusToID(t, h, "200 (Users)")
+
+	h.PressRune('u')
+	h.AssertScreenContains("Update VLAN")
+	h.TypeText("-2")
+	h.PressTab()
+	h.TypeText(" updated")
+	h.PressTab()
+	h.PressEnter()
+	h.AssertStatusContains("Updated VLAN")
+	h.AssertScreenContains("200 (Users-2)")
+
+	h.PressRune('D')
+	h.AssertScreenContains("Delete VLAN 200")
+	h.CancelModal()
+	h.AssertScreenContains("200 (Users-2)")
+
+	h.PressRune('D')
+	h.AssertScreenContains("Delete VLAN 200")
+	h.ConfirmModal()
+	h.AssertStatusContains("Deleted VLAN")
+}
+
+func TestNetworkVLANAssignment(t *testing.T) {
+	h := NewTestHarness(t)
+	navigateToVLANs(t, h)
+	addVLANViaDialog(h, "300", "Servers", "servers vlan")
+
+	navigateToNetworksRoot(t, h)
+	addNetworkViaDialog(h, "10.50.0.0/24")
+	moveFocusToID(t, h, "10.50.0.0/24")
+	allocateHostsFocused(h, "Servers", "pool", "300")
+	h.AssertStatusContains("Allocated network")
+	h.AssertScreenContains("300 (Servers)")
+
+	addNetworkViaDialog(h, "10.51.0.0/24")
+	moveFocusToID(t, h, "10.51.0.0/24")
+	allocateHostsFocused(h, "Invalid", "pool", "999")
+	h.AssertStatusContains("Error allocating network")
+}
+
+func TestVLANCrossReference(t *testing.T) {
+	h := NewTestHarness(t)
+	navigateToVLANs(t, h)
+	addVLANViaDialog(h, "400", "Apps", "application vlan")
+
+	navigateToNetworksRoot(t, h)
+	addNetworkViaDialog(h, "10.60.0.0/24")
+	moveFocusToID(t, h, "10.60.0.0/24")
+	allocateHostsFocused(h, "Apps", "pool", "400")
+	h.AssertStatusContains("Allocated network")
+
+	h.PressBackspace()
+	navigateToVLANs(t, h)
+	moveFocusToID(t, h, "400 (Apps)")
+	h.AssertScreenContains("10.60.0.0/24")
 }
 
 func TestSaveLoadAndQuit(t *testing.T) {
@@ -533,7 +648,7 @@ func TestGoldenDialogsAndScreens(t *testing.T) {
 	h.AssertGoldenSnapshot("g02_s06_allocate_hosts_dialog")
 	h.PressEscape()
 
-	allocateHostsFocused(h, "Hosts", "desc")
+	allocateHostsFocused(h, "Hosts", "desc", "")
 	h.AssertGoldenSnapshot("g02_s07_allocated_network_hosts")
 
 	h.PressRune('u')
@@ -577,6 +692,7 @@ func TestGoldenDialogsAndScreens(t *testing.T) {
 	h.PressTab()
 	h.TypeText("subnets")
 	h.PressTab()
+	h.PressTab()
 	h.TypeText("80")
 	h.PressEnter()
 	h.AssertGoldenSnapshot("g02_s16_allocated_network_subnets")
@@ -588,7 +704,12 @@ func TestGoldenDialogsAndScreens(t *testing.T) {
 
 func TestDemoState(t *testing.T) {
 	h := NewTestHarness(t)
-	h.NavigateToNetworks()
+
+	navigateToVLANs(t, h)
+	addVLANViaDialog(h, "10", "Home-Infra", "Home infrastructure")
+	addVLANViaDialog(h, "20", "Home-Users", "User devices")
+	addVLANViaDialog(h, "30", "Home-IoT", "IoT devices")
+	navigateToNetworksRoot(t, h)
 
 	type cloudPlan struct {
 		cloudCIDR      string
@@ -605,7 +726,7 @@ func TestDemoState(t *testing.T) {
 
 	configureVpcTiers := func(vpcCIDR, vpcName string, withInfraReservations bool) {
 		moveFocusToID(t, h, vpcCIDR)
-		allocateSubnetsFocused(h, vpcName, vpcName+" multi-tier", "16")
+		allocateSubnetsFocused(h, vpcName, vpcName+" multi-tier", "", "16")
 
 		h.PressEnter()
 
@@ -665,7 +786,7 @@ func TestDemoState(t *testing.T) {
 
 		for _, tier := range tiers {
 			moveFocusToID(t, h, tier.cidr)
-			allocateSubnetsFocused(h, tier.name, tier.name+" tier across AZs", "18")
+			allocateSubnetsFocused(h, tier.name, tier.name+" tier across AZs", "", "18")
 		}
 
 		if withInfraReservations {
@@ -673,7 +794,7 @@ func TestDemoState(t *testing.T) {
 				moveFocusToID(t, h, tier.cidr)
 				h.PressEnter()
 				moveFocusToID(t, h, tier.azACIDR)
-				allocateHostsFocused(h, tier.name+" AZ-a", tier.name+" hosts in AZ-a")
+				allocateHostsFocused(h, tier.name+" AZ-a", tier.name+" hosts in AZ-a", "")
 				h.PressEnter()
 
 				base := strings.Split(tier.azACIDR, "/")[0]
@@ -702,7 +823,7 @@ func TestDemoState(t *testing.T) {
 	for _, cloud := range clouds {
 		addNetworkViaDialog(h, cloud.cloudCIDR)
 		moveFocusToID(t, h, cloud.cloudCIDR)
-		allocateSubnetsFocused(h, cloud.cloudName, cloud.cloudName+" cloud supernet", "14")
+		allocateSubnetsFocused(h, cloud.cloudName, cloud.cloudName+" cloud supernet", "", "14")
 
 		h.PressEnter()
 		configureVpcTiers(cloud.region1VPCCIDR, cloud.cloudName+" us-east-1 VPC", true)
@@ -711,7 +832,7 @@ func TestDemoState(t *testing.T) {
 
 		addNetworkViaDialog(h, cloud.ipv6CloudCIDR)
 		moveFocusToID(t, h, cloud.ipv6CloudCIDR)
-		allocateSubnetsFocused(h, cloud.cloudName+" IPv6", cloud.cloudName+" dual-stack IPv6 supernet", "36")
+		allocateSubnetsFocused(h, cloud.cloudName+" IPv6", cloud.cloudName+" dual-stack IPv6 supernet", "", "36")
 		h.PressEnter()
 
 		v6Regions, err := splitNetwork(cloud.ipv6CloudCIDR, 36)
@@ -723,7 +844,7 @@ func TestDemoState(t *testing.T) {
 		}
 
 		moveFocusToID(t, h, v6Regions[0])
-		allocateHostsFocused(h, cloud.cloudName+" us-east-1 VPC v6", "IPv6 regional VPC in us-east-1")
+		allocateHostsFocused(h, cloud.cloudName+" us-east-1 VPC v6", "IPv6 regional VPC in us-east-1", "")
 		h.PressEnter()
 		base0 := strings.Split(v6Regions[0], "/")[0]
 		reserveIPFromCurrentNetwork(h, base0+"1", "gateway-v6", "Default gateway IPv6")
@@ -731,7 +852,7 @@ func TestDemoState(t *testing.T) {
 		h.PressBackspace()
 
 		moveFocusToID(t, h, v6Regions[1])
-		allocateHostsFocused(h, cloud.cloudName+" eu-west-1 VPC v6", "IPv6 regional VPC in eu-west-1")
+		allocateHostsFocused(h, cloud.cloudName+" eu-west-1 VPC v6", "IPv6 regional VPC in eu-west-1", "")
 		h.PressEnter()
 		base1 := strings.Split(v6Regions[1], "/")[0]
 		reserveIPFromCurrentNetwork(h, base1+"1", "gateway-v6", "Default gateway IPv6")
@@ -739,6 +860,41 @@ func TestDemoState(t *testing.T) {
 		h.PressBackspace()
 		h.PressBackspace()
 	}
+
+	addNetworkViaDialog(h, "192.168.0.0/16")
+	moveFocusToID(t, h, "192.168.0.0/16")
+	allocateSubnetsFocused(h, "Home", "Home supernet with VLAN segments", "", "24")
+	h.PressEnter()
+
+	homeCIDRs, err := splitNetwork("192.168.0.0/16", 24)
+	if err != nil {
+		t.Fatalf("split home supernet: %v", err)
+	}
+	if len(homeCIDRs) < 3 {
+		t.Fatalf("expected at least 3 home VLAN subnets")
+	}
+
+	moveFocusToID(t, h, homeCIDRs[0])
+	allocateHostsFocused(h, "Home Infra", "Routers and servers", "10")
+	h.PressEnter()
+	reserveIPFromCurrentNetwork(h, "192.168.0.1", "gateway", "Default gateway")
+	reserveIPFromCurrentNetwork(h, "192.168.0.10", "nas", "NAS")
+	h.PressBackspace()
+
+	moveFocusToID(t, h, homeCIDRs[1])
+	allocateHostsFocused(h, "Home Users", "Laptops and phones", "20")
+	h.PressEnter()
+	reserveIPFromCurrentNetwork(h, "192.168.1.1", "gateway", "Default gateway")
+	reserveIPFromCurrentNetwork(h, "192.168.1.50", "printer", "Office printer")
+	h.PressBackspace()
+
+	moveFocusToID(t, h, homeCIDRs[2])
+	allocateHostsFocused(h, "Home IoT", "Cameras and sensors", "30")
+	h.PressEnter()
+	reserveIPFromCurrentNetwork(h, "192.168.2.1", "gateway", "Default gateway")
+	reserveIPFromCurrentNetwork(h, "192.168.2.20", "camera-nvr", "NVR")
+	h.PressBackspace()
+	h.PressBackspace()
 
 	h.PressCtrl('s')
 	h.AssertStatusContains("Saved to .ez-ipam/ and EZ-IPAM.md")

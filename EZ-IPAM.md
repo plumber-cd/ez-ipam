@@ -6,209 +6,480 @@
 
 > Legend: `Subnet Container` holds child networks, `Host Pool` holds reservable IPs, and `Reserved IP` is a concrete host reservation.
 
-| Network | Name | Allocation | Description |
-|---------|------|------------|-------------|
-| `10.0.0.0/12` [link](#network-0a000000_12) | AWS | Subnet Container | AWS cloud supernet |
-| `│ ├── 10.0.0.0/14` [link](#network-0a000000_14) | AWS us-east-1 VPC | Subnet Container | AWS us-east-1 VPC multi-tier |
-| `│ │ ├── 10.0.0.0/16` [link](#network-0a000000_16) | Public | Subnet Container | Public tier across AZs |
-| `│ │ │ ├── 10.0.0.0/18` [link](#network-0a000000_18) | Public AZ-a | Host Pool | Public hosts in AZ-a |
-| `│ │ │ │ ├── 10.0.0.1` | gateway | Reserved IP | Default gateway |
-| `│ │ │ │ ├── 10.0.0.2` | dns | Reserved IP | Resolver |
-| `│ │ │ │ └── 10.0.0.10` | nat | Reserved IP | NAT/egress |
-| `│ │ │ ├── 10.0.64.0/18` [link](#network-0a004000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.0.128.0/18` [link](#network-0a008000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.0.192.0/18` [link](#network-0a00c000_18) | - | Unallocated | - |
-| `│ │ ├── 10.1.0.0/16` [link](#network-0a010000_16) | Private | Subnet Container | Private tier across AZs |
-| `│ │ │ ├── 10.1.0.0/18` [link](#network-0a010000_18) | Private AZ-a | Host Pool | Private hosts in AZ-a |
-| `│ │ │ │ ├── 10.1.0.1` | gateway | Reserved IP | Default gateway |
-| `│ │ │ │ ├── 10.1.0.2` | dns | Reserved IP | Resolver |
-| `│ │ │ │ └── 10.1.0.10` | app-lb | Reserved IP | Internal LB |
-| `│ │ │ ├── 10.1.64.0/18` [link](#network-0a014000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.1.128.0/18` [link](#network-0a018000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.1.192.0/18` [link](#network-0a01c000_18) | - | Unallocated | - |
-| `│ │ ├── 10.2.0.0/16` [link](#network-0a020000_16) | Backend | Subnet Container | Backend tier across AZs |
-| `│ │ │ ├── 10.2.0.0/18` [link](#network-0a020000_18) | Backend AZ-a | Host Pool | Backend hosts in AZ-a |
-| `│ │ │ │ ├── 10.2.0.1` | gateway | Reserved IP | Default gateway |
-| `│ │ │ │ ├── 10.2.0.2` | dns | Reserved IP | Resolver |
-| `│ │ │ │ └── 10.2.0.10` | db | Reserved IP | Database VIP |
-| `│ │ │ ├── 10.2.64.0/18` [link](#network-0a024000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.2.128.0/18` [link](#network-0a028000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.2.192.0/18` [link](#network-0a02c000_18) | - | Unallocated | - |
-| `│ │ └── 10.3.0.0/16` [link](#network-0a030000_16) | - | Unallocated | - |
-| `│ ├── 10.4.0.0/14` [link](#network-0a040000_14) | AWS eu-west-1 VPC | Subnet Container | AWS eu-west-1 VPC multi-tier |
-| `│ │ ├── 10.4.0.0/16` [link](#network-0a040000_16) | Public | Subnet Container | Public tier across AZs |
-| `│ │ │ ├── 10.4.0.0/18` [link](#network-0a040000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.4.64.0/18` [link](#network-0a044000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.4.128.0/18` [link](#network-0a048000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.4.192.0/18` [link](#network-0a04c000_18) | - | Unallocated | - |
-| `│ │ ├── 10.5.0.0/16` [link](#network-0a050000_16) | Private | Subnet Container | Private tier across AZs |
-| `│ │ │ ├── 10.5.0.0/18` [link](#network-0a050000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.5.64.0/18` [link](#network-0a054000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.5.128.0/18` [link](#network-0a058000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.5.192.0/18` [link](#network-0a05c000_18) | - | Unallocated | - |
-| `│ │ ├── 10.6.0.0/16` [link](#network-0a060000_16) | Backend | Subnet Container | Backend tier across AZs |
-| `│ │ │ ├── 10.6.0.0/18` [link](#network-0a060000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.6.64.0/18` [link](#network-0a064000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.6.128.0/18` [link](#network-0a068000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.6.192.0/18` [link](#network-0a06c000_18) | - | Unallocated | - |
-| `│ │ └── 10.7.0.0/16` [link](#network-0a070000_16) | - | Unallocated | - |
-| `│ ├── 10.8.0.0/14` [link](#network-0a080000_14) | - | Unallocated | - |
-| `│ └── 10.12.0.0/14` [link](#network-0a0c0000_14) | - | Unallocated | - |
-| `10.16.0.0/12` [link](#network-0a100000_12) | GCP | Subnet Container | GCP cloud supernet |
-| `│ ├── 10.16.0.0/14` [link](#network-0a100000_14) | GCP us-east-1 VPC | Subnet Container | GCP us-east-1 VPC multi-tier |
-| `│ │ ├── 10.16.0.0/16` [link](#network-0a100000_16) | Public | Subnet Container | Public tier across AZs |
-| `│ │ │ ├── 10.16.0.0/18` [link](#network-0a100000_18) | Public AZ-a | Host Pool | Public hosts in AZ-a |
-| `│ │ │ │ ├── 10.16.0.1` | gateway | Reserved IP | Default gateway |
-| `│ │ │ │ ├── 10.16.0.2` | dns | Reserved IP | Resolver |
-| `│ │ │ │ └── 10.16.0.10` | nat | Reserved IP | NAT/egress |
-| `│ │ │ ├── 10.16.64.0/18` [link](#network-0a104000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.16.128.0/18` [link](#network-0a108000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.16.192.0/18` [link](#network-0a10c000_18) | - | Unallocated | - |
-| `│ │ ├── 10.17.0.0/16` [link](#network-0a110000_16) | Private | Subnet Container | Private tier across AZs |
-| `│ │ │ ├── 10.17.0.0/18` [link](#network-0a110000_18) | Private AZ-a | Host Pool | Private hosts in AZ-a |
-| `│ │ │ │ ├── 10.17.0.1` | gateway | Reserved IP | Default gateway |
-| `│ │ │ │ ├── 10.17.0.2` | dns | Reserved IP | Resolver |
-| `│ │ │ │ └── 10.17.0.10` | app-lb | Reserved IP | Internal LB |
-| `│ │ │ ├── 10.17.64.0/18` [link](#network-0a114000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.17.128.0/18` [link](#network-0a118000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.17.192.0/18` [link](#network-0a11c000_18) | - | Unallocated | - |
-| `│ │ ├── 10.18.0.0/16` [link](#network-0a120000_16) | Backend | Subnet Container | Backend tier across AZs |
-| `│ │ │ ├── 10.18.0.0/18` [link](#network-0a120000_18) | Backend AZ-a | Host Pool | Backend hosts in AZ-a |
-| `│ │ │ │ ├── 10.18.0.1` | gateway | Reserved IP | Default gateway |
-| `│ │ │ │ ├── 10.18.0.2` | dns | Reserved IP | Resolver |
-| `│ │ │ │ └── 10.18.0.10` | db | Reserved IP | Database VIP |
-| `│ │ │ ├── 10.18.64.0/18` [link](#network-0a124000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.18.128.0/18` [link](#network-0a128000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.18.192.0/18` [link](#network-0a12c000_18) | - | Unallocated | - |
-| `│ │ └── 10.19.0.0/16` [link](#network-0a130000_16) | - | Unallocated | - |
-| `│ ├── 10.20.0.0/14` [link](#network-0a140000_14) | GCP eu-west-1 VPC | Subnet Container | GCP eu-west-1 VPC multi-tier |
-| `│ │ ├── 10.20.0.0/16` [link](#network-0a140000_16) | Public | Subnet Container | Public tier across AZs |
-| `│ │ │ ├── 10.20.0.0/18` [link](#network-0a140000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.20.64.0/18` [link](#network-0a144000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.20.128.0/18` [link](#network-0a148000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.20.192.0/18` [link](#network-0a14c000_18) | - | Unallocated | - |
-| `│ │ ├── 10.21.0.0/16` [link](#network-0a150000_16) | Private | Subnet Container | Private tier across AZs |
-| `│ │ │ ├── 10.21.0.0/18` [link](#network-0a150000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.21.64.0/18` [link](#network-0a154000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.21.128.0/18` [link](#network-0a158000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.21.192.0/18` [link](#network-0a15c000_18) | - | Unallocated | - |
-| `│ │ ├── 10.22.0.0/16` [link](#network-0a160000_16) | Backend | Subnet Container | Backend tier across AZs |
-| `│ │ │ ├── 10.22.0.0/18` [link](#network-0a160000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.22.64.0/18` [link](#network-0a164000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.22.128.0/18` [link](#network-0a168000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.22.192.0/18` [link](#network-0a16c000_18) | - | Unallocated | - |
-| `│ │ └── 10.23.0.0/16` [link](#network-0a170000_16) | - | Unallocated | - |
-| `│ ├── 10.24.0.0/14` [link](#network-0a180000_14) | - | Unallocated | - |
-| `│ └── 10.28.0.0/14` [link](#network-0a1c0000_14) | - | Unallocated | - |
-| `10.32.0.0/12` [link](#network-0a200000_12) | Azure | Subnet Container | Azure cloud supernet |
-| `│ ├── 10.32.0.0/14` [link](#network-0a200000_14) | Azure us-east-1 VPC | Subnet Container | Azure us-east-1 VPC multi-tier |
-| `│ │ ├── 10.32.0.0/16` [link](#network-0a200000_16) | Public | Subnet Container | Public tier across AZs |
-| `│ │ │ ├── 10.32.0.0/18` [link](#network-0a200000_18) | Public AZ-a | Host Pool | Public hosts in AZ-a |
-| `│ │ │ │ ├── 10.32.0.1` | gateway | Reserved IP | Default gateway |
-| `│ │ │ │ ├── 10.32.0.2` | dns | Reserved IP | Resolver |
-| `│ │ │ │ └── 10.32.0.10` | nat | Reserved IP | NAT/egress |
-| `│ │ │ ├── 10.32.64.0/18` [link](#network-0a204000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.32.128.0/18` [link](#network-0a208000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.32.192.0/18` [link](#network-0a20c000_18) | - | Unallocated | - |
-| `│ │ ├── 10.33.0.0/16` [link](#network-0a210000_16) | Private | Subnet Container | Private tier across AZs |
-| `│ │ │ ├── 10.33.0.0/18` [link](#network-0a210000_18) | Private AZ-a | Host Pool | Private hosts in AZ-a |
-| `│ │ │ │ ├── 10.33.0.1` | gateway | Reserved IP | Default gateway |
-| `│ │ │ │ ├── 10.33.0.2` | dns | Reserved IP | Resolver |
-| `│ │ │ │ └── 10.33.0.10` | app-lb | Reserved IP | Internal LB |
-| `│ │ │ ├── 10.33.64.0/18` [link](#network-0a214000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.33.128.0/18` [link](#network-0a218000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.33.192.0/18` [link](#network-0a21c000_18) | - | Unallocated | - |
-| `│ │ ├── 10.34.0.0/16` [link](#network-0a220000_16) | Backend | Subnet Container | Backend tier across AZs |
-| `│ │ │ ├── 10.34.0.0/18` [link](#network-0a220000_18) | Backend AZ-a | Host Pool | Backend hosts in AZ-a |
-| `│ │ │ │ ├── 10.34.0.1` | gateway | Reserved IP | Default gateway |
-| `│ │ │ │ ├── 10.34.0.2` | dns | Reserved IP | Resolver |
-| `│ │ │ │ └── 10.34.0.10` | db | Reserved IP | Database VIP |
-| `│ │ │ ├── 10.34.64.0/18` [link](#network-0a224000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.34.128.0/18` [link](#network-0a228000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.34.192.0/18` [link](#network-0a22c000_18) | - | Unallocated | - |
-| `│ │ └── 10.35.0.0/16` [link](#network-0a230000_16) | - | Unallocated | - |
-| `│ ├── 10.36.0.0/14` [link](#network-0a240000_14) | Azure eu-west-1 VPC | Subnet Container | Azure eu-west-1 VPC multi-tier |
-| `│ │ ├── 10.36.0.0/16` [link](#network-0a240000_16) | Public | Subnet Container | Public tier across AZs |
-| `│ │ │ ├── 10.36.0.0/18` [link](#network-0a240000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.36.64.0/18` [link](#network-0a244000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.36.128.0/18` [link](#network-0a248000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.36.192.0/18` [link](#network-0a24c000_18) | - | Unallocated | - |
-| `│ │ ├── 10.37.0.0/16` [link](#network-0a250000_16) | Private | Subnet Container | Private tier across AZs |
-| `│ │ │ ├── 10.37.0.0/18` [link](#network-0a250000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.37.64.0/18` [link](#network-0a254000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.37.128.0/18` [link](#network-0a258000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.37.192.0/18` [link](#network-0a25c000_18) | - | Unallocated | - |
-| `│ │ ├── 10.38.0.0/16` [link](#network-0a260000_16) | Backend | Subnet Container | Backend tier across AZs |
-| `│ │ │ ├── 10.38.0.0/18` [link](#network-0a260000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.38.64.0/18` [link](#network-0a264000_18) | - | Unallocated | - |
-| `│ │ │ ├── 10.38.128.0/18` [link](#network-0a268000_18) | - | Unallocated | - |
-| `│ │ │ └── 10.38.192.0/18` [link](#network-0a26c000_18) | - | Unallocated | - |
-| `│ │ └── 10.39.0.0/16` [link](#network-0a270000_16) | - | Unallocated | - |
-| `│ ├── 10.40.0.0/14` [link](#network-0a280000_14) | - | Unallocated | - |
-| `│ └── 10.44.0.0/14` [link](#network-0a2c0000_14) | - | Unallocated | - |
-| `fd10::/32` [link](#network-fd100000000000000000000000000000_32) | AWS IPv6 | Subnet Container | AWS dual-stack IPv6 supernet |
-| `│ ├── fd10::/36` [link](#network-fd100000000000000000000000000000_36) | AWS us-east-1 VPC v6 | Host Pool | IPv6 regional VPC in us-east-1 |
-| `│ │ ├── fd10::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
-| `│ │ └── fd10::53` | dns-v6 | Reserved IP | Resolver IPv6 |
-| `│ ├── fd10:0:1000::/36` [link](#network-fd100000100000000000000000000000_36) | AWS eu-west-1 VPC v6 | Host Pool | IPv6 regional VPC in eu-west-1 |
-| `│ │ ├── fd10:0:1000::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
-| `│ │ └── fd10:0:1000::53` | dns-v6 | Reserved IP | Resolver IPv6 |
-| `│ ├── fd10:0:2000::/36` [link](#network-fd100000200000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd10:0:3000::/36` [link](#network-fd100000300000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd10:0:4000::/36` [link](#network-fd100000400000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd10:0:5000::/36` [link](#network-fd100000500000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd10:0:6000::/36` [link](#network-fd100000600000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd10:0:7000::/36` [link](#network-fd100000700000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd10:0:8000::/36` [link](#network-fd100000800000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd10:0:9000::/36` [link](#network-fd100000900000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd10:0:a000::/36` [link](#network-fd100000a00000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd10:0:b000::/36` [link](#network-fd100000b00000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd10:0:c000::/36` [link](#network-fd100000c00000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd10:0:d000::/36` [link](#network-fd100000d00000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd10:0:e000::/36` [link](#network-fd100000e00000000000000000000000_36) | - | Unallocated | - |
-| `│ └── fd10:0:f000::/36` [link](#network-fd100000f00000000000000000000000_36) | - | Unallocated | - |
-| `fd20::/32` [link](#network-fd200000000000000000000000000000_32) | GCP IPv6 | Subnet Container | GCP dual-stack IPv6 supernet |
-| `│ ├── fd20::/36` [link](#network-fd200000000000000000000000000000_36) | GCP us-east-1 VPC v6 | Host Pool | IPv6 regional VPC in us-east-1 |
-| `│ │ ├── fd20::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
-| `│ │ └── fd20::53` | dns-v6 | Reserved IP | Resolver IPv6 |
-| `│ ├── fd20:0:1000::/36` [link](#network-fd200000100000000000000000000000_36) | GCP eu-west-1 VPC v6 | Host Pool | IPv6 regional VPC in eu-west-1 |
-| `│ │ ├── fd20:0:1000::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
-| `│ │ └── fd20:0:1000::53` | dns-v6 | Reserved IP | Resolver IPv6 |
-| `│ ├── fd20:0:2000::/36` [link](#network-fd200000200000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd20:0:3000::/36` [link](#network-fd200000300000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd20:0:4000::/36` [link](#network-fd200000400000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd20:0:5000::/36` [link](#network-fd200000500000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd20:0:6000::/36` [link](#network-fd200000600000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd20:0:7000::/36` [link](#network-fd200000700000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd20:0:8000::/36` [link](#network-fd200000800000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd20:0:9000::/36` [link](#network-fd200000900000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd20:0:a000::/36` [link](#network-fd200000a00000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd20:0:b000::/36` [link](#network-fd200000b00000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd20:0:c000::/36` [link](#network-fd200000c00000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd20:0:d000::/36` [link](#network-fd200000d00000000000000000000000_36) | - | Unallocated | - |
-| `│ ├── fd20:0:e000::/36` [link](#network-fd200000e00000000000000000000000_36) | - | Unallocated | - |
-| `│ └── fd20:0:f000::/36` [link](#network-fd200000f00000000000000000000000_36) | - | Unallocated | - |
-| `fd30::/32` [link](#network-fd300000000000000000000000000000_32) | Azure IPv6 | Subnet Container | Azure dual-stack IPv6 supernet |
-| `  ├── fd30::/36` [link](#network-fd300000000000000000000000000000_36) | Azure us-east-1 VPC v6 | Host Pool | IPv6 regional VPC in us-east-1 |
-| `  │ ├── fd30::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
-| `  │ └── fd30::53` | dns-v6 | Reserved IP | Resolver IPv6 |
-| `  ├── fd30:0:1000::/36` [link](#network-fd300000100000000000000000000000_36) | Azure eu-west-1 VPC v6 | Host Pool | IPv6 regional VPC in eu-west-1 |
-| `  │ ├── fd30:0:1000::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
-| `  │ └── fd30:0:1000::53` | dns-v6 | Reserved IP | Resolver IPv6 |
-| `  ├── fd30:0:2000::/36` [link](#network-fd300000200000000000000000000000_36) | - | Unallocated | - |
-| `  ├── fd30:0:3000::/36` [link](#network-fd300000300000000000000000000000_36) | - | Unallocated | - |
-| `  ├── fd30:0:4000::/36` [link](#network-fd300000400000000000000000000000_36) | - | Unallocated | - |
-| `  ├── fd30:0:5000::/36` [link](#network-fd300000500000000000000000000000_36) | - | Unallocated | - |
-| `  ├── fd30:0:6000::/36` [link](#network-fd300000600000000000000000000000_36) | - | Unallocated | - |
-| `  ├── fd30:0:7000::/36` [link](#network-fd300000700000000000000000000000_36) | - | Unallocated | - |
-| `  ├── fd30:0:8000::/36` [link](#network-fd300000800000000000000000000000_36) | - | Unallocated | - |
-| `  ├── fd30:0:9000::/36` [link](#network-fd300000900000000000000000000000_36) | - | Unallocated | - |
-| `  ├── fd30:0:a000::/36` [link](#network-fd300000a00000000000000000000000_36) | - | Unallocated | - |
-| `  ├── fd30:0:b000::/36` [link](#network-fd300000b00000000000000000000000_36) | - | Unallocated | - |
-| `  ├── fd30:0:c000::/36` [link](#network-fd300000c00000000000000000000000_36) | - | Unallocated | - |
-| `  ├── fd30:0:d000::/36` [link](#network-fd300000d00000000000000000000000_36) | - | Unallocated | - |
-| `  ├── fd30:0:e000::/36` [link](#network-fd300000e00000000000000000000000_36) | - | Unallocated | - |
-| `  └── fd30:0:f000::/36` [link](#network-fd300000f00000000000000000000000_36) | - | Unallocated | - |
+| Network | Name | Allocation | VLAN | Description |
+|---------|------|------------|------|-------------|
+| `10.0.0.0/12` [link](#network-0a000000_12) | AWS | Subnet Container | - | AWS cloud supernet |
+| `│ ├── 10.0.0.0/14` [link](#network-0a000000_14) | AWS us-east-1 VPC | Subnet Container | - | AWS us-east-1 VPC multi-tier |
+| `│ │ ├── 10.0.0.0/16` [link](#network-0a000000_16) | Public | Subnet Container | - | Public tier across AZs |
+| `│ │ │ ├── 10.0.0.0/18` [link](#network-0a000000_18) | Public AZ-a | Host Pool | - | Public hosts in AZ-a |
+| `│ │ │ │ ├── 10.0.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ ├── 10.0.0.2` | dns | Reserved IP | - | Resolver |
+| `│ │ │ │ └── 10.0.0.10` | nat | Reserved IP | - | NAT/egress |
+| `│ │ │ ├── 10.0.64.0/18` [link](#network-0a004000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.0.128.0/18` [link](#network-0a008000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.0.192.0/18` [link](#network-0a00c000_18) | - | Unallocated | - | - |
+| `│ │ ├── 10.1.0.0/16` [link](#network-0a010000_16) | Private | Subnet Container | - | Private tier across AZs |
+| `│ │ │ ├── 10.1.0.0/18` [link](#network-0a010000_18) | Private AZ-a | Host Pool | - | Private hosts in AZ-a |
+| `│ │ │ │ ├── 10.1.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ ├── 10.1.0.2` | dns | Reserved IP | - | Resolver |
+| `│ │ │ │ └── 10.1.0.10` | app-lb | Reserved IP | - | Internal LB |
+| `│ │ │ ├── 10.1.64.0/18` [link](#network-0a014000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.1.128.0/18` [link](#network-0a018000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.1.192.0/18` [link](#network-0a01c000_18) | - | Unallocated | - | - |
+| `│ │ ├── 10.2.0.0/16` [link](#network-0a020000_16) | Backend | Subnet Container | - | Backend tier across AZs |
+| `│ │ │ ├── 10.2.0.0/18` [link](#network-0a020000_18) | Backend AZ-a | Host Pool | - | Backend hosts in AZ-a |
+| `│ │ │ │ ├── 10.2.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ ├── 10.2.0.2` | dns | Reserved IP | - | Resolver |
+| `│ │ │ │ └── 10.2.0.10` | db | Reserved IP | - | Database VIP |
+| `│ │ │ ├── 10.2.64.0/18` [link](#network-0a024000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.2.128.0/18` [link](#network-0a028000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.2.192.0/18` [link](#network-0a02c000_18) | - | Unallocated | - | - |
+| `│ │ └── 10.3.0.0/16` [link](#network-0a030000_16) | - | Unallocated | - | - |
+| `│ ├── 10.4.0.0/14` [link](#network-0a040000_14) | AWS eu-west-1 VPC | Subnet Container | - | AWS eu-west-1 VPC multi-tier |
+| `│ │ ├── 10.4.0.0/16` [link](#network-0a040000_16) | Public | Subnet Container | - | Public tier across AZs |
+| `│ │ │ ├── 10.4.0.0/18` [link](#network-0a040000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.4.64.0/18` [link](#network-0a044000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.4.128.0/18` [link](#network-0a048000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.4.192.0/18` [link](#network-0a04c000_18) | - | Unallocated | - | - |
+| `│ │ ├── 10.5.0.0/16` [link](#network-0a050000_16) | Private | Subnet Container | - | Private tier across AZs |
+| `│ │ │ ├── 10.5.0.0/18` [link](#network-0a050000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.5.64.0/18` [link](#network-0a054000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.5.128.0/18` [link](#network-0a058000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.5.192.0/18` [link](#network-0a05c000_18) | - | Unallocated | - | - |
+| `│ │ ├── 10.6.0.0/16` [link](#network-0a060000_16) | Backend | Subnet Container | - | Backend tier across AZs |
+| `│ │ │ ├── 10.6.0.0/18` [link](#network-0a060000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.6.64.0/18` [link](#network-0a064000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.6.128.0/18` [link](#network-0a068000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.6.192.0/18` [link](#network-0a06c000_18) | - | Unallocated | - | - |
+| `│ │ └── 10.7.0.0/16` [link](#network-0a070000_16) | - | Unallocated | - | - |
+| `│ ├── 10.8.0.0/14` [link](#network-0a080000_14) | - | Unallocated | - | - |
+| `│ └── 10.12.0.0/14` [link](#network-0a0c0000_14) | - | Unallocated | - | - |
+| `10.16.0.0/12` [link](#network-0a100000_12) | GCP | Subnet Container | - | GCP cloud supernet |
+| `│ ├── 10.16.0.0/14` [link](#network-0a100000_14) | GCP us-east-1 VPC | Subnet Container | - | GCP us-east-1 VPC multi-tier |
+| `│ │ ├── 10.16.0.0/16` [link](#network-0a100000_16) | Public | Subnet Container | - | Public tier across AZs |
+| `│ │ │ ├── 10.16.0.0/18` [link](#network-0a100000_18) | Public AZ-a | Host Pool | - | Public hosts in AZ-a |
+| `│ │ │ │ ├── 10.16.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ ├── 10.16.0.2` | dns | Reserved IP | - | Resolver |
+| `│ │ │ │ └── 10.16.0.10` | nat | Reserved IP | - | NAT/egress |
+| `│ │ │ ├── 10.16.64.0/18` [link](#network-0a104000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.16.128.0/18` [link](#network-0a108000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.16.192.0/18` [link](#network-0a10c000_18) | - | Unallocated | - | - |
+| `│ │ ├── 10.17.0.0/16` [link](#network-0a110000_16) | Private | Subnet Container | - | Private tier across AZs |
+| `│ │ │ ├── 10.17.0.0/18` [link](#network-0a110000_18) | Private AZ-a | Host Pool | - | Private hosts in AZ-a |
+| `│ │ │ │ ├── 10.17.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ ├── 10.17.0.2` | dns | Reserved IP | - | Resolver |
+| `│ │ │ │ └── 10.17.0.10` | app-lb | Reserved IP | - | Internal LB |
+| `│ │ │ ├── 10.17.64.0/18` [link](#network-0a114000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.17.128.0/18` [link](#network-0a118000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.17.192.0/18` [link](#network-0a11c000_18) | - | Unallocated | - | - |
+| `│ │ ├── 10.18.0.0/16` [link](#network-0a120000_16) | Backend | Subnet Container | - | Backend tier across AZs |
+| `│ │ │ ├── 10.18.0.0/18` [link](#network-0a120000_18) | Backend AZ-a | Host Pool | - | Backend hosts in AZ-a |
+| `│ │ │ │ ├── 10.18.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ ├── 10.18.0.2` | dns | Reserved IP | - | Resolver |
+| `│ │ │ │ └── 10.18.0.10` | db | Reserved IP | - | Database VIP |
+| `│ │ │ ├── 10.18.64.0/18` [link](#network-0a124000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.18.128.0/18` [link](#network-0a128000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.18.192.0/18` [link](#network-0a12c000_18) | - | Unallocated | - | - |
+| `│ │ └── 10.19.0.0/16` [link](#network-0a130000_16) | - | Unallocated | - | - |
+| `│ ├── 10.20.0.0/14` [link](#network-0a140000_14) | GCP eu-west-1 VPC | Subnet Container | - | GCP eu-west-1 VPC multi-tier |
+| `│ │ ├── 10.20.0.0/16` [link](#network-0a140000_16) | Public | Subnet Container | - | Public tier across AZs |
+| `│ │ │ ├── 10.20.0.0/18` [link](#network-0a140000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.20.64.0/18` [link](#network-0a144000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.20.128.0/18` [link](#network-0a148000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.20.192.0/18` [link](#network-0a14c000_18) | - | Unallocated | - | - |
+| `│ │ ├── 10.21.0.0/16` [link](#network-0a150000_16) | Private | Subnet Container | - | Private tier across AZs |
+| `│ │ │ ├── 10.21.0.0/18` [link](#network-0a150000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.21.64.0/18` [link](#network-0a154000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.21.128.0/18` [link](#network-0a158000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.21.192.0/18` [link](#network-0a15c000_18) | - | Unallocated | - | - |
+| `│ │ ├── 10.22.0.0/16` [link](#network-0a160000_16) | Backend | Subnet Container | - | Backend tier across AZs |
+| `│ │ │ ├── 10.22.0.0/18` [link](#network-0a160000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.22.64.0/18` [link](#network-0a164000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.22.128.0/18` [link](#network-0a168000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.22.192.0/18` [link](#network-0a16c000_18) | - | Unallocated | - | - |
+| `│ │ └── 10.23.0.0/16` [link](#network-0a170000_16) | - | Unallocated | - | - |
+| `│ ├── 10.24.0.0/14` [link](#network-0a180000_14) | - | Unallocated | - | - |
+| `│ └── 10.28.0.0/14` [link](#network-0a1c0000_14) | - | Unallocated | - | - |
+| `10.32.0.0/12` [link](#network-0a200000_12) | Azure | Subnet Container | - | Azure cloud supernet |
+| `│ ├── 10.32.0.0/14` [link](#network-0a200000_14) | Azure us-east-1 VPC | Subnet Container | - | Azure us-east-1 VPC multi-tier |
+| `│ │ ├── 10.32.0.0/16` [link](#network-0a200000_16) | Public | Subnet Container | - | Public tier across AZs |
+| `│ │ │ ├── 10.32.0.0/18` [link](#network-0a200000_18) | Public AZ-a | Host Pool | - | Public hosts in AZ-a |
+| `│ │ │ │ ├── 10.32.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ ├── 10.32.0.2` | dns | Reserved IP | - | Resolver |
+| `│ │ │ │ └── 10.32.0.10` | nat | Reserved IP | - | NAT/egress |
+| `│ │ │ ├── 10.32.64.0/18` [link](#network-0a204000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.32.128.0/18` [link](#network-0a208000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.32.192.0/18` [link](#network-0a20c000_18) | - | Unallocated | - | - |
+| `│ │ ├── 10.33.0.0/16` [link](#network-0a210000_16) | Private | Subnet Container | - | Private tier across AZs |
+| `│ │ │ ├── 10.33.0.0/18` [link](#network-0a210000_18) | Private AZ-a | Host Pool | - | Private hosts in AZ-a |
+| `│ │ │ │ ├── 10.33.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ ├── 10.33.0.2` | dns | Reserved IP | - | Resolver |
+| `│ │ │ │ └── 10.33.0.10` | app-lb | Reserved IP | - | Internal LB |
+| `│ │ │ ├── 10.33.64.0/18` [link](#network-0a214000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.33.128.0/18` [link](#network-0a218000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.33.192.0/18` [link](#network-0a21c000_18) | - | Unallocated | - | - |
+| `│ │ ├── 10.34.0.0/16` [link](#network-0a220000_16) | Backend | Subnet Container | - | Backend tier across AZs |
+| `│ │ │ ├── 10.34.0.0/18` [link](#network-0a220000_18) | Backend AZ-a | Host Pool | - | Backend hosts in AZ-a |
+| `│ │ │ │ ├── 10.34.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ ├── 10.34.0.2` | dns | Reserved IP | - | Resolver |
+| `│ │ │ │ └── 10.34.0.10` | db | Reserved IP | - | Database VIP |
+| `│ │ │ ├── 10.34.64.0/18` [link](#network-0a224000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.34.128.0/18` [link](#network-0a228000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.34.192.0/18` [link](#network-0a22c000_18) | - | Unallocated | - | - |
+| `│ │ └── 10.35.0.0/16` [link](#network-0a230000_16) | - | Unallocated | - | - |
+| `│ ├── 10.36.0.0/14` [link](#network-0a240000_14) | Azure eu-west-1 VPC | Subnet Container | - | Azure eu-west-1 VPC multi-tier |
+| `│ │ ├── 10.36.0.0/16` [link](#network-0a240000_16) | Public | Subnet Container | - | Public tier across AZs |
+| `│ │ │ ├── 10.36.0.0/18` [link](#network-0a240000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.36.64.0/18` [link](#network-0a244000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.36.128.0/18` [link](#network-0a248000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.36.192.0/18` [link](#network-0a24c000_18) | - | Unallocated | - | - |
+| `│ │ ├── 10.37.0.0/16` [link](#network-0a250000_16) | Private | Subnet Container | - | Private tier across AZs |
+| `│ │ │ ├── 10.37.0.0/18` [link](#network-0a250000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.37.64.0/18` [link](#network-0a254000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.37.128.0/18` [link](#network-0a258000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.37.192.0/18` [link](#network-0a25c000_18) | - | Unallocated | - | - |
+| `│ │ ├── 10.38.0.0/16` [link](#network-0a260000_16) | Backend | Subnet Container | - | Backend tier across AZs |
+| `│ │ │ ├── 10.38.0.0/18` [link](#network-0a260000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.38.64.0/18` [link](#network-0a264000_18) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.38.128.0/18` [link](#network-0a268000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.38.192.0/18` [link](#network-0a26c000_18) | - | Unallocated | - | - |
+| `│ │ └── 10.39.0.0/16` [link](#network-0a270000_16) | - | Unallocated | - | - |
+| `│ ├── 10.40.0.0/14` [link](#network-0a280000_14) | - | Unallocated | - | - |
+| `│ └── 10.44.0.0/14` [link](#network-0a2c0000_14) | - | Unallocated | - | - |
+| `192.168.0.0/16` [link](#network-c0a80000_16) | Home | Subnet Container | - | Home supernet with VLAN segments |
+| `│ ├── 192.168.0.0/24` [link](#network-c0a80000_24) | Home Infra | Host Pool | 10 (Home-Infra) | Routers and servers |
+| `│ │ ├── 192.168.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ └── 192.168.0.10` | nas | Reserved IP | - | NAS |
+| `│ ├── 192.168.1.0/24` [link](#network-c0a80100_24) | Home Users | Host Pool | 20 (Home-Users) | Laptops and phones |
+| `│ │ ├── 192.168.1.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ └── 192.168.1.50` | printer | Reserved IP | - | Office printer |
+| `│ ├── 192.168.2.0/24` [link](#network-c0a80200_24) | Home IoT | Host Pool | 30 (Home-IoT) | Cameras and sensors |
+| `│ │ ├── 192.168.2.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ └── 192.168.2.20` | camera-nvr | Reserved IP | - | NVR |
+| `│ ├── 192.168.3.0/24` [link](#network-c0a80300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.4.0/24` [link](#network-c0a80400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.5.0/24` [link](#network-c0a80500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.6.0/24` [link](#network-c0a80600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.7.0/24` [link](#network-c0a80700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.8.0/24` [link](#network-c0a80800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.9.0/24` [link](#network-c0a80900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.10.0/24` [link](#network-c0a80a00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.11.0/24` [link](#network-c0a80b00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.12.0/24` [link](#network-c0a80c00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.13.0/24` [link](#network-c0a80d00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.14.0/24` [link](#network-c0a80e00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.15.0/24` [link](#network-c0a80f00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.16.0/24` [link](#network-c0a81000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.17.0/24` [link](#network-c0a81100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.18.0/24` [link](#network-c0a81200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.19.0/24` [link](#network-c0a81300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.20.0/24` [link](#network-c0a81400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.21.0/24` [link](#network-c0a81500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.22.0/24` [link](#network-c0a81600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.23.0/24` [link](#network-c0a81700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.24.0/24` [link](#network-c0a81800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.25.0/24` [link](#network-c0a81900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.26.0/24` [link](#network-c0a81a00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.27.0/24` [link](#network-c0a81b00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.28.0/24` [link](#network-c0a81c00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.29.0/24` [link](#network-c0a81d00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.30.0/24` [link](#network-c0a81e00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.31.0/24` [link](#network-c0a81f00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.32.0/24` [link](#network-c0a82000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.33.0/24` [link](#network-c0a82100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.34.0/24` [link](#network-c0a82200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.35.0/24` [link](#network-c0a82300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.36.0/24` [link](#network-c0a82400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.37.0/24` [link](#network-c0a82500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.38.0/24` [link](#network-c0a82600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.39.0/24` [link](#network-c0a82700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.40.0/24` [link](#network-c0a82800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.41.0/24` [link](#network-c0a82900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.42.0/24` [link](#network-c0a82a00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.43.0/24` [link](#network-c0a82b00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.44.0/24` [link](#network-c0a82c00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.45.0/24` [link](#network-c0a82d00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.46.0/24` [link](#network-c0a82e00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.47.0/24` [link](#network-c0a82f00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.48.0/24` [link](#network-c0a83000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.49.0/24` [link](#network-c0a83100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.50.0/24` [link](#network-c0a83200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.51.0/24` [link](#network-c0a83300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.52.0/24` [link](#network-c0a83400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.53.0/24` [link](#network-c0a83500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.54.0/24` [link](#network-c0a83600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.55.0/24` [link](#network-c0a83700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.56.0/24` [link](#network-c0a83800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.57.0/24` [link](#network-c0a83900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.58.0/24` [link](#network-c0a83a00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.59.0/24` [link](#network-c0a83b00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.60.0/24` [link](#network-c0a83c00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.61.0/24` [link](#network-c0a83d00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.62.0/24` [link](#network-c0a83e00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.63.0/24` [link](#network-c0a83f00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.64.0/24` [link](#network-c0a84000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.65.0/24` [link](#network-c0a84100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.66.0/24` [link](#network-c0a84200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.67.0/24` [link](#network-c0a84300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.68.0/24` [link](#network-c0a84400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.69.0/24` [link](#network-c0a84500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.70.0/24` [link](#network-c0a84600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.71.0/24` [link](#network-c0a84700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.72.0/24` [link](#network-c0a84800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.73.0/24` [link](#network-c0a84900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.74.0/24` [link](#network-c0a84a00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.75.0/24` [link](#network-c0a84b00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.76.0/24` [link](#network-c0a84c00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.77.0/24` [link](#network-c0a84d00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.78.0/24` [link](#network-c0a84e00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.79.0/24` [link](#network-c0a84f00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.80.0/24` [link](#network-c0a85000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.81.0/24` [link](#network-c0a85100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.82.0/24` [link](#network-c0a85200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.83.0/24` [link](#network-c0a85300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.84.0/24` [link](#network-c0a85400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.85.0/24` [link](#network-c0a85500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.86.0/24` [link](#network-c0a85600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.87.0/24` [link](#network-c0a85700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.88.0/24` [link](#network-c0a85800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.89.0/24` [link](#network-c0a85900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.90.0/24` [link](#network-c0a85a00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.91.0/24` [link](#network-c0a85b00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.92.0/24` [link](#network-c0a85c00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.93.0/24` [link](#network-c0a85d00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.94.0/24` [link](#network-c0a85e00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.95.0/24` [link](#network-c0a85f00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.96.0/24` [link](#network-c0a86000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.97.0/24` [link](#network-c0a86100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.98.0/24` [link](#network-c0a86200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.99.0/24` [link](#network-c0a86300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.100.0/24` [link](#network-c0a86400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.101.0/24` [link](#network-c0a86500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.102.0/24` [link](#network-c0a86600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.103.0/24` [link](#network-c0a86700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.104.0/24` [link](#network-c0a86800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.105.0/24` [link](#network-c0a86900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.106.0/24` [link](#network-c0a86a00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.107.0/24` [link](#network-c0a86b00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.108.0/24` [link](#network-c0a86c00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.109.0/24` [link](#network-c0a86d00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.110.0/24` [link](#network-c0a86e00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.111.0/24` [link](#network-c0a86f00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.112.0/24` [link](#network-c0a87000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.113.0/24` [link](#network-c0a87100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.114.0/24` [link](#network-c0a87200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.115.0/24` [link](#network-c0a87300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.116.0/24` [link](#network-c0a87400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.117.0/24` [link](#network-c0a87500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.118.0/24` [link](#network-c0a87600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.119.0/24` [link](#network-c0a87700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.120.0/24` [link](#network-c0a87800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.121.0/24` [link](#network-c0a87900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.122.0/24` [link](#network-c0a87a00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.123.0/24` [link](#network-c0a87b00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.124.0/24` [link](#network-c0a87c00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.125.0/24` [link](#network-c0a87d00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.126.0/24` [link](#network-c0a87e00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.127.0/24` [link](#network-c0a87f00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.128.0/24` [link](#network-c0a88000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.129.0/24` [link](#network-c0a88100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.130.0/24` [link](#network-c0a88200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.131.0/24` [link](#network-c0a88300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.132.0/24` [link](#network-c0a88400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.133.0/24` [link](#network-c0a88500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.134.0/24` [link](#network-c0a88600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.135.0/24` [link](#network-c0a88700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.136.0/24` [link](#network-c0a88800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.137.0/24` [link](#network-c0a88900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.138.0/24` [link](#network-c0a88a00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.139.0/24` [link](#network-c0a88b00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.140.0/24` [link](#network-c0a88c00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.141.0/24` [link](#network-c0a88d00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.142.0/24` [link](#network-c0a88e00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.143.0/24` [link](#network-c0a88f00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.144.0/24` [link](#network-c0a89000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.145.0/24` [link](#network-c0a89100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.146.0/24` [link](#network-c0a89200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.147.0/24` [link](#network-c0a89300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.148.0/24` [link](#network-c0a89400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.149.0/24` [link](#network-c0a89500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.150.0/24` [link](#network-c0a89600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.151.0/24` [link](#network-c0a89700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.152.0/24` [link](#network-c0a89800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.153.0/24` [link](#network-c0a89900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.154.0/24` [link](#network-c0a89a00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.155.0/24` [link](#network-c0a89b00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.156.0/24` [link](#network-c0a89c00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.157.0/24` [link](#network-c0a89d00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.158.0/24` [link](#network-c0a89e00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.159.0/24` [link](#network-c0a89f00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.160.0/24` [link](#network-c0a8a000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.161.0/24` [link](#network-c0a8a100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.162.0/24` [link](#network-c0a8a200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.163.0/24` [link](#network-c0a8a300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.164.0/24` [link](#network-c0a8a400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.165.0/24` [link](#network-c0a8a500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.166.0/24` [link](#network-c0a8a600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.167.0/24` [link](#network-c0a8a700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.168.0/24` [link](#network-c0a8a800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.169.0/24` [link](#network-c0a8a900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.170.0/24` [link](#network-c0a8aa00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.171.0/24` [link](#network-c0a8ab00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.172.0/24` [link](#network-c0a8ac00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.173.0/24` [link](#network-c0a8ad00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.174.0/24` [link](#network-c0a8ae00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.175.0/24` [link](#network-c0a8af00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.176.0/24` [link](#network-c0a8b000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.177.0/24` [link](#network-c0a8b100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.178.0/24` [link](#network-c0a8b200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.179.0/24` [link](#network-c0a8b300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.180.0/24` [link](#network-c0a8b400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.181.0/24` [link](#network-c0a8b500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.182.0/24` [link](#network-c0a8b600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.183.0/24` [link](#network-c0a8b700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.184.0/24` [link](#network-c0a8b800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.185.0/24` [link](#network-c0a8b900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.186.0/24` [link](#network-c0a8ba00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.187.0/24` [link](#network-c0a8bb00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.188.0/24` [link](#network-c0a8bc00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.189.0/24` [link](#network-c0a8bd00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.190.0/24` [link](#network-c0a8be00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.191.0/24` [link](#network-c0a8bf00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.192.0/24` [link](#network-c0a8c000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.193.0/24` [link](#network-c0a8c100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.194.0/24` [link](#network-c0a8c200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.195.0/24` [link](#network-c0a8c300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.196.0/24` [link](#network-c0a8c400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.197.0/24` [link](#network-c0a8c500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.198.0/24` [link](#network-c0a8c600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.199.0/24` [link](#network-c0a8c700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.200.0/24` [link](#network-c0a8c800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.201.0/24` [link](#network-c0a8c900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.202.0/24` [link](#network-c0a8ca00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.203.0/24` [link](#network-c0a8cb00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.204.0/24` [link](#network-c0a8cc00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.205.0/24` [link](#network-c0a8cd00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.206.0/24` [link](#network-c0a8ce00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.207.0/24` [link](#network-c0a8cf00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.208.0/24` [link](#network-c0a8d000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.209.0/24` [link](#network-c0a8d100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.210.0/24` [link](#network-c0a8d200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.211.0/24` [link](#network-c0a8d300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.212.0/24` [link](#network-c0a8d400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.213.0/24` [link](#network-c0a8d500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.214.0/24` [link](#network-c0a8d600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.215.0/24` [link](#network-c0a8d700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.216.0/24` [link](#network-c0a8d800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.217.0/24` [link](#network-c0a8d900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.218.0/24` [link](#network-c0a8da00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.219.0/24` [link](#network-c0a8db00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.220.0/24` [link](#network-c0a8dc00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.221.0/24` [link](#network-c0a8dd00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.222.0/24` [link](#network-c0a8de00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.223.0/24` [link](#network-c0a8df00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.224.0/24` [link](#network-c0a8e000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.225.0/24` [link](#network-c0a8e100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.226.0/24` [link](#network-c0a8e200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.227.0/24` [link](#network-c0a8e300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.228.0/24` [link](#network-c0a8e400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.229.0/24` [link](#network-c0a8e500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.230.0/24` [link](#network-c0a8e600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.231.0/24` [link](#network-c0a8e700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.232.0/24` [link](#network-c0a8e800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.233.0/24` [link](#network-c0a8e900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.234.0/24` [link](#network-c0a8ea00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.235.0/24` [link](#network-c0a8eb00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.236.0/24` [link](#network-c0a8ec00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.237.0/24` [link](#network-c0a8ed00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.238.0/24` [link](#network-c0a8ee00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.239.0/24` [link](#network-c0a8ef00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.240.0/24` [link](#network-c0a8f000_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.241.0/24` [link](#network-c0a8f100_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.242.0/24` [link](#network-c0a8f200_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.243.0/24` [link](#network-c0a8f300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.244.0/24` [link](#network-c0a8f400_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.245.0/24` [link](#network-c0a8f500_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.246.0/24` [link](#network-c0a8f600_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.247.0/24` [link](#network-c0a8f700_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.248.0/24` [link](#network-c0a8f800_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.249.0/24` [link](#network-c0a8f900_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.250.0/24` [link](#network-c0a8fa00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.251.0/24` [link](#network-c0a8fb00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.252.0/24` [link](#network-c0a8fc00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.253.0/24` [link](#network-c0a8fd00_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.254.0/24` [link](#network-c0a8fe00_24) | - | Unallocated | - | - |
+| `│ └── 192.168.255.0/24` [link](#network-c0a8ff00_24) | - | Unallocated | - | - |
+| `fd10::/32` [link](#network-fd100000000000000000000000000000_32) | AWS IPv6 | Subnet Container | - | AWS dual-stack IPv6 supernet |
+| `│ ├── fd10::/36` [link](#network-fd100000000000000000000000000000_36) | AWS us-east-1 VPC v6 | Host Pool | - | IPv6 regional VPC in us-east-1 |
+| `│ │ ├── fd10::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
+| `│ │ └── fd10::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
+| `│ ├── fd10:0:1000::/36` [link](#network-fd100000100000000000000000000000_36) | AWS eu-west-1 VPC v6 | Host Pool | - | IPv6 regional VPC in eu-west-1 |
+| `│ │ ├── fd10:0:1000::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
+| `│ │ └── fd10:0:1000::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
+| `│ ├── fd10:0:2000::/36` [link](#network-fd100000200000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd10:0:3000::/36` [link](#network-fd100000300000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd10:0:4000::/36` [link](#network-fd100000400000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd10:0:5000::/36` [link](#network-fd100000500000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd10:0:6000::/36` [link](#network-fd100000600000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd10:0:7000::/36` [link](#network-fd100000700000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd10:0:8000::/36` [link](#network-fd100000800000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd10:0:9000::/36` [link](#network-fd100000900000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd10:0:a000::/36` [link](#network-fd100000a00000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd10:0:b000::/36` [link](#network-fd100000b00000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd10:0:c000::/36` [link](#network-fd100000c00000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd10:0:d000::/36` [link](#network-fd100000d00000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd10:0:e000::/36` [link](#network-fd100000e00000000000000000000000_36) | - | Unallocated | - | - |
+| `│ └── fd10:0:f000::/36` [link](#network-fd100000f00000000000000000000000_36) | - | Unallocated | - | - |
+| `fd20::/32` [link](#network-fd200000000000000000000000000000_32) | GCP IPv6 | Subnet Container | - | GCP dual-stack IPv6 supernet |
+| `│ ├── fd20::/36` [link](#network-fd200000000000000000000000000000_36) | GCP us-east-1 VPC v6 | Host Pool | - | IPv6 regional VPC in us-east-1 |
+| `│ │ ├── fd20::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
+| `│ │ └── fd20::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
+| `│ ├── fd20:0:1000::/36` [link](#network-fd200000100000000000000000000000_36) | GCP eu-west-1 VPC v6 | Host Pool | - | IPv6 regional VPC in eu-west-1 |
+| `│ │ ├── fd20:0:1000::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
+| `│ │ └── fd20:0:1000::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
+| `│ ├── fd20:0:2000::/36` [link](#network-fd200000200000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd20:0:3000::/36` [link](#network-fd200000300000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd20:0:4000::/36` [link](#network-fd200000400000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd20:0:5000::/36` [link](#network-fd200000500000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd20:0:6000::/36` [link](#network-fd200000600000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd20:0:7000::/36` [link](#network-fd200000700000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd20:0:8000::/36` [link](#network-fd200000800000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd20:0:9000::/36` [link](#network-fd200000900000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd20:0:a000::/36` [link](#network-fd200000a00000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd20:0:b000::/36` [link](#network-fd200000b00000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd20:0:c000::/36` [link](#network-fd200000c00000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd20:0:d000::/36` [link](#network-fd200000d00000000000000000000000_36) | - | Unallocated | - | - |
+| `│ ├── fd20:0:e000::/36` [link](#network-fd200000e00000000000000000000000_36) | - | Unallocated | - | - |
+| `│ └── fd20:0:f000::/36` [link](#network-fd200000f00000000000000000000000_36) | - | Unallocated | - | - |
+| `fd30::/32` [link](#network-fd300000000000000000000000000000_32) | Azure IPv6 | Subnet Container | - | Azure dual-stack IPv6 supernet |
+| `  ├── fd30::/36` [link](#network-fd300000000000000000000000000000_36) | Azure us-east-1 VPC v6 | Host Pool | - | IPv6 regional VPC in us-east-1 |
+| `  │ ├── fd30::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
+| `  │ └── fd30::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
+| `  ├── fd30:0:1000::/36` [link](#network-fd300000100000000000000000000000_36) | Azure eu-west-1 VPC v6 | Host Pool | - | IPv6 regional VPC in eu-west-1 |
+| `  │ ├── fd30:0:1000::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
+| `  │ └── fd30:0:1000::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
+| `  ├── fd30:0:2000::/36` [link](#network-fd300000200000000000000000000000_36) | - | Unallocated | - | - |
+| `  ├── fd30:0:3000::/36` [link](#network-fd300000300000000000000000000000_36) | - | Unallocated | - | - |
+| `  ├── fd30:0:4000::/36` [link](#network-fd300000400000000000000000000000_36) | - | Unallocated | - | - |
+| `  ├── fd30:0:5000::/36` [link](#network-fd300000500000000000000000000000_36) | - | Unallocated | - | - |
+| `  ├── fd30:0:6000::/36` [link](#network-fd300000600000000000000000000000_36) | - | Unallocated | - | - |
+| `  ├── fd30:0:7000::/36` [link](#network-fd300000700000000000000000000000_36) | - | Unallocated | - | - |
+| `  ├── fd30:0:8000::/36` [link](#network-fd300000800000000000000000000000_36) | - | Unallocated | - | - |
+| `  ├── fd30:0:9000::/36` [link](#network-fd300000900000000000000000000000_36) | - | Unallocated | - | - |
+| `  ├── fd30:0:a000::/36` [link](#network-fd300000a00000000000000000000000_36) | - | Unallocated | - | - |
+| `  ├── fd30:0:b000::/36` [link](#network-fd300000b00000000000000000000000_36) | - | Unallocated | - | - |
+| `  ├── fd30:0:c000::/36` [link](#network-fd300000c00000000000000000000000_36) | - | Unallocated | - | - |
+| `  ├── fd30:0:d000::/36` [link](#network-fd300000d00000000000000000000000_36) | - | Unallocated | - | - |
+| `  ├── fd30:0:e000::/36` [link](#network-fd300000e00000000000000000000000_36) | - | Unallocated | - | - |
+| `  └── fd30:0:f000::/36` [link](#network-fd300000f00000000000000000000000_36) | - | Unallocated | - | - |
+
+## VLANs
+
+| VLAN ID | Name | Description |
+|---------|------|-------------|
+| `10` | `Home-Infra` | Home infrastructure |
+| `20` | `Home-Users` | User devices |
+| `30` | `Home-IoT` | IoT devices |
 
 ## Detailed Networks
 
@@ -2460,6 +2731,4921 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.44.0.1 - 10.47.255.254` |
 | **Usable Hosts** | `262,142` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80000_16"></a>
+### `192.168.0.0/16` -- Home
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.0.0/16` |
+| **Network Address** | `192.168.0.0` |
+| **Mask Bits** | `16` |
+| **Subnet Mask** | `255.255.0.0` |
+| **Broadcast Address** | `192.168.255.255` |
+| **Range** | `192.168.0.0 - 192.168.255.255` |
+| **Total Hosts** | `65,536` |
+| **Usable Range** | `192.168.0.1 - 192.168.255.254` |
+| **Usable Hosts** | `65,534` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Home supernet with VLAN segments
+
+---
+
+<a id="network-c0a80000_24"></a>
+#### `192.168.0.0/24` -- Home Infra
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.0.0/24` |
+| **Network Address** | `192.168.0.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.0.255` |
+| **Range** | `192.168.0.0 - 192.168.0.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.0.1 - 192.168.0.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+| **VLAN** | `10 (Home-Infra)` |
+
+> Routers and servers
+
+#### Reserved IPs
+
+| IP | Name | Description |
+|----|------|-------------|
+| `192.168.0.1` | `gateway` | Default gateway |
+| `192.168.0.10` | `nas` | NAS |
+
+---
+
+<a id="network-c0a80100_24"></a>
+#### `192.168.1.0/24` -- Home Users
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.1.0/24` |
+| **Network Address** | `192.168.1.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.1.255` |
+| **Range** | `192.168.1.0 - 192.168.1.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.1.1 - 192.168.1.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+| **VLAN** | `20 (Home-Users)` |
+
+> Laptops and phones
+
+#### Reserved IPs
+
+| IP | Name | Description |
+|----|------|-------------|
+| `192.168.1.1` | `gateway` | Default gateway |
+| `192.168.1.50` | `printer` | Office printer |
+
+---
+
+<a id="network-c0a80200_24"></a>
+#### `192.168.2.0/24` -- Home IoT
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.2.0/24` |
+| **Network Address** | `192.168.2.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.2.255` |
+| **Range** | `192.168.2.0 - 192.168.2.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.2.1 - 192.168.2.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+| **VLAN** | `30 (Home-IoT)` |
+
+> Cameras and sensors
+
+#### Reserved IPs
+
+| IP | Name | Description |
+|----|------|-------------|
+| `192.168.2.1` | `gateway` | Default gateway |
+| `192.168.2.20` | `camera-nvr` | NVR |
+
+---
+
+<a id="network-c0a80300_24"></a>
+#### `192.168.3.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.3.0/24` |
+| **Network Address** | `192.168.3.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.3.255` |
+| **Range** | `192.168.3.0 - 192.168.3.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.3.1 - 192.168.3.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80400_24"></a>
+#### `192.168.4.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.4.0/24` |
+| **Network Address** | `192.168.4.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.4.255` |
+| **Range** | `192.168.4.0 - 192.168.4.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.4.1 - 192.168.4.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80500_24"></a>
+#### `192.168.5.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.5.0/24` |
+| **Network Address** | `192.168.5.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.5.255` |
+| **Range** | `192.168.5.0 - 192.168.5.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.5.1 - 192.168.5.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80600_24"></a>
+#### `192.168.6.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.6.0/24` |
+| **Network Address** | `192.168.6.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.6.255` |
+| **Range** | `192.168.6.0 - 192.168.6.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.6.1 - 192.168.6.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80700_24"></a>
+#### `192.168.7.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.7.0/24` |
+| **Network Address** | `192.168.7.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.7.255` |
+| **Range** | `192.168.7.0 - 192.168.7.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.7.1 - 192.168.7.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80800_24"></a>
+#### `192.168.8.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.8.0/24` |
+| **Network Address** | `192.168.8.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.8.255` |
+| **Range** | `192.168.8.0 - 192.168.8.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.8.1 - 192.168.8.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80900_24"></a>
+#### `192.168.9.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.9.0/24` |
+| **Network Address** | `192.168.9.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.9.255` |
+| **Range** | `192.168.9.0 - 192.168.9.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.9.1 - 192.168.9.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80a00_24"></a>
+#### `192.168.10.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.10.0/24` |
+| **Network Address** | `192.168.10.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.10.255` |
+| **Range** | `192.168.10.0 - 192.168.10.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.10.1 - 192.168.10.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80b00_24"></a>
+#### `192.168.11.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.11.0/24` |
+| **Network Address** | `192.168.11.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.11.255` |
+| **Range** | `192.168.11.0 - 192.168.11.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.11.1 - 192.168.11.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80c00_24"></a>
+#### `192.168.12.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.12.0/24` |
+| **Network Address** | `192.168.12.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.12.255` |
+| **Range** | `192.168.12.0 - 192.168.12.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.12.1 - 192.168.12.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80d00_24"></a>
+#### `192.168.13.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.13.0/24` |
+| **Network Address** | `192.168.13.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.13.255` |
+| **Range** | `192.168.13.0 - 192.168.13.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.13.1 - 192.168.13.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80e00_24"></a>
+#### `192.168.14.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.14.0/24` |
+| **Network Address** | `192.168.14.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.14.255` |
+| **Range** | `192.168.14.0 - 192.168.14.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.14.1 - 192.168.14.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80f00_24"></a>
+#### `192.168.15.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.15.0/24` |
+| **Network Address** | `192.168.15.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.15.255` |
+| **Range** | `192.168.15.0 - 192.168.15.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.15.1 - 192.168.15.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81000_24"></a>
+#### `192.168.16.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.16.0/24` |
+| **Network Address** | `192.168.16.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.16.255` |
+| **Range** | `192.168.16.0 - 192.168.16.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.16.1 - 192.168.16.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81100_24"></a>
+#### `192.168.17.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.17.0/24` |
+| **Network Address** | `192.168.17.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.17.255` |
+| **Range** | `192.168.17.0 - 192.168.17.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.17.1 - 192.168.17.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81200_24"></a>
+#### `192.168.18.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.18.0/24` |
+| **Network Address** | `192.168.18.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.18.255` |
+| **Range** | `192.168.18.0 - 192.168.18.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.18.1 - 192.168.18.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81300_24"></a>
+#### `192.168.19.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.19.0/24` |
+| **Network Address** | `192.168.19.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.19.255` |
+| **Range** | `192.168.19.0 - 192.168.19.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.19.1 - 192.168.19.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81400_24"></a>
+#### `192.168.20.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.20.0/24` |
+| **Network Address** | `192.168.20.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.20.255` |
+| **Range** | `192.168.20.0 - 192.168.20.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.20.1 - 192.168.20.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81500_24"></a>
+#### `192.168.21.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.21.0/24` |
+| **Network Address** | `192.168.21.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.21.255` |
+| **Range** | `192.168.21.0 - 192.168.21.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.21.1 - 192.168.21.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81600_24"></a>
+#### `192.168.22.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.22.0/24` |
+| **Network Address** | `192.168.22.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.22.255` |
+| **Range** | `192.168.22.0 - 192.168.22.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.22.1 - 192.168.22.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81700_24"></a>
+#### `192.168.23.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.23.0/24` |
+| **Network Address** | `192.168.23.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.23.255` |
+| **Range** | `192.168.23.0 - 192.168.23.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.23.1 - 192.168.23.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81800_24"></a>
+#### `192.168.24.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.24.0/24` |
+| **Network Address** | `192.168.24.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.24.255` |
+| **Range** | `192.168.24.0 - 192.168.24.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.24.1 - 192.168.24.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81900_24"></a>
+#### `192.168.25.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.25.0/24` |
+| **Network Address** | `192.168.25.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.25.255` |
+| **Range** | `192.168.25.0 - 192.168.25.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.25.1 - 192.168.25.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81a00_24"></a>
+#### `192.168.26.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.26.0/24` |
+| **Network Address** | `192.168.26.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.26.255` |
+| **Range** | `192.168.26.0 - 192.168.26.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.26.1 - 192.168.26.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81b00_24"></a>
+#### `192.168.27.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.27.0/24` |
+| **Network Address** | `192.168.27.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.27.255` |
+| **Range** | `192.168.27.0 - 192.168.27.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.27.1 - 192.168.27.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81c00_24"></a>
+#### `192.168.28.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.28.0/24` |
+| **Network Address** | `192.168.28.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.28.255` |
+| **Range** | `192.168.28.0 - 192.168.28.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.28.1 - 192.168.28.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81d00_24"></a>
+#### `192.168.29.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.29.0/24` |
+| **Network Address** | `192.168.29.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.29.255` |
+| **Range** | `192.168.29.0 - 192.168.29.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.29.1 - 192.168.29.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81e00_24"></a>
+#### `192.168.30.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.30.0/24` |
+| **Network Address** | `192.168.30.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.30.255` |
+| **Range** | `192.168.30.0 - 192.168.30.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.30.1 - 192.168.30.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81f00_24"></a>
+#### `192.168.31.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.31.0/24` |
+| **Network Address** | `192.168.31.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.31.255` |
+| **Range** | `192.168.31.0 - 192.168.31.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.31.1 - 192.168.31.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82000_24"></a>
+#### `192.168.32.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.32.0/24` |
+| **Network Address** | `192.168.32.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.32.255` |
+| **Range** | `192.168.32.0 - 192.168.32.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.32.1 - 192.168.32.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82100_24"></a>
+#### `192.168.33.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.33.0/24` |
+| **Network Address** | `192.168.33.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.33.255` |
+| **Range** | `192.168.33.0 - 192.168.33.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.33.1 - 192.168.33.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82200_24"></a>
+#### `192.168.34.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.34.0/24` |
+| **Network Address** | `192.168.34.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.34.255` |
+| **Range** | `192.168.34.0 - 192.168.34.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.34.1 - 192.168.34.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82300_24"></a>
+#### `192.168.35.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.35.0/24` |
+| **Network Address** | `192.168.35.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.35.255` |
+| **Range** | `192.168.35.0 - 192.168.35.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.35.1 - 192.168.35.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82400_24"></a>
+#### `192.168.36.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.36.0/24` |
+| **Network Address** | `192.168.36.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.36.255` |
+| **Range** | `192.168.36.0 - 192.168.36.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.36.1 - 192.168.36.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82500_24"></a>
+#### `192.168.37.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.37.0/24` |
+| **Network Address** | `192.168.37.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.37.255` |
+| **Range** | `192.168.37.0 - 192.168.37.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.37.1 - 192.168.37.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82600_24"></a>
+#### `192.168.38.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.38.0/24` |
+| **Network Address** | `192.168.38.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.38.255` |
+| **Range** | `192.168.38.0 - 192.168.38.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.38.1 - 192.168.38.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82700_24"></a>
+#### `192.168.39.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.39.0/24` |
+| **Network Address** | `192.168.39.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.39.255` |
+| **Range** | `192.168.39.0 - 192.168.39.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.39.1 - 192.168.39.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82800_24"></a>
+#### `192.168.40.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.40.0/24` |
+| **Network Address** | `192.168.40.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.40.255` |
+| **Range** | `192.168.40.0 - 192.168.40.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.40.1 - 192.168.40.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82900_24"></a>
+#### `192.168.41.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.41.0/24` |
+| **Network Address** | `192.168.41.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.41.255` |
+| **Range** | `192.168.41.0 - 192.168.41.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.41.1 - 192.168.41.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82a00_24"></a>
+#### `192.168.42.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.42.0/24` |
+| **Network Address** | `192.168.42.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.42.255` |
+| **Range** | `192.168.42.0 - 192.168.42.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.42.1 - 192.168.42.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82b00_24"></a>
+#### `192.168.43.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.43.0/24` |
+| **Network Address** | `192.168.43.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.43.255` |
+| **Range** | `192.168.43.0 - 192.168.43.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.43.1 - 192.168.43.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82c00_24"></a>
+#### `192.168.44.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.44.0/24` |
+| **Network Address** | `192.168.44.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.44.255` |
+| **Range** | `192.168.44.0 - 192.168.44.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.44.1 - 192.168.44.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82d00_24"></a>
+#### `192.168.45.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.45.0/24` |
+| **Network Address** | `192.168.45.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.45.255` |
+| **Range** | `192.168.45.0 - 192.168.45.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.45.1 - 192.168.45.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82e00_24"></a>
+#### `192.168.46.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.46.0/24` |
+| **Network Address** | `192.168.46.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.46.255` |
+| **Range** | `192.168.46.0 - 192.168.46.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.46.1 - 192.168.46.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82f00_24"></a>
+#### `192.168.47.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.47.0/24` |
+| **Network Address** | `192.168.47.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.47.255` |
+| **Range** | `192.168.47.0 - 192.168.47.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.47.1 - 192.168.47.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83000_24"></a>
+#### `192.168.48.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.48.0/24` |
+| **Network Address** | `192.168.48.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.48.255` |
+| **Range** | `192.168.48.0 - 192.168.48.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.48.1 - 192.168.48.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83100_24"></a>
+#### `192.168.49.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.49.0/24` |
+| **Network Address** | `192.168.49.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.49.255` |
+| **Range** | `192.168.49.0 - 192.168.49.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.49.1 - 192.168.49.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83200_24"></a>
+#### `192.168.50.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.50.0/24` |
+| **Network Address** | `192.168.50.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.50.255` |
+| **Range** | `192.168.50.0 - 192.168.50.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.50.1 - 192.168.50.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83300_24"></a>
+#### `192.168.51.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.51.0/24` |
+| **Network Address** | `192.168.51.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.51.255` |
+| **Range** | `192.168.51.0 - 192.168.51.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.51.1 - 192.168.51.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83400_24"></a>
+#### `192.168.52.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.52.0/24` |
+| **Network Address** | `192.168.52.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.52.255` |
+| **Range** | `192.168.52.0 - 192.168.52.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.52.1 - 192.168.52.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83500_24"></a>
+#### `192.168.53.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.53.0/24` |
+| **Network Address** | `192.168.53.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.53.255` |
+| **Range** | `192.168.53.0 - 192.168.53.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.53.1 - 192.168.53.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83600_24"></a>
+#### `192.168.54.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.54.0/24` |
+| **Network Address** | `192.168.54.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.54.255` |
+| **Range** | `192.168.54.0 - 192.168.54.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.54.1 - 192.168.54.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83700_24"></a>
+#### `192.168.55.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.55.0/24` |
+| **Network Address** | `192.168.55.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.55.255` |
+| **Range** | `192.168.55.0 - 192.168.55.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.55.1 - 192.168.55.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83800_24"></a>
+#### `192.168.56.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.56.0/24` |
+| **Network Address** | `192.168.56.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.56.255` |
+| **Range** | `192.168.56.0 - 192.168.56.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.56.1 - 192.168.56.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83900_24"></a>
+#### `192.168.57.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.57.0/24` |
+| **Network Address** | `192.168.57.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.57.255` |
+| **Range** | `192.168.57.0 - 192.168.57.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.57.1 - 192.168.57.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83a00_24"></a>
+#### `192.168.58.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.58.0/24` |
+| **Network Address** | `192.168.58.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.58.255` |
+| **Range** | `192.168.58.0 - 192.168.58.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.58.1 - 192.168.58.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83b00_24"></a>
+#### `192.168.59.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.59.0/24` |
+| **Network Address** | `192.168.59.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.59.255` |
+| **Range** | `192.168.59.0 - 192.168.59.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.59.1 - 192.168.59.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83c00_24"></a>
+#### `192.168.60.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.60.0/24` |
+| **Network Address** | `192.168.60.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.60.255` |
+| **Range** | `192.168.60.0 - 192.168.60.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.60.1 - 192.168.60.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83d00_24"></a>
+#### `192.168.61.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.61.0/24` |
+| **Network Address** | `192.168.61.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.61.255` |
+| **Range** | `192.168.61.0 - 192.168.61.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.61.1 - 192.168.61.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83e00_24"></a>
+#### `192.168.62.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.62.0/24` |
+| **Network Address** | `192.168.62.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.62.255` |
+| **Range** | `192.168.62.0 - 192.168.62.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.62.1 - 192.168.62.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a83f00_24"></a>
+#### `192.168.63.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.63.0/24` |
+| **Network Address** | `192.168.63.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.63.255` |
+| **Range** | `192.168.63.0 - 192.168.63.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.63.1 - 192.168.63.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84000_24"></a>
+#### `192.168.64.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.64.0/24` |
+| **Network Address** | `192.168.64.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.64.255` |
+| **Range** | `192.168.64.0 - 192.168.64.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.64.1 - 192.168.64.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84100_24"></a>
+#### `192.168.65.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.65.0/24` |
+| **Network Address** | `192.168.65.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.65.255` |
+| **Range** | `192.168.65.0 - 192.168.65.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.65.1 - 192.168.65.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84200_24"></a>
+#### `192.168.66.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.66.0/24` |
+| **Network Address** | `192.168.66.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.66.255` |
+| **Range** | `192.168.66.0 - 192.168.66.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.66.1 - 192.168.66.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84300_24"></a>
+#### `192.168.67.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.67.0/24` |
+| **Network Address** | `192.168.67.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.67.255` |
+| **Range** | `192.168.67.0 - 192.168.67.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.67.1 - 192.168.67.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84400_24"></a>
+#### `192.168.68.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.68.0/24` |
+| **Network Address** | `192.168.68.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.68.255` |
+| **Range** | `192.168.68.0 - 192.168.68.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.68.1 - 192.168.68.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84500_24"></a>
+#### `192.168.69.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.69.0/24` |
+| **Network Address** | `192.168.69.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.69.255` |
+| **Range** | `192.168.69.0 - 192.168.69.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.69.1 - 192.168.69.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84600_24"></a>
+#### `192.168.70.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.70.0/24` |
+| **Network Address** | `192.168.70.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.70.255` |
+| **Range** | `192.168.70.0 - 192.168.70.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.70.1 - 192.168.70.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84700_24"></a>
+#### `192.168.71.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.71.0/24` |
+| **Network Address** | `192.168.71.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.71.255` |
+| **Range** | `192.168.71.0 - 192.168.71.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.71.1 - 192.168.71.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84800_24"></a>
+#### `192.168.72.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.72.0/24` |
+| **Network Address** | `192.168.72.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.72.255` |
+| **Range** | `192.168.72.0 - 192.168.72.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.72.1 - 192.168.72.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84900_24"></a>
+#### `192.168.73.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.73.0/24` |
+| **Network Address** | `192.168.73.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.73.255` |
+| **Range** | `192.168.73.0 - 192.168.73.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.73.1 - 192.168.73.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84a00_24"></a>
+#### `192.168.74.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.74.0/24` |
+| **Network Address** | `192.168.74.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.74.255` |
+| **Range** | `192.168.74.0 - 192.168.74.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.74.1 - 192.168.74.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84b00_24"></a>
+#### `192.168.75.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.75.0/24` |
+| **Network Address** | `192.168.75.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.75.255` |
+| **Range** | `192.168.75.0 - 192.168.75.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.75.1 - 192.168.75.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84c00_24"></a>
+#### `192.168.76.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.76.0/24` |
+| **Network Address** | `192.168.76.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.76.255` |
+| **Range** | `192.168.76.0 - 192.168.76.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.76.1 - 192.168.76.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84d00_24"></a>
+#### `192.168.77.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.77.0/24` |
+| **Network Address** | `192.168.77.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.77.255` |
+| **Range** | `192.168.77.0 - 192.168.77.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.77.1 - 192.168.77.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84e00_24"></a>
+#### `192.168.78.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.78.0/24` |
+| **Network Address** | `192.168.78.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.78.255` |
+| **Range** | `192.168.78.0 - 192.168.78.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.78.1 - 192.168.78.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a84f00_24"></a>
+#### `192.168.79.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.79.0/24` |
+| **Network Address** | `192.168.79.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.79.255` |
+| **Range** | `192.168.79.0 - 192.168.79.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.79.1 - 192.168.79.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85000_24"></a>
+#### `192.168.80.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.80.0/24` |
+| **Network Address** | `192.168.80.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.80.255` |
+| **Range** | `192.168.80.0 - 192.168.80.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.80.1 - 192.168.80.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85100_24"></a>
+#### `192.168.81.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.81.0/24` |
+| **Network Address** | `192.168.81.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.81.255` |
+| **Range** | `192.168.81.0 - 192.168.81.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.81.1 - 192.168.81.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85200_24"></a>
+#### `192.168.82.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.82.0/24` |
+| **Network Address** | `192.168.82.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.82.255` |
+| **Range** | `192.168.82.0 - 192.168.82.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.82.1 - 192.168.82.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85300_24"></a>
+#### `192.168.83.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.83.0/24` |
+| **Network Address** | `192.168.83.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.83.255` |
+| **Range** | `192.168.83.0 - 192.168.83.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.83.1 - 192.168.83.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85400_24"></a>
+#### `192.168.84.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.84.0/24` |
+| **Network Address** | `192.168.84.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.84.255` |
+| **Range** | `192.168.84.0 - 192.168.84.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.84.1 - 192.168.84.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85500_24"></a>
+#### `192.168.85.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.85.0/24` |
+| **Network Address** | `192.168.85.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.85.255` |
+| **Range** | `192.168.85.0 - 192.168.85.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.85.1 - 192.168.85.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85600_24"></a>
+#### `192.168.86.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.86.0/24` |
+| **Network Address** | `192.168.86.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.86.255` |
+| **Range** | `192.168.86.0 - 192.168.86.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.86.1 - 192.168.86.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85700_24"></a>
+#### `192.168.87.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.87.0/24` |
+| **Network Address** | `192.168.87.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.87.255` |
+| **Range** | `192.168.87.0 - 192.168.87.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.87.1 - 192.168.87.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85800_24"></a>
+#### `192.168.88.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.88.0/24` |
+| **Network Address** | `192.168.88.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.88.255` |
+| **Range** | `192.168.88.0 - 192.168.88.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.88.1 - 192.168.88.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85900_24"></a>
+#### `192.168.89.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.89.0/24` |
+| **Network Address** | `192.168.89.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.89.255` |
+| **Range** | `192.168.89.0 - 192.168.89.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.89.1 - 192.168.89.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85a00_24"></a>
+#### `192.168.90.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.90.0/24` |
+| **Network Address** | `192.168.90.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.90.255` |
+| **Range** | `192.168.90.0 - 192.168.90.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.90.1 - 192.168.90.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85b00_24"></a>
+#### `192.168.91.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.91.0/24` |
+| **Network Address** | `192.168.91.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.91.255` |
+| **Range** | `192.168.91.0 - 192.168.91.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.91.1 - 192.168.91.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85c00_24"></a>
+#### `192.168.92.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.92.0/24` |
+| **Network Address** | `192.168.92.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.92.255` |
+| **Range** | `192.168.92.0 - 192.168.92.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.92.1 - 192.168.92.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85d00_24"></a>
+#### `192.168.93.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.93.0/24` |
+| **Network Address** | `192.168.93.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.93.255` |
+| **Range** | `192.168.93.0 - 192.168.93.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.93.1 - 192.168.93.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85e00_24"></a>
+#### `192.168.94.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.94.0/24` |
+| **Network Address** | `192.168.94.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.94.255` |
+| **Range** | `192.168.94.0 - 192.168.94.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.94.1 - 192.168.94.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a85f00_24"></a>
+#### `192.168.95.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.95.0/24` |
+| **Network Address** | `192.168.95.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.95.255` |
+| **Range** | `192.168.95.0 - 192.168.95.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.95.1 - 192.168.95.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86000_24"></a>
+#### `192.168.96.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.96.0/24` |
+| **Network Address** | `192.168.96.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.96.255` |
+| **Range** | `192.168.96.0 - 192.168.96.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.96.1 - 192.168.96.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86100_24"></a>
+#### `192.168.97.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.97.0/24` |
+| **Network Address** | `192.168.97.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.97.255` |
+| **Range** | `192.168.97.0 - 192.168.97.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.97.1 - 192.168.97.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86200_24"></a>
+#### `192.168.98.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.98.0/24` |
+| **Network Address** | `192.168.98.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.98.255` |
+| **Range** | `192.168.98.0 - 192.168.98.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.98.1 - 192.168.98.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86300_24"></a>
+#### `192.168.99.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.99.0/24` |
+| **Network Address** | `192.168.99.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.99.255` |
+| **Range** | `192.168.99.0 - 192.168.99.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.99.1 - 192.168.99.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86400_24"></a>
+#### `192.168.100.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.100.0/24` |
+| **Network Address** | `192.168.100.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.100.255` |
+| **Range** | `192.168.100.0 - 192.168.100.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.100.1 - 192.168.100.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86500_24"></a>
+#### `192.168.101.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.101.0/24` |
+| **Network Address** | `192.168.101.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.101.255` |
+| **Range** | `192.168.101.0 - 192.168.101.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.101.1 - 192.168.101.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86600_24"></a>
+#### `192.168.102.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.102.0/24` |
+| **Network Address** | `192.168.102.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.102.255` |
+| **Range** | `192.168.102.0 - 192.168.102.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.102.1 - 192.168.102.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86700_24"></a>
+#### `192.168.103.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.103.0/24` |
+| **Network Address** | `192.168.103.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.103.255` |
+| **Range** | `192.168.103.0 - 192.168.103.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.103.1 - 192.168.103.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86800_24"></a>
+#### `192.168.104.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.104.0/24` |
+| **Network Address** | `192.168.104.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.104.255` |
+| **Range** | `192.168.104.0 - 192.168.104.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.104.1 - 192.168.104.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86900_24"></a>
+#### `192.168.105.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.105.0/24` |
+| **Network Address** | `192.168.105.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.105.255` |
+| **Range** | `192.168.105.0 - 192.168.105.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.105.1 - 192.168.105.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86a00_24"></a>
+#### `192.168.106.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.106.0/24` |
+| **Network Address** | `192.168.106.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.106.255` |
+| **Range** | `192.168.106.0 - 192.168.106.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.106.1 - 192.168.106.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86b00_24"></a>
+#### `192.168.107.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.107.0/24` |
+| **Network Address** | `192.168.107.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.107.255` |
+| **Range** | `192.168.107.0 - 192.168.107.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.107.1 - 192.168.107.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86c00_24"></a>
+#### `192.168.108.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.108.0/24` |
+| **Network Address** | `192.168.108.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.108.255` |
+| **Range** | `192.168.108.0 - 192.168.108.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.108.1 - 192.168.108.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86d00_24"></a>
+#### `192.168.109.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.109.0/24` |
+| **Network Address** | `192.168.109.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.109.255` |
+| **Range** | `192.168.109.0 - 192.168.109.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.109.1 - 192.168.109.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86e00_24"></a>
+#### `192.168.110.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.110.0/24` |
+| **Network Address** | `192.168.110.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.110.255` |
+| **Range** | `192.168.110.0 - 192.168.110.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.110.1 - 192.168.110.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a86f00_24"></a>
+#### `192.168.111.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.111.0/24` |
+| **Network Address** | `192.168.111.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.111.255` |
+| **Range** | `192.168.111.0 - 192.168.111.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.111.1 - 192.168.111.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87000_24"></a>
+#### `192.168.112.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.112.0/24` |
+| **Network Address** | `192.168.112.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.112.255` |
+| **Range** | `192.168.112.0 - 192.168.112.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.112.1 - 192.168.112.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87100_24"></a>
+#### `192.168.113.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.113.0/24` |
+| **Network Address** | `192.168.113.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.113.255` |
+| **Range** | `192.168.113.0 - 192.168.113.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.113.1 - 192.168.113.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87200_24"></a>
+#### `192.168.114.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.114.0/24` |
+| **Network Address** | `192.168.114.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.114.255` |
+| **Range** | `192.168.114.0 - 192.168.114.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.114.1 - 192.168.114.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87300_24"></a>
+#### `192.168.115.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.115.0/24` |
+| **Network Address** | `192.168.115.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.115.255` |
+| **Range** | `192.168.115.0 - 192.168.115.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.115.1 - 192.168.115.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87400_24"></a>
+#### `192.168.116.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.116.0/24` |
+| **Network Address** | `192.168.116.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.116.255` |
+| **Range** | `192.168.116.0 - 192.168.116.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.116.1 - 192.168.116.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87500_24"></a>
+#### `192.168.117.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.117.0/24` |
+| **Network Address** | `192.168.117.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.117.255` |
+| **Range** | `192.168.117.0 - 192.168.117.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.117.1 - 192.168.117.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87600_24"></a>
+#### `192.168.118.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.118.0/24` |
+| **Network Address** | `192.168.118.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.118.255` |
+| **Range** | `192.168.118.0 - 192.168.118.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.118.1 - 192.168.118.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87700_24"></a>
+#### `192.168.119.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.119.0/24` |
+| **Network Address** | `192.168.119.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.119.255` |
+| **Range** | `192.168.119.0 - 192.168.119.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.119.1 - 192.168.119.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87800_24"></a>
+#### `192.168.120.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.120.0/24` |
+| **Network Address** | `192.168.120.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.120.255` |
+| **Range** | `192.168.120.0 - 192.168.120.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.120.1 - 192.168.120.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87900_24"></a>
+#### `192.168.121.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.121.0/24` |
+| **Network Address** | `192.168.121.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.121.255` |
+| **Range** | `192.168.121.0 - 192.168.121.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.121.1 - 192.168.121.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87a00_24"></a>
+#### `192.168.122.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.122.0/24` |
+| **Network Address** | `192.168.122.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.122.255` |
+| **Range** | `192.168.122.0 - 192.168.122.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.122.1 - 192.168.122.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87b00_24"></a>
+#### `192.168.123.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.123.0/24` |
+| **Network Address** | `192.168.123.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.123.255` |
+| **Range** | `192.168.123.0 - 192.168.123.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.123.1 - 192.168.123.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87c00_24"></a>
+#### `192.168.124.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.124.0/24` |
+| **Network Address** | `192.168.124.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.124.255` |
+| **Range** | `192.168.124.0 - 192.168.124.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.124.1 - 192.168.124.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87d00_24"></a>
+#### `192.168.125.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.125.0/24` |
+| **Network Address** | `192.168.125.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.125.255` |
+| **Range** | `192.168.125.0 - 192.168.125.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.125.1 - 192.168.125.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87e00_24"></a>
+#### `192.168.126.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.126.0/24` |
+| **Network Address** | `192.168.126.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.126.255` |
+| **Range** | `192.168.126.0 - 192.168.126.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.126.1 - 192.168.126.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a87f00_24"></a>
+#### `192.168.127.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.127.0/24` |
+| **Network Address** | `192.168.127.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.127.255` |
+| **Range** | `192.168.127.0 - 192.168.127.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.127.1 - 192.168.127.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88000_24"></a>
+#### `192.168.128.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.128.0/24` |
+| **Network Address** | `192.168.128.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.128.255` |
+| **Range** | `192.168.128.0 - 192.168.128.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.128.1 - 192.168.128.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88100_24"></a>
+#### `192.168.129.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.129.0/24` |
+| **Network Address** | `192.168.129.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.129.255` |
+| **Range** | `192.168.129.0 - 192.168.129.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.129.1 - 192.168.129.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88200_24"></a>
+#### `192.168.130.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.130.0/24` |
+| **Network Address** | `192.168.130.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.130.255` |
+| **Range** | `192.168.130.0 - 192.168.130.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.130.1 - 192.168.130.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88300_24"></a>
+#### `192.168.131.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.131.0/24` |
+| **Network Address** | `192.168.131.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.131.255` |
+| **Range** | `192.168.131.0 - 192.168.131.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.131.1 - 192.168.131.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88400_24"></a>
+#### `192.168.132.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.132.0/24` |
+| **Network Address** | `192.168.132.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.132.255` |
+| **Range** | `192.168.132.0 - 192.168.132.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.132.1 - 192.168.132.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88500_24"></a>
+#### `192.168.133.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.133.0/24` |
+| **Network Address** | `192.168.133.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.133.255` |
+| **Range** | `192.168.133.0 - 192.168.133.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.133.1 - 192.168.133.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88600_24"></a>
+#### `192.168.134.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.134.0/24` |
+| **Network Address** | `192.168.134.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.134.255` |
+| **Range** | `192.168.134.0 - 192.168.134.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.134.1 - 192.168.134.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88700_24"></a>
+#### `192.168.135.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.135.0/24` |
+| **Network Address** | `192.168.135.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.135.255` |
+| **Range** | `192.168.135.0 - 192.168.135.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.135.1 - 192.168.135.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88800_24"></a>
+#### `192.168.136.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.136.0/24` |
+| **Network Address** | `192.168.136.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.136.255` |
+| **Range** | `192.168.136.0 - 192.168.136.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.136.1 - 192.168.136.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88900_24"></a>
+#### `192.168.137.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.137.0/24` |
+| **Network Address** | `192.168.137.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.137.255` |
+| **Range** | `192.168.137.0 - 192.168.137.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.137.1 - 192.168.137.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88a00_24"></a>
+#### `192.168.138.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.138.0/24` |
+| **Network Address** | `192.168.138.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.138.255` |
+| **Range** | `192.168.138.0 - 192.168.138.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.138.1 - 192.168.138.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88b00_24"></a>
+#### `192.168.139.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.139.0/24` |
+| **Network Address** | `192.168.139.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.139.255` |
+| **Range** | `192.168.139.0 - 192.168.139.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.139.1 - 192.168.139.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88c00_24"></a>
+#### `192.168.140.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.140.0/24` |
+| **Network Address** | `192.168.140.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.140.255` |
+| **Range** | `192.168.140.0 - 192.168.140.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.140.1 - 192.168.140.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88d00_24"></a>
+#### `192.168.141.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.141.0/24` |
+| **Network Address** | `192.168.141.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.141.255` |
+| **Range** | `192.168.141.0 - 192.168.141.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.141.1 - 192.168.141.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88e00_24"></a>
+#### `192.168.142.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.142.0/24` |
+| **Network Address** | `192.168.142.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.142.255` |
+| **Range** | `192.168.142.0 - 192.168.142.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.142.1 - 192.168.142.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a88f00_24"></a>
+#### `192.168.143.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.143.0/24` |
+| **Network Address** | `192.168.143.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.143.255` |
+| **Range** | `192.168.143.0 - 192.168.143.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.143.1 - 192.168.143.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89000_24"></a>
+#### `192.168.144.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.144.0/24` |
+| **Network Address** | `192.168.144.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.144.255` |
+| **Range** | `192.168.144.0 - 192.168.144.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.144.1 - 192.168.144.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89100_24"></a>
+#### `192.168.145.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.145.0/24` |
+| **Network Address** | `192.168.145.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.145.255` |
+| **Range** | `192.168.145.0 - 192.168.145.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.145.1 - 192.168.145.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89200_24"></a>
+#### `192.168.146.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.146.0/24` |
+| **Network Address** | `192.168.146.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.146.255` |
+| **Range** | `192.168.146.0 - 192.168.146.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.146.1 - 192.168.146.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89300_24"></a>
+#### `192.168.147.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.147.0/24` |
+| **Network Address** | `192.168.147.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.147.255` |
+| **Range** | `192.168.147.0 - 192.168.147.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.147.1 - 192.168.147.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89400_24"></a>
+#### `192.168.148.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.148.0/24` |
+| **Network Address** | `192.168.148.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.148.255` |
+| **Range** | `192.168.148.0 - 192.168.148.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.148.1 - 192.168.148.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89500_24"></a>
+#### `192.168.149.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.149.0/24` |
+| **Network Address** | `192.168.149.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.149.255` |
+| **Range** | `192.168.149.0 - 192.168.149.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.149.1 - 192.168.149.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89600_24"></a>
+#### `192.168.150.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.150.0/24` |
+| **Network Address** | `192.168.150.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.150.255` |
+| **Range** | `192.168.150.0 - 192.168.150.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.150.1 - 192.168.150.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89700_24"></a>
+#### `192.168.151.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.151.0/24` |
+| **Network Address** | `192.168.151.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.151.255` |
+| **Range** | `192.168.151.0 - 192.168.151.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.151.1 - 192.168.151.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89800_24"></a>
+#### `192.168.152.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.152.0/24` |
+| **Network Address** | `192.168.152.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.152.255` |
+| **Range** | `192.168.152.0 - 192.168.152.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.152.1 - 192.168.152.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89900_24"></a>
+#### `192.168.153.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.153.0/24` |
+| **Network Address** | `192.168.153.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.153.255` |
+| **Range** | `192.168.153.0 - 192.168.153.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.153.1 - 192.168.153.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89a00_24"></a>
+#### `192.168.154.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.154.0/24` |
+| **Network Address** | `192.168.154.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.154.255` |
+| **Range** | `192.168.154.0 - 192.168.154.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.154.1 - 192.168.154.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89b00_24"></a>
+#### `192.168.155.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.155.0/24` |
+| **Network Address** | `192.168.155.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.155.255` |
+| **Range** | `192.168.155.0 - 192.168.155.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.155.1 - 192.168.155.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89c00_24"></a>
+#### `192.168.156.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.156.0/24` |
+| **Network Address** | `192.168.156.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.156.255` |
+| **Range** | `192.168.156.0 - 192.168.156.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.156.1 - 192.168.156.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89d00_24"></a>
+#### `192.168.157.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.157.0/24` |
+| **Network Address** | `192.168.157.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.157.255` |
+| **Range** | `192.168.157.0 - 192.168.157.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.157.1 - 192.168.157.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89e00_24"></a>
+#### `192.168.158.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.158.0/24` |
+| **Network Address** | `192.168.158.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.158.255` |
+| **Range** | `192.168.158.0 - 192.168.158.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.158.1 - 192.168.158.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a89f00_24"></a>
+#### `192.168.159.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.159.0/24` |
+| **Network Address** | `192.168.159.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.159.255` |
+| **Range** | `192.168.159.0 - 192.168.159.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.159.1 - 192.168.159.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8a000_24"></a>
+#### `192.168.160.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.160.0/24` |
+| **Network Address** | `192.168.160.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.160.255` |
+| **Range** | `192.168.160.0 - 192.168.160.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.160.1 - 192.168.160.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8a100_24"></a>
+#### `192.168.161.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.161.0/24` |
+| **Network Address** | `192.168.161.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.161.255` |
+| **Range** | `192.168.161.0 - 192.168.161.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.161.1 - 192.168.161.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8a200_24"></a>
+#### `192.168.162.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.162.0/24` |
+| **Network Address** | `192.168.162.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.162.255` |
+| **Range** | `192.168.162.0 - 192.168.162.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.162.1 - 192.168.162.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8a300_24"></a>
+#### `192.168.163.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.163.0/24` |
+| **Network Address** | `192.168.163.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.163.255` |
+| **Range** | `192.168.163.0 - 192.168.163.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.163.1 - 192.168.163.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8a400_24"></a>
+#### `192.168.164.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.164.0/24` |
+| **Network Address** | `192.168.164.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.164.255` |
+| **Range** | `192.168.164.0 - 192.168.164.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.164.1 - 192.168.164.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8a500_24"></a>
+#### `192.168.165.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.165.0/24` |
+| **Network Address** | `192.168.165.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.165.255` |
+| **Range** | `192.168.165.0 - 192.168.165.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.165.1 - 192.168.165.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8a600_24"></a>
+#### `192.168.166.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.166.0/24` |
+| **Network Address** | `192.168.166.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.166.255` |
+| **Range** | `192.168.166.0 - 192.168.166.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.166.1 - 192.168.166.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8a700_24"></a>
+#### `192.168.167.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.167.0/24` |
+| **Network Address** | `192.168.167.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.167.255` |
+| **Range** | `192.168.167.0 - 192.168.167.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.167.1 - 192.168.167.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8a800_24"></a>
+#### `192.168.168.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.168.0/24` |
+| **Network Address** | `192.168.168.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.168.255` |
+| **Range** | `192.168.168.0 - 192.168.168.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.168.1 - 192.168.168.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8a900_24"></a>
+#### `192.168.169.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.169.0/24` |
+| **Network Address** | `192.168.169.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.169.255` |
+| **Range** | `192.168.169.0 - 192.168.169.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.169.1 - 192.168.169.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8aa00_24"></a>
+#### `192.168.170.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.170.0/24` |
+| **Network Address** | `192.168.170.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.170.255` |
+| **Range** | `192.168.170.0 - 192.168.170.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.170.1 - 192.168.170.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8ab00_24"></a>
+#### `192.168.171.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.171.0/24` |
+| **Network Address** | `192.168.171.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.171.255` |
+| **Range** | `192.168.171.0 - 192.168.171.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.171.1 - 192.168.171.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8ac00_24"></a>
+#### `192.168.172.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.172.0/24` |
+| **Network Address** | `192.168.172.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.172.255` |
+| **Range** | `192.168.172.0 - 192.168.172.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.172.1 - 192.168.172.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8ad00_24"></a>
+#### `192.168.173.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.173.0/24` |
+| **Network Address** | `192.168.173.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.173.255` |
+| **Range** | `192.168.173.0 - 192.168.173.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.173.1 - 192.168.173.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8ae00_24"></a>
+#### `192.168.174.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.174.0/24` |
+| **Network Address** | `192.168.174.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.174.255` |
+| **Range** | `192.168.174.0 - 192.168.174.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.174.1 - 192.168.174.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8af00_24"></a>
+#### `192.168.175.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.175.0/24` |
+| **Network Address** | `192.168.175.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.175.255` |
+| **Range** | `192.168.175.0 - 192.168.175.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.175.1 - 192.168.175.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8b000_24"></a>
+#### `192.168.176.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.176.0/24` |
+| **Network Address** | `192.168.176.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.176.255` |
+| **Range** | `192.168.176.0 - 192.168.176.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.176.1 - 192.168.176.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8b100_24"></a>
+#### `192.168.177.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.177.0/24` |
+| **Network Address** | `192.168.177.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.177.255` |
+| **Range** | `192.168.177.0 - 192.168.177.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.177.1 - 192.168.177.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8b200_24"></a>
+#### `192.168.178.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.178.0/24` |
+| **Network Address** | `192.168.178.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.178.255` |
+| **Range** | `192.168.178.0 - 192.168.178.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.178.1 - 192.168.178.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8b300_24"></a>
+#### `192.168.179.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.179.0/24` |
+| **Network Address** | `192.168.179.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.179.255` |
+| **Range** | `192.168.179.0 - 192.168.179.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.179.1 - 192.168.179.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8b400_24"></a>
+#### `192.168.180.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.180.0/24` |
+| **Network Address** | `192.168.180.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.180.255` |
+| **Range** | `192.168.180.0 - 192.168.180.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.180.1 - 192.168.180.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8b500_24"></a>
+#### `192.168.181.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.181.0/24` |
+| **Network Address** | `192.168.181.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.181.255` |
+| **Range** | `192.168.181.0 - 192.168.181.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.181.1 - 192.168.181.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8b600_24"></a>
+#### `192.168.182.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.182.0/24` |
+| **Network Address** | `192.168.182.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.182.255` |
+| **Range** | `192.168.182.0 - 192.168.182.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.182.1 - 192.168.182.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8b700_24"></a>
+#### `192.168.183.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.183.0/24` |
+| **Network Address** | `192.168.183.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.183.255` |
+| **Range** | `192.168.183.0 - 192.168.183.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.183.1 - 192.168.183.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8b800_24"></a>
+#### `192.168.184.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.184.0/24` |
+| **Network Address** | `192.168.184.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.184.255` |
+| **Range** | `192.168.184.0 - 192.168.184.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.184.1 - 192.168.184.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8b900_24"></a>
+#### `192.168.185.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.185.0/24` |
+| **Network Address** | `192.168.185.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.185.255` |
+| **Range** | `192.168.185.0 - 192.168.185.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.185.1 - 192.168.185.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8ba00_24"></a>
+#### `192.168.186.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.186.0/24` |
+| **Network Address** | `192.168.186.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.186.255` |
+| **Range** | `192.168.186.0 - 192.168.186.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.186.1 - 192.168.186.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8bb00_24"></a>
+#### `192.168.187.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.187.0/24` |
+| **Network Address** | `192.168.187.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.187.255` |
+| **Range** | `192.168.187.0 - 192.168.187.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.187.1 - 192.168.187.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8bc00_24"></a>
+#### `192.168.188.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.188.0/24` |
+| **Network Address** | `192.168.188.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.188.255` |
+| **Range** | `192.168.188.0 - 192.168.188.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.188.1 - 192.168.188.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8bd00_24"></a>
+#### `192.168.189.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.189.0/24` |
+| **Network Address** | `192.168.189.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.189.255` |
+| **Range** | `192.168.189.0 - 192.168.189.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.189.1 - 192.168.189.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8be00_24"></a>
+#### `192.168.190.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.190.0/24` |
+| **Network Address** | `192.168.190.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.190.255` |
+| **Range** | `192.168.190.0 - 192.168.190.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.190.1 - 192.168.190.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8bf00_24"></a>
+#### `192.168.191.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.191.0/24` |
+| **Network Address** | `192.168.191.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.191.255` |
+| **Range** | `192.168.191.0 - 192.168.191.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.191.1 - 192.168.191.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8c000_24"></a>
+#### `192.168.192.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.192.0/24` |
+| **Network Address** | `192.168.192.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.192.255` |
+| **Range** | `192.168.192.0 - 192.168.192.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.192.1 - 192.168.192.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8c100_24"></a>
+#### `192.168.193.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.193.0/24` |
+| **Network Address** | `192.168.193.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.193.255` |
+| **Range** | `192.168.193.0 - 192.168.193.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.193.1 - 192.168.193.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8c200_24"></a>
+#### `192.168.194.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.194.0/24` |
+| **Network Address** | `192.168.194.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.194.255` |
+| **Range** | `192.168.194.0 - 192.168.194.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.194.1 - 192.168.194.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8c300_24"></a>
+#### `192.168.195.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.195.0/24` |
+| **Network Address** | `192.168.195.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.195.255` |
+| **Range** | `192.168.195.0 - 192.168.195.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.195.1 - 192.168.195.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8c400_24"></a>
+#### `192.168.196.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.196.0/24` |
+| **Network Address** | `192.168.196.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.196.255` |
+| **Range** | `192.168.196.0 - 192.168.196.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.196.1 - 192.168.196.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8c500_24"></a>
+#### `192.168.197.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.197.0/24` |
+| **Network Address** | `192.168.197.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.197.255` |
+| **Range** | `192.168.197.0 - 192.168.197.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.197.1 - 192.168.197.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8c600_24"></a>
+#### `192.168.198.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.198.0/24` |
+| **Network Address** | `192.168.198.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.198.255` |
+| **Range** | `192.168.198.0 - 192.168.198.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.198.1 - 192.168.198.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8c700_24"></a>
+#### `192.168.199.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.199.0/24` |
+| **Network Address** | `192.168.199.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.199.255` |
+| **Range** | `192.168.199.0 - 192.168.199.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.199.1 - 192.168.199.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8c800_24"></a>
+#### `192.168.200.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.200.0/24` |
+| **Network Address** | `192.168.200.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.200.255` |
+| **Range** | `192.168.200.0 - 192.168.200.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.200.1 - 192.168.200.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8c900_24"></a>
+#### `192.168.201.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.201.0/24` |
+| **Network Address** | `192.168.201.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.201.255` |
+| **Range** | `192.168.201.0 - 192.168.201.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.201.1 - 192.168.201.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8ca00_24"></a>
+#### `192.168.202.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.202.0/24` |
+| **Network Address** | `192.168.202.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.202.255` |
+| **Range** | `192.168.202.0 - 192.168.202.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.202.1 - 192.168.202.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8cb00_24"></a>
+#### `192.168.203.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.203.0/24` |
+| **Network Address** | `192.168.203.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.203.255` |
+| **Range** | `192.168.203.0 - 192.168.203.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.203.1 - 192.168.203.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8cc00_24"></a>
+#### `192.168.204.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.204.0/24` |
+| **Network Address** | `192.168.204.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.204.255` |
+| **Range** | `192.168.204.0 - 192.168.204.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.204.1 - 192.168.204.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8cd00_24"></a>
+#### `192.168.205.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.205.0/24` |
+| **Network Address** | `192.168.205.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.205.255` |
+| **Range** | `192.168.205.0 - 192.168.205.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.205.1 - 192.168.205.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8ce00_24"></a>
+#### `192.168.206.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.206.0/24` |
+| **Network Address** | `192.168.206.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.206.255` |
+| **Range** | `192.168.206.0 - 192.168.206.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.206.1 - 192.168.206.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8cf00_24"></a>
+#### `192.168.207.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.207.0/24` |
+| **Network Address** | `192.168.207.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.207.255` |
+| **Range** | `192.168.207.0 - 192.168.207.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.207.1 - 192.168.207.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8d000_24"></a>
+#### `192.168.208.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.208.0/24` |
+| **Network Address** | `192.168.208.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.208.255` |
+| **Range** | `192.168.208.0 - 192.168.208.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.208.1 - 192.168.208.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8d100_24"></a>
+#### `192.168.209.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.209.0/24` |
+| **Network Address** | `192.168.209.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.209.255` |
+| **Range** | `192.168.209.0 - 192.168.209.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.209.1 - 192.168.209.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8d200_24"></a>
+#### `192.168.210.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.210.0/24` |
+| **Network Address** | `192.168.210.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.210.255` |
+| **Range** | `192.168.210.0 - 192.168.210.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.210.1 - 192.168.210.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8d300_24"></a>
+#### `192.168.211.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.211.0/24` |
+| **Network Address** | `192.168.211.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.211.255` |
+| **Range** | `192.168.211.0 - 192.168.211.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.211.1 - 192.168.211.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8d400_24"></a>
+#### `192.168.212.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.212.0/24` |
+| **Network Address** | `192.168.212.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.212.255` |
+| **Range** | `192.168.212.0 - 192.168.212.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.212.1 - 192.168.212.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8d500_24"></a>
+#### `192.168.213.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.213.0/24` |
+| **Network Address** | `192.168.213.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.213.255` |
+| **Range** | `192.168.213.0 - 192.168.213.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.213.1 - 192.168.213.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8d600_24"></a>
+#### `192.168.214.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.214.0/24` |
+| **Network Address** | `192.168.214.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.214.255` |
+| **Range** | `192.168.214.0 - 192.168.214.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.214.1 - 192.168.214.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8d700_24"></a>
+#### `192.168.215.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.215.0/24` |
+| **Network Address** | `192.168.215.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.215.255` |
+| **Range** | `192.168.215.0 - 192.168.215.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.215.1 - 192.168.215.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8d800_24"></a>
+#### `192.168.216.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.216.0/24` |
+| **Network Address** | `192.168.216.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.216.255` |
+| **Range** | `192.168.216.0 - 192.168.216.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.216.1 - 192.168.216.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8d900_24"></a>
+#### `192.168.217.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.217.0/24` |
+| **Network Address** | `192.168.217.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.217.255` |
+| **Range** | `192.168.217.0 - 192.168.217.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.217.1 - 192.168.217.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8da00_24"></a>
+#### `192.168.218.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.218.0/24` |
+| **Network Address** | `192.168.218.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.218.255` |
+| **Range** | `192.168.218.0 - 192.168.218.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.218.1 - 192.168.218.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8db00_24"></a>
+#### `192.168.219.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.219.0/24` |
+| **Network Address** | `192.168.219.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.219.255` |
+| **Range** | `192.168.219.0 - 192.168.219.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.219.1 - 192.168.219.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8dc00_24"></a>
+#### `192.168.220.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.220.0/24` |
+| **Network Address** | `192.168.220.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.220.255` |
+| **Range** | `192.168.220.0 - 192.168.220.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.220.1 - 192.168.220.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8dd00_24"></a>
+#### `192.168.221.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.221.0/24` |
+| **Network Address** | `192.168.221.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.221.255` |
+| **Range** | `192.168.221.0 - 192.168.221.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.221.1 - 192.168.221.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8de00_24"></a>
+#### `192.168.222.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.222.0/24` |
+| **Network Address** | `192.168.222.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.222.255` |
+| **Range** | `192.168.222.0 - 192.168.222.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.222.1 - 192.168.222.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8df00_24"></a>
+#### `192.168.223.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.223.0/24` |
+| **Network Address** | `192.168.223.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.223.255` |
+| **Range** | `192.168.223.0 - 192.168.223.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.223.1 - 192.168.223.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8e000_24"></a>
+#### `192.168.224.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.224.0/24` |
+| **Network Address** | `192.168.224.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.224.255` |
+| **Range** | `192.168.224.0 - 192.168.224.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.224.1 - 192.168.224.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8e100_24"></a>
+#### `192.168.225.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.225.0/24` |
+| **Network Address** | `192.168.225.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.225.255` |
+| **Range** | `192.168.225.0 - 192.168.225.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.225.1 - 192.168.225.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8e200_24"></a>
+#### `192.168.226.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.226.0/24` |
+| **Network Address** | `192.168.226.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.226.255` |
+| **Range** | `192.168.226.0 - 192.168.226.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.226.1 - 192.168.226.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8e300_24"></a>
+#### `192.168.227.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.227.0/24` |
+| **Network Address** | `192.168.227.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.227.255` |
+| **Range** | `192.168.227.0 - 192.168.227.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.227.1 - 192.168.227.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8e400_24"></a>
+#### `192.168.228.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.228.0/24` |
+| **Network Address** | `192.168.228.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.228.255` |
+| **Range** | `192.168.228.0 - 192.168.228.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.228.1 - 192.168.228.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8e500_24"></a>
+#### `192.168.229.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.229.0/24` |
+| **Network Address** | `192.168.229.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.229.255` |
+| **Range** | `192.168.229.0 - 192.168.229.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.229.1 - 192.168.229.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8e600_24"></a>
+#### `192.168.230.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.230.0/24` |
+| **Network Address** | `192.168.230.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.230.255` |
+| **Range** | `192.168.230.0 - 192.168.230.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.230.1 - 192.168.230.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8e700_24"></a>
+#### `192.168.231.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.231.0/24` |
+| **Network Address** | `192.168.231.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.231.255` |
+| **Range** | `192.168.231.0 - 192.168.231.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.231.1 - 192.168.231.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8e800_24"></a>
+#### `192.168.232.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.232.0/24` |
+| **Network Address** | `192.168.232.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.232.255` |
+| **Range** | `192.168.232.0 - 192.168.232.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.232.1 - 192.168.232.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8e900_24"></a>
+#### `192.168.233.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.233.0/24` |
+| **Network Address** | `192.168.233.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.233.255` |
+| **Range** | `192.168.233.0 - 192.168.233.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.233.1 - 192.168.233.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8ea00_24"></a>
+#### `192.168.234.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.234.0/24` |
+| **Network Address** | `192.168.234.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.234.255` |
+| **Range** | `192.168.234.0 - 192.168.234.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.234.1 - 192.168.234.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8eb00_24"></a>
+#### `192.168.235.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.235.0/24` |
+| **Network Address** | `192.168.235.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.235.255` |
+| **Range** | `192.168.235.0 - 192.168.235.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.235.1 - 192.168.235.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8ec00_24"></a>
+#### `192.168.236.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.236.0/24` |
+| **Network Address** | `192.168.236.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.236.255` |
+| **Range** | `192.168.236.0 - 192.168.236.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.236.1 - 192.168.236.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8ed00_24"></a>
+#### `192.168.237.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.237.0/24` |
+| **Network Address** | `192.168.237.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.237.255` |
+| **Range** | `192.168.237.0 - 192.168.237.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.237.1 - 192.168.237.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8ee00_24"></a>
+#### `192.168.238.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.238.0/24` |
+| **Network Address** | `192.168.238.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.238.255` |
+| **Range** | `192.168.238.0 - 192.168.238.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.238.1 - 192.168.238.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8ef00_24"></a>
+#### `192.168.239.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.239.0/24` |
+| **Network Address** | `192.168.239.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.239.255` |
+| **Range** | `192.168.239.0 - 192.168.239.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.239.1 - 192.168.239.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8f000_24"></a>
+#### `192.168.240.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.240.0/24` |
+| **Network Address** | `192.168.240.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.240.255` |
+| **Range** | `192.168.240.0 - 192.168.240.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.240.1 - 192.168.240.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8f100_24"></a>
+#### `192.168.241.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.241.0/24` |
+| **Network Address** | `192.168.241.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.241.255` |
+| **Range** | `192.168.241.0 - 192.168.241.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.241.1 - 192.168.241.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8f200_24"></a>
+#### `192.168.242.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.242.0/24` |
+| **Network Address** | `192.168.242.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.242.255` |
+| **Range** | `192.168.242.0 - 192.168.242.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.242.1 - 192.168.242.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8f300_24"></a>
+#### `192.168.243.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.243.0/24` |
+| **Network Address** | `192.168.243.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.243.255` |
+| **Range** | `192.168.243.0 - 192.168.243.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.243.1 - 192.168.243.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8f400_24"></a>
+#### `192.168.244.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.244.0/24` |
+| **Network Address** | `192.168.244.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.244.255` |
+| **Range** | `192.168.244.0 - 192.168.244.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.244.1 - 192.168.244.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8f500_24"></a>
+#### `192.168.245.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.245.0/24` |
+| **Network Address** | `192.168.245.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.245.255` |
+| **Range** | `192.168.245.0 - 192.168.245.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.245.1 - 192.168.245.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8f600_24"></a>
+#### `192.168.246.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.246.0/24` |
+| **Network Address** | `192.168.246.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.246.255` |
+| **Range** | `192.168.246.0 - 192.168.246.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.246.1 - 192.168.246.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8f700_24"></a>
+#### `192.168.247.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.247.0/24` |
+| **Network Address** | `192.168.247.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.247.255` |
+| **Range** | `192.168.247.0 - 192.168.247.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.247.1 - 192.168.247.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8f800_24"></a>
+#### `192.168.248.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.248.0/24` |
+| **Network Address** | `192.168.248.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.248.255` |
+| **Range** | `192.168.248.0 - 192.168.248.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.248.1 - 192.168.248.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8f900_24"></a>
+#### `192.168.249.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.249.0/24` |
+| **Network Address** | `192.168.249.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.249.255` |
+| **Range** | `192.168.249.0 - 192.168.249.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.249.1 - 192.168.249.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8fa00_24"></a>
+#### `192.168.250.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.250.0/24` |
+| **Network Address** | `192.168.250.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.250.255` |
+| **Range** | `192.168.250.0 - 192.168.250.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.250.1 - 192.168.250.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8fb00_24"></a>
+#### `192.168.251.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.251.0/24` |
+| **Network Address** | `192.168.251.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.251.255` |
+| **Range** | `192.168.251.0 - 192.168.251.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.251.1 - 192.168.251.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8fc00_24"></a>
+#### `192.168.252.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.252.0/24` |
+| **Network Address** | `192.168.252.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.252.255` |
+| **Range** | `192.168.252.0 - 192.168.252.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.252.1 - 192.168.252.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8fd00_24"></a>
+#### `192.168.253.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.253.0/24` |
+| **Network Address** | `192.168.253.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.253.255` |
+| **Range** | `192.168.253.0 - 192.168.253.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.253.1 - 192.168.253.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8fe00_24"></a>
+#### `192.168.254.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.254.0/24` |
+| **Network Address** | `192.168.254.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.254.255` |
+| **Range** | `192.168.254.0 - 192.168.254.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.254.1 - 192.168.254.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a8ff00_24"></a>
+#### `192.168.255.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.255.0/24` |
+| **Network Address** | `192.168.255.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.255.255` |
+| **Range** | `192.168.255.0 - 192.168.255.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.255.1 - 192.168.255.254` |
+| **Usable Hosts** | `254` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
