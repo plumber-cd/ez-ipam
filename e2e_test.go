@@ -161,7 +161,7 @@ func TestVimNavigationAndKeysLineContext(t *testing.T) {
 
 	moveFocusToID(t, h, "10.0.0.0/24")
 	_, focusKeys := currentKeys()
-	if !strings.Contains(strings.Join(focusKeys, " | "), "<a> Set Subnet Container") {
+	if !strings.Contains(strings.Join(focusKeys, " | "), "<a> Allocate Subnet Container") {
 		t.Fatalf("expected allocation keys on unallocated network, got %#v", focusKeys)
 	}
 	h.PressRune('j')

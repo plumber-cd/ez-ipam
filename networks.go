@@ -682,8 +682,8 @@ func (n *Network) OnChangedFunc() {
 		}
 	} else {
 		currentFocusKeys = []string{
-			"<a> Set Subnet Container",
-			"<A> Set Host Pool",
+			"<a> Allocate Subnet Container",
+			"<A> Allocate Host Pool",
 			"<s> Split",
 		}
 		if hasAnySummarizableRange(getUnallocatedSiblingNetworks(n)) {
@@ -740,11 +740,11 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 		case 'a':
 			if n.AllocationMode != AllocationModeUnallocated {
 				statusLine.Clear()
-				statusLine.SetText("This network is already allocated. Deallocate it first to switch to Subnet Container mode.")
+				statusLine.SetText("This network is already allocated. Deallocate it first to re-allocate as Subnet Container.")
 				return nil
 			}
 
-			allocateNetworkSubnetsModeDialog.SetTitle(fmt.Sprintf("Set as Subnet Container for %s", n.ID))
+			allocateNetworkSubnetsModeDialog.SetTitle(fmt.Sprintf("Allocate as Subnet Container for %s", n.ID))
 			allocateNetworkSubnetsModeDialog.SetFocus(0)
 			pages.ShowPage(allocateNetworkSubnetsModePage)
 			app.SetFocus(allocateNetworkSubnetsModeDialog)
@@ -752,11 +752,11 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 		case 'A':
 			if n.AllocationMode != AllocationModeUnallocated {
 				statusLine.Clear()
-				statusLine.SetText("This network is already allocated. Deallocate it first to switch to Host Pool mode.")
+				statusLine.SetText("This network is already allocated. Deallocate it first to re-allocate as Host Pool.")
 				return nil
 			}
 
-			allocateNetworkHostsModeDialog.SetTitle(fmt.Sprintf("Set as Host Pool for %s", n.ID))
+			allocateNetworkHostsModeDialog.SetTitle(fmt.Sprintf("Allocate as Host Pool for %s", n.ID))
 			allocateNetworkHostsModeDialog.SetFocus(0)
 			pages.ShowPage(allocateNetworkHostsModePage)
 			app.SetFocus(allocateNetworkHostsModeDialog)

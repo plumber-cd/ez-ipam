@@ -444,7 +444,7 @@ func setupApp() {
 				app.SetFocus(navigationPanel)
 			}).
 			AddButton("Cancel", cancelDialog)
-		allocateNetworkSubnetsModeDialog.SetBorder(true).SetTitle("Set as Subnet Container")
+		allocateNetworkSubnetsModeDialog.SetBorder(true).SetTitle("Allocate as Subnet Container")
 		wireDialogFormKeys(allocateNetworkSubnetsModeDialog, cancelDialog)
 		allocateNetworkSubnetsModeFlex := createDialogPage(allocateNetworkSubnetsModeDialog, width, height)
 		pages.AddPage(allocateNetworkSubnetsModePage, allocateNetworkSubnetsModeFlex, true, false)
@@ -472,7 +472,7 @@ func setupApp() {
 				app.SetFocus(navigationPanel)
 			}).
 			AddButton("Cancel", cancelDialog)
-		allocateNetworkHostsModeDialog.SetBorder(true).SetTitle("Set as Host Pool")
+		allocateNetworkHostsModeDialog.SetBorder(true).SetTitle("Allocate as Host Pool")
 		wireDialogFormKeys(allocateNetworkHostsModeDialog, cancelDialog)
 		allocateNetworkHostsModeFlex := createDialogPage(allocateNetworkHostsModeDialog, width, height)
 		pages.AddPage(allocateNetworkHostsModePage, allocateNetworkHostsModeFlex, true, false)
