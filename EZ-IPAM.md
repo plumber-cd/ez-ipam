@@ -147,16 +147,28 @@
 | `│ ├── 10.40.0.0/14` [link](#network-0a280000_14) | - | Unallocated | - | - |
 | `│ └── 10.44.0.0/14` [link](#network-0a2c0000_14) | - | Unallocated | - | - |
 | `192.168.0.0/16` [link](#network-c0a80000_16) | Home | Subnet Container | - | Home supernet with VLAN segments |
-| `│ ├── 192.168.0.0/18` [link](#network-c0a80000_18) | Home Infra | Host Pool | 10 (Home-Infra) | Routers and servers |
-| `│ │ ├── 192.168.0.1` | gateway | Reserved IP | 10 (Home-Infra) | Default gateway |
-| `│ │ └── 192.168.0.10` | nas | Reserved IP | 10 (Home-Infra) | NAS |
-| `│ ├── 192.168.64.0/18` [link](#network-c0a84000_18) | Home Users | Host Pool | 20 (Home-Users) | Laptops and phones |
-| `│ │ ├── 192.168.64.1` | gateway | Reserved IP | 20 (Home-Users) | Default gateway |
-| `│ │ └── 192.168.64.50` | printer | Reserved IP | 20 (Home-Users) | Office printer |
-| `│ ├── 192.168.128.0/18` [link](#network-c0a88000_18) | Home IoT | Host Pool | 30 (Home-IoT) | Cameras and sensors |
-| `│ │ ├── 192.168.128.1` | gateway | Reserved IP | 30 (Home-IoT) | Default gateway |
-| `│ │ └── 192.168.128.20` | camera-nvr | Reserved IP | 30 (Home-IoT) | NVR |
-| `│ └── 192.168.192.0/18` [link](#network-c0a8c000_18) | - | Unallocated | - | - |
+| `│ ├── 192.168.0.0/17` [link](#network-c0a80000_17) | Home staged split | Subnet Container | - | Progressive split for VLAN blocks |
+| `│ │ ├── 192.168.0.0/18` [link](#network-c0a80000_18) | Home staged split | Subnet Container | - | Progressive split for VLAN blocks |
+| `│ │ │ ├── 192.168.0.0/19` [link](#network-c0a80000_19) | Home staged split | Subnet Container | - | Progressive split for VLAN blocks |
+| `│ │ │ │ ├── 192.168.0.0/20` [link](#network-c0a80000_20) | Home staged split | Subnet Container | - | Progressive split for VLAN blocks |
+| `│ │ │ │ │ ├── 192.168.0.0/21` [link](#network-c0a80000_21) | Home staged split | Subnet Container | - | Progressive split for VLAN blocks |
+| `│ │ │ │ │ │ ├── 192.168.0.0/22` [link](#network-c0a80000_22) | Home VLAN area | Subnet Container | - | Final split to /24 blocks |
+| `│ │ │ │ │ │ │ ├── 192.168.0.0/24` [link](#network-c0a80000_24) | Home Infra | Host Pool | 10 (Home-Infra) | Routers and servers |
+| `│ │ │ │ │ │ │ │ ├── 192.168.0.1` | gateway | Reserved IP | 10 (Home-Infra) | Default gateway |
+| `│ │ │ │ │ │ │ │ └── 192.168.0.10` | nas | Reserved IP | 10 (Home-Infra) | NAS |
+| `│ │ │ │ │ │ │ ├── 192.168.1.0/24` [link](#network-c0a80100_24) | Home Users | Host Pool | 20 (Home-Users) | Laptops and phones |
+| `│ │ │ │ │ │ │ │ ├── 192.168.1.1` | gateway | Reserved IP | 20 (Home-Users) | Default gateway |
+| `│ │ │ │ │ │ │ │ └── 192.168.1.50` | printer | Reserved IP | 20 (Home-Users) | Office printer |
+| `│ │ │ │ │ │ │ ├── 192.168.2.0/24` [link](#network-c0a80200_24) | Home IoT | Host Pool | 30 (Home-IoT) | Cameras and sensors |
+| `│ │ │ │ │ │ │ │ ├── 192.168.2.1` | gateway | Reserved IP | 30 (Home-IoT) | Default gateway |
+| `│ │ │ │ │ │ │ │ └── 192.168.2.20` | camera-nvr | Reserved IP | 30 (Home-IoT) | NVR |
+| `│ │ │ │ │ │ │ └── 192.168.3.0/24` [link](#network-c0a80300_24) | - | Unallocated | - | - |
+| `│ │ │ │ │ │ └── 192.168.4.0/22` [link](#network-c0a80400_22) | - | Unallocated | - | - |
+| `│ │ │ │ │ └── 192.168.8.0/21` [link](#network-c0a80800_21) | - | Unallocated | - | - |
+| `│ │ │ │ └── 192.168.16.0/20` [link](#network-c0a81000_20) | - | Unallocated | - | - |
+| `│ │ │ └── 192.168.32.0/19` [link](#network-c0a82000_19) | - | Unallocated | - | - |
+| `│ │ └── 192.168.64.0/18` [link](#network-c0a84000_18) | - | Unallocated | - | - |
+| `│ └── 192.168.128.0/17` [link](#network-c0a88000_17) | - | Unallocated | - | - |
 | `fd10::/32` [link](#network-fd100000000000000000000000000000_32) | AWS IPv6 | Subnet Container | - | AWS dual-stack IPv6 supernet |
 | `│ ├── fd10::/36` [link](#network-fd100000000000000000000000000000_36) | AWS us-east-1 VPC v6 | Host Pool | - | IPv6 regional VPC in us-east-1 |
 | `│ │ ├── fd10::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
@@ -2505,8 +2517,29 @@
 
 ---
 
+<a id="network-c0a80000_17"></a>
+#### `192.168.0.0/17` -- Home staged split
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.0.0/17` |
+| **Network Address** | `192.168.0.0` |
+| **Mask Bits** | `17` |
+| **Subnet Mask** | `255.255.128.0` |
+| **Broadcast Address** | `192.168.127.255` |
+| **Range** | `192.168.0.0 - 192.168.127.255` |
+| **Total Hosts** | `32,768` |
+| **Usable Range** | `192.168.0.1 - 192.168.127.254` |
+| **Usable Hosts** | `32,766` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Progressive split for VLAN blocks
+
+---
+
 <a id="network-c0a80000_18"></a>
-#### `192.168.0.0/18` -- Home Infra
+##### `192.168.0.0/18` -- Home staged split
 
 | Property | Value |
 |----------|-------|
@@ -2519,13 +2552,118 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `192.168.0.1 - 192.168.63.254` |
 | **Usable Hosts** | `16,382` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Progressive split for VLAN blocks
+
+---
+
+<a id="network-c0a80000_19"></a>
+###### `192.168.0.0/19` -- Home staged split
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.0.0/19` |
+| **Network Address** | `192.168.0.0` |
+| **Mask Bits** | `19` |
+| **Subnet Mask** | `255.255.224.0` |
+| **Broadcast Address** | `192.168.31.255` |
+| **Range** | `192.168.0.0 - 192.168.31.255` |
+| **Total Hosts** | `8,192` |
+| **Usable Range** | `192.168.0.1 - 192.168.31.254` |
+| **Usable Hosts** | `8,190` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Progressive split for VLAN blocks
+
+---
+
+<a id="network-c0a80000_20"></a>
+###### `192.168.0.0/20` -- Home staged split
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.0.0/20` |
+| **Network Address** | `192.168.0.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `192.168.15.255` |
+| **Range** | `192.168.0.0 - 192.168.15.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `192.168.0.1 - 192.168.15.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Progressive split for VLAN blocks
+
+---
+
+<a id="network-c0a80000_21"></a>
+###### `192.168.0.0/21` -- Home staged split
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.0.0/21` |
+| **Network Address** | `192.168.0.0` |
+| **Mask Bits** | `21` |
+| **Subnet Mask** | `255.255.248.0` |
+| **Broadcast Address** | `192.168.7.255` |
+| **Range** | `192.168.0.0 - 192.168.7.255` |
+| **Total Hosts** | `2,048` |
+| **Usable Range** | `192.168.0.1 - 192.168.7.254` |
+| **Usable Hosts** | `2,046` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Progressive split for VLAN blocks
+
+---
+
+<a id="network-c0a80000_22"></a>
+###### `192.168.0.0/22` -- Home VLAN area
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.0.0/22` |
+| **Network Address** | `192.168.0.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `192.168.3.255` |
+| **Range** | `192.168.0.0 - 192.168.3.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `192.168.0.1 - 192.168.3.254` |
+| **Usable Hosts** | `1,022` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Final split to /24 blocks
+
+---
+
+<a id="network-c0a80000_24"></a>
+###### `192.168.0.0/24` -- Home Infra
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.0.0/24` |
+| **Network Address** | `192.168.0.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.0.255` |
+| **Range** | `192.168.0.0 - 192.168.0.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.0.1 - 192.168.0.254` |
+| **Usable Hosts** | `254` |
 | **Allocation Mode** | `Host Pool` |
 | **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 | **VLAN** | `10 (Home-Infra)` |
 
 > Routers and servers
 
-#### Reserved IPs
+###### Reserved IPs
 
 | IP | Name | Description |
 |----|------|-------------|
@@ -2534,8 +2672,161 @@
 
 ---
 
+<a id="network-c0a80100_24"></a>
+###### `192.168.1.0/24` -- Home Users
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.1.0/24` |
+| **Network Address** | `192.168.1.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.1.255` |
+| **Range** | `192.168.1.0 - 192.168.1.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.1.1 - 192.168.1.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+| **VLAN** | `20 (Home-Users)` |
+
+> Laptops and phones
+
+###### Reserved IPs
+
+| IP | Name | Description |
+|----|------|-------------|
+| `192.168.1.1` | `gateway` | Default gateway |
+| `192.168.1.50` | `printer` | Office printer |
+
+---
+
+<a id="network-c0a80200_24"></a>
+###### `192.168.2.0/24` -- Home IoT
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.2.0/24` |
+| **Network Address** | `192.168.2.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.2.255` |
+| **Range** | `192.168.2.0 - 192.168.2.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.2.1 - 192.168.2.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+| **VLAN** | `30 (Home-IoT)` |
+
+> Cameras and sensors
+
+###### Reserved IPs
+
+| IP | Name | Description |
+|----|------|-------------|
+| `192.168.2.1` | `gateway` | Default gateway |
+| `192.168.2.20` | `camera-nvr` | NVR |
+
+---
+
+<a id="network-c0a80300_24"></a>
+###### `192.168.3.0/24` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.3.0/24` |
+| **Network Address** | `192.168.3.0` |
+| **Mask Bits** | `24` |
+| **Subnet Mask** | `255.255.255.0` |
+| **Broadcast Address** | `192.168.3.255` |
+| **Range** | `192.168.3.0 - 192.168.3.255` |
+| **Total Hosts** | `256` |
+| **Usable Range** | `192.168.3.1 - 192.168.3.254` |
+| **Usable Hosts** | `254` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80400_22"></a>
+###### `192.168.4.0/22` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.4.0/22` |
+| **Network Address** | `192.168.4.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `192.168.7.255` |
+| **Range** | `192.168.4.0 - 192.168.7.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `192.168.4.1 - 192.168.7.254` |
+| **Usable Hosts** | `1,022` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a80800_21"></a>
+###### `192.168.8.0/21` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.8.0/21` |
+| **Network Address** | `192.168.8.0` |
+| **Mask Bits** | `21` |
+| **Subnet Mask** | `255.255.248.0` |
+| **Broadcast Address** | `192.168.15.255` |
+| **Range** | `192.168.8.0 - 192.168.15.255` |
+| **Total Hosts** | `2,048` |
+| **Usable Range** | `192.168.8.1 - 192.168.15.254` |
+| **Usable Hosts** | `2,046` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a81000_20"></a>
+###### `192.168.16.0/20` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.16.0/20` |
+| **Network Address** | `192.168.16.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `192.168.31.255` |
+| **Range** | `192.168.16.0 - 192.168.31.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `192.168.16.1 - 192.168.31.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-c0a82000_19"></a>
+###### `192.168.32.0/19` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `192.168.32.0/19` |
+| **Network Address** | `192.168.32.0` |
+| **Mask Bits** | `19` |
+| **Subnet Mask** | `255.255.224.0` |
+| **Broadcast Address** | `192.168.63.255` |
+| **Range** | `192.168.32.0 - 192.168.63.255` |
+| **Total Hosts** | `8,192` |
+| **Usable Range** | `192.168.32.1 - 192.168.63.254` |
+| **Usable Hosts** | `8,190` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
 <a id="network-c0a84000_18"></a>
-#### `192.168.64.0/18` -- Home Users
+##### `192.168.64.0/18` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
@@ -2548,64 +2839,25 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `192.168.64.1 - 192.168.127.254` |
 | **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-| **VLAN** | `20 (Home-Users)` |
-
-> Laptops and phones
-
-#### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `192.168.64.1` | `gateway` | Default gateway |
-| `192.168.64.50` | `printer` | Office printer |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
-<a id="network-c0a88000_18"></a>
-#### `192.168.128.0/18` -- Home IoT
+<a id="network-c0a88000_17"></a>
+#### `192.168.128.0/17` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `192.168.128.0/18` |
+| **CIDR** | `192.168.128.0/17` |
 | **Network Address** | `192.168.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `192.168.191.255` |
-| **Range** | `192.168.128.0 - 192.168.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `192.168.128.1 - 192.168.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-| **VLAN** | `30 (Home-IoT)` |
-
-> Cameras and sensors
-
-#### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `192.168.128.1` | `gateway` | Default gateway |
-| `192.168.128.20` | `camera-nvr` | NVR |
-
----
-
-<a id="network-c0a8c000_18"></a>
-#### `192.168.192.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `192.168.192.0/18` |
-| **Network Address** | `192.168.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
+| **Mask Bits** | `17` |
+| **Subnet Mask** | `255.255.128.0` |
 | **Broadcast Address** | `192.168.255.255` |
-| **Range** | `192.168.192.0 - 192.168.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `192.168.192.1 - 192.168.255.254` |
-| **Usable Hosts** | `16,382` |
+| **Range** | `192.168.128.0 - 192.168.255.255` |
+| **Total Hosts** | `32,768` |
+| **Usable Range** | `192.168.128.1 - 192.168.255.254` |
+| **Usable Hosts** | `32,766` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 

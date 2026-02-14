@@ -1,5 +1,5 @@
 allocation_mode: 1
 description: Progressive split for VLAN blocks
 display_name: Home staged split
-id: 192.168.0.0/18
-parent: Networks -> 192.168.0.0/16 -> 192.168.0.0/17
+id: 192.168.0.0/19
+parent: Networks -> 192.168.0.0/16 -> 192.168.0.0/17 -> 192.168.0.0/18

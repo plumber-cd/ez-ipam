@@ -141,7 +141,9 @@ func navigateToVLANs(t *testing.T, h *TestHarness) {
 
 func navigateToNetworksRoot(t *testing.T, h *TestHarness) {
 	t.Helper()
-	h.PressBackspace()
+	for i := 0; i < 16; i++ {
+		h.PressBackspace()
+	}
 	moveFocusToID(t, h, "Networks")
 	h.PressEnter()
 	h.AssertScreenContains("│Networks")
@@ -863,10 +865,26 @@ func TestDemoState(t *testing.T) {
 
 	addNetworkViaDialog(h, "192.168.0.0/16")
 	moveFocusToID(t, h, "192.168.0.0/16")
-	allocateSubnetsFocused(h, "Home", "Home supernet with VLAN segments", "", "18")
+	allocateSubnetsFocused(h, "Home", "Home supernet with VLAN segments", "", "17")
 	h.PressEnter()
 
-	homeCIDRs, err := splitNetwork("192.168.0.0/16", 18)
+	activeCIDR := "192.168.0.0/17"
+	for prefix := 18; prefix <= 22; prefix++ {
+		moveFocusToID(t, h, activeCIDR)
+		allocateSubnetsFocused(h, "Home staged split", "Progressive split for VLAN blocks", "", fmt.Sprintf("%d", prefix))
+		h.PressEnter()
+		childCIDRs, err := splitNetwork(activeCIDR, prefix)
+		if err != nil {
+			t.Fatalf("split %s into /%d: %v", activeCIDR, prefix, err)
+		}
+		activeCIDR = childCIDRs[0]
+	}
+
+	moveFocusToID(t, h, activeCIDR)
+	allocateSubnetsFocused(h, "Home VLAN area", "Final split to /24 blocks", "", "24")
+	h.PressEnter()
+
+	homeCIDRs, err := splitNetwork(activeCIDR, 24)
 	if err != nil {
 		t.Fatalf("split home supernet: %v", err)
 	}
@@ -884,17 +902,17 @@ func TestDemoState(t *testing.T) {
 	moveFocusToID(t, h, homeCIDRs[1])
 	allocateHostsFocused(h, "Home Users", "Laptops and phones", "20")
 	h.PressEnter()
-	reserveIPFromCurrentNetwork(h, "192.168.64.1", "gateway", "Default gateway")
-	reserveIPFromCurrentNetwork(h, "192.168.64.50", "printer", "Office printer")
+	reserveIPFromCurrentNetwork(h, "192.168.1.1", "gateway", "Default gateway")
+	reserveIPFromCurrentNetwork(h, "192.168.1.50", "printer", "Office printer")
 	h.PressBackspace()
 
 	moveFocusToID(t, h, homeCIDRs[2])
 	allocateHostsFocused(h, "Home IoT", "Cameras and sensors", "30")
 	h.PressEnter()
-	reserveIPFromCurrentNetwork(h, "192.168.128.1", "gateway", "Default gateway")
-	reserveIPFromCurrentNetwork(h, "192.168.128.20", "camera-nvr", "NVR")
+	reserveIPFromCurrentNetwork(h, "192.168.2.1", "gateway", "Default gateway")
+	reserveIPFromCurrentNetwork(h, "192.168.2.20", "camera-nvr", "NVR")
 	h.PressBackspace()
-	h.PressBackspace()
+	navigateToNetworksRoot(t, h)
 
 	h.PressCtrl('s')
 	h.AssertStatusContains("Saved to .ez-ipam/ and EZ-IPAM.md")
