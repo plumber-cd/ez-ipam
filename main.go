@@ -858,10 +858,26 @@ func save() {
 	networksData := map[string]map[string]string{}
 	networksHasReservedIPs := map[string]bool{}
 	networksReservedIPs := map[string][]map[string]string{}
-	overviewLines := []string{}
+	summaryRows := []map[string]string{}
+	buildTreePrefix := func(ancestorHasNext []bool, isLast bool) string {
+		stringWriter := new(strings.Builder)
+		for _, hasNext := range ancestorHasNext {
+			if hasNext {
+				stringWriter.WriteString("│   ")
+			} else {
+				stringWriter.WriteString("    ")
+			}
+		}
+		if isLast {
+			stringWriter.WriteString("└── ")
+		} else {
+			stringWriter.WriteString("├── ")
+		}
+		return stringWriter.String()
+	}
 
-	var recursivelyPopulateNetworksData func(n *Network, depth int)
-	recursivelyPopulateNetworksData = func(n *Network, depth int) {
+	var recursivelyPopulateNetworksData func(n *Network, depth int, ancestorHasNext []bool, isLast bool)
+	recursivelyPopulateNetworksData = func(n *Network, depth int, ancestorHasNext []bool, isLast bool) {
 		index, data, err := n.RenderDetailsMap()
 		if err != nil {
 			panic("Failed to render details map for " + n.GetPath() + ": " + err.Error())
@@ -885,6 +901,10 @@ func save() {
 			headingLevel = 6
 		}
 		networksHeading[path] = strings.Repeat("#", headingLevel)
+		networkTreePrefix := ""
+		if depth > 0 {
+			networkTreePrefix = buildTreePrefix(ancestorHasNext, isLast)
+		}
 
 		switch n.AllocationMode {
 		case AllocationModeUnallocated:
@@ -920,23 +940,27 @@ func save() {
 		}
 		networksHasReservedIPs[path] = len(reserved) > 0
 		networksReservedIPs[path] = reserved
-		overviewLines = append(overviewLines, buildOverviewLine(
-			depth,
-			fmt.Sprintf("[`%s`](#%s)", n.ID, networksAnchor[path]),
-			n.DisplayName,
-			networksMode[path],
-			n.Description,
-		))
+		networkCell := fmt.Sprintf("[`%s`](#%s)", n.ID, networksAnchor[path])
+		if networkTreePrefix != "" {
+			networkCell = fmt.Sprintf("`%s` %s", networkTreePrefix, networkCell)
+		}
+		summaryRows = append(summaryRows, map[string]string{
+			"Network":     networkCell,
+			"Name":        markdownInline(defaultIfEmpty(n.DisplayName, "-")),
+			"Allocation":  markdownInline(defaultIfEmpty(networksMode[path], "-")),
+			"Description": markdownInline(defaultIfEmpty(n.Description, "-")),
+		})
 
 		if len(reserved) > 0 {
-			for _, ip := range reserved {
-				overviewLines = append(overviewLines, buildOverviewLine(
-					depth+1,
-					fmt.Sprintf("`%s`", ip["Address"]),
-					ip["DisplayName"],
-					"Reserved IP",
-					ip["Description"],
-				))
+			ipAncestorHasNext := append(append([]bool{}, ancestorHasNext...), !isLast)
+			for i, ip := range reserved {
+				ipTreePrefix := buildTreePrefix(ipAncestorHasNext, i == len(reserved)-1)
+				summaryRows = append(summaryRows, map[string]string{
+					"Network":     fmt.Sprintf("`%s%s`", ipTreePrefix, ip["Address"]),
+					"Name":        markdownInline(defaultIfEmpty(ip["DisplayName"], "-")),
+					"Allocation":  "Reserved IP",
+					"Description": markdownInline(defaultIfEmpty(ip["Description"], "-")),
+				})
 			}
 		}
 
@@ -949,8 +973,9 @@ func save() {
 			}
 			networkChildren = append(networkChildren, nn)
 		}
-		for _, childNetwork := range networkChildren {
-			recursivelyPopulateNetworksData(childNetwork, depth+1)
+		for i, childNetwork := range networkChildren {
+			childAncestors := append(append([]bool{}, ancestorHasNext...), !isLast)
+			recursivelyPopulateNetworksData(childNetwork, depth+1, childAncestors, i == len(networkChildren)-1)
 		}
 	}
 
@@ -963,8 +988,8 @@ func save() {
 		}
 		topLevelNetworks = append(topLevelNetworks, n)
 	}
-	for _, topLevelNetwork := range topLevelNetworks {
-		recursivelyPopulateNetworksData(topLevelNetwork, 0)
+	for i, topLevelNetwork := range topLevelNetworks {
+		recursivelyPopulateNetworksData(topLevelNetwork, 0, []bool{}, i == len(topLevelNetworks)-1)
 	}
 
 	template := template.Must(template.New(markdownFileName).Parse(markdownTmpl))
@@ -982,7 +1007,7 @@ func save() {
 		"NetworksData":           networksData,
 		"NetworksHasReservedIPs": networksHasReservedIPs,
 		"NetworksReservedIPs":    networksReservedIPs,
-		"OverviewLines":          overviewLines,
+		"SummaryRows":            summaryRows,
 	}
 
 	mdFile, err := os.Create(filepath.Join(currentDir, markdownFileName))
@@ -1068,28 +1093,17 @@ func wrappedLineCount(text string, width int) int {
 	return totalLines
 }
 
-func buildOverviewLine(depth int, label, name, allocation, description string) string {
-	line := strings.Repeat("  ", depth) + "- " + label
-
-	if trimmedName := strings.TrimSpace(name); trimmedName != "" {
-		line += " -- **" + markdownInline(trimmedName) + "**"
-	}
-
-	if trimmedAllocation := strings.TrimSpace(allocation); trimmedAllocation != "" {
-		line += " _(" + markdownInline(trimmedAllocation) + ")_"
-	}
-
-	if trimmedDescription := strings.TrimSpace(description); trimmedDescription != "" {
-		line += " -- " + markdownInline(trimmedDescription)
-	}
-
-	return line
-}
-
 func markdownInline(value string) string {
 	value = strings.ReplaceAll(value, "\n", " ")
 	value = strings.ReplaceAll(value, "\r", " ")
 	value = strings.ReplaceAll(value, "|", "\\|")
+	return value
+}
+
+func defaultIfEmpty(value, fallback string) string {
+	if strings.TrimSpace(value) == "" {
+		return fallback
+	}
 	return value
 }
 

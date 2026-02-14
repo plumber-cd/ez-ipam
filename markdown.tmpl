@@ -4,8 +4,10 @@
 
 ## Overview
 
-{{- range $line := .OverviewLines }}
-{{ $line }}
+| Network | Name | Allocation | Description |
+|---------|------|------------|-------------|
+{{- range $row := .SummaryRows }}
+| {{ index $row "Network" }} | {{ index $row "Name" }} | {{ index $row "Allocation" }} | {{ index $row "Description" }} |
 {{- end }}
 
 ## Detailed Networks

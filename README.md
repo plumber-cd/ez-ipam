@@ -30,8 +30,6 @@ You can eiter compile it for yourself or download from pre-compiled binaries fro
 
 # TODO
 
-- Static IP management
-- VLANs management
 - WiFi SSIDs management
 - Possibly physical network topology management
 
