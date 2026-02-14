@@ -858,26 +858,10 @@ func save() {
 	networksData := map[string]map[string]string{}
 	networksHasReservedIPs := map[string]bool{}
 	networksReservedIPs := map[string][]map[string]string{}
-	summaryRows := []map[string]string{}
-	buildTreePrefix := func(ancestorHasNext []bool, isLast bool) string {
-		stringWriter := new(strings.Builder)
-		for _, hasNext := range ancestorHasNext {
-			if hasNext {
-				stringWriter.WriteString("│   ")
-			} else {
-				stringWriter.WriteString("    ")
-			}
-		}
-		if isLast {
-			stringWriter.WriteString("└── ")
-		} else {
-			stringWriter.WriteString("├── ")
-		}
-		return stringWriter.String()
-	}
+	overviewLines := []string{}
 
-	var recursivelyPopulateNetworksData func(n *Network, depth int, ancestorHasNext []bool, isLast bool)
-	recursivelyPopulateNetworksData = func(n *Network, depth int, ancestorHasNext []bool, isLast bool) {
+	var recursivelyPopulateNetworksData func(n *Network, depth int)
+	recursivelyPopulateNetworksData = func(n *Network, depth int) {
 		index, data, err := n.RenderDetailsMap()
 		if err != nil {
 			panic("Failed to render details map for " + n.GetPath() + ": " + err.Error())
@@ -901,10 +885,6 @@ func save() {
 			headingLevel = 6
 		}
 		networksHeading[path] = strings.Repeat("#", headingLevel)
-		networkTreePrefix := ""
-		if depth > 0 {
-			networkTreePrefix = buildTreePrefix(ancestorHasNext, isLast)
-		}
 
 		switch n.AllocationMode {
 		case AllocationModeUnallocated:
@@ -940,23 +920,23 @@ func save() {
 		}
 		networksHasReservedIPs[path] = len(reserved) > 0
 		networksReservedIPs[path] = reserved
-		summaryRows = append(summaryRows, map[string]string{
-			"Network":     networkTreePrefix + fmt.Sprintf("[`%s`](#%s)", n.ID, networksAnchor[path]),
-			"Name":        ternaryText(n.DisplayName, "`"+n.DisplayName+"`", "-"),
-			"Allocation":  networksMode[path],
-			"Description": ternaryText(n.Description, n.Description, "-"),
-		})
+		overviewLines = append(overviewLines, buildOverviewLine(
+			depth,
+			fmt.Sprintf("[`%s`](#%s)", n.ID, networksAnchor[path]),
+			n.DisplayName,
+			networksMode[path],
+			n.Description,
+		))
 
 		if len(reserved) > 0 {
-			ipAncestorHasNext := append(append([]bool{}, ancestorHasNext...), !isLast)
-			for i, ip := range reserved {
-				ipTreePrefix := buildTreePrefix(ipAncestorHasNext, i == len(reserved)-1)
-				summaryRows = append(summaryRows, map[string]string{
-					"Network":     ipTreePrefix + fmt.Sprintf("`%s`", ip["Address"]),
-					"Name":        ternaryText(ip["DisplayName"], "`"+ip["DisplayName"]+"`", "-"),
-					"Allocation":  "Reserved IP",
-					"Description": ternaryText(ip["Description"], ip["Description"], "-"),
-				})
+			for _, ip := range reserved {
+				overviewLines = append(overviewLines, buildOverviewLine(
+					depth+1,
+					fmt.Sprintf("`%s`", ip["Address"]),
+					ip["DisplayName"],
+					"Reserved IP",
+					ip["Description"],
+				))
 			}
 		}
 
@@ -969,9 +949,8 @@ func save() {
 			}
 			networkChildren = append(networkChildren, nn)
 		}
-		for i, childNetwork := range networkChildren {
-			childAncestors := append(append([]bool{}, ancestorHasNext...), !isLast)
-			recursivelyPopulateNetworksData(childNetwork, depth+1, childAncestors, i == len(networkChildren)-1)
+		for _, childNetwork := range networkChildren {
+			recursivelyPopulateNetworksData(childNetwork, depth+1)
 		}
 	}
 
@@ -984,8 +963,8 @@ func save() {
 		}
 		topLevelNetworks = append(topLevelNetworks, n)
 	}
-	for i, topLevelNetwork := range topLevelNetworks {
-		recursivelyPopulateNetworksData(topLevelNetwork, 0, []bool{}, i == len(topLevelNetworks)-1)
+	for _, topLevelNetwork := range topLevelNetworks {
+		recursivelyPopulateNetworksData(topLevelNetwork, 0)
 	}
 
 	template := template.Must(template.New(markdownFileName).Parse(markdownTmpl))
@@ -1003,7 +982,7 @@ func save() {
 		"NetworksData":           networksData,
 		"NetworksHasReservedIPs": networksHasReservedIPs,
 		"NetworksReservedIPs":    networksReservedIPs,
-		"SummaryRows":            summaryRows,
+		"OverviewLines":          overviewLines,
 	}
 
 	mdFile, err := os.Create(filepath.Join(currentDir, markdownFileName))
@@ -1089,11 +1068,29 @@ func wrappedLineCount(text string, width int) int {
 	return totalLines
 }
 
-func ternaryText(value, ifNonEmpty, ifEmpty string) string {
-	if strings.TrimSpace(value) != "" {
-		return ifNonEmpty
+func buildOverviewLine(depth int, label, name, allocation, description string) string {
+	line := strings.Repeat("  ", depth) + "- " + label
+
+	if trimmedName := strings.TrimSpace(name); trimmedName != "" {
+		line += " -- **" + markdownInline(trimmedName) + "**"
 	}
-	return ifEmpty
+
+	if trimmedAllocation := strings.TrimSpace(allocation); trimmedAllocation != "" {
+		line += " _(" + markdownInline(trimmedAllocation) + ")_"
+	}
+
+	if trimmedDescription := strings.TrimSpace(description); trimmedDescription != "" {
+		line += " -- " + markdownInline(trimmedDescription)
+	}
+
+	return line
+}
+
+func markdownInline(value string) string {
+	value = strings.ReplaceAll(value, "\n", " ")
+	value = strings.ReplaceAll(value, "\r", " ")
+	value = strings.ReplaceAll(value, "|", "\\|")
+	return value
 }
 
 func getFormItemByLabel(form *tview.Form, label string) (int, tview.FormItem) {
