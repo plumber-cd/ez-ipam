@@ -1,4 +1,4 @@
 description: Default gateway
 display_name: gateway
 id: 192.168.0.1
-parent: Networks -> 192.168.0.0/16 -> 192.168.0.0/24
+parent: Networks -> 192.168.0.0/16 -> 192.168.0.0/18

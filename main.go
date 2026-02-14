@@ -1132,11 +1132,28 @@ func save() {
 			ipAncestorHasNext := append(append([]bool{}, ancestorHasNext...), !isLast)
 			for i, ip := range reserved {
 				ipTreePrefix := buildTreePrefix(ipAncestorHasNext, i == len(reserved)-1)
+				ipVLAN := "-"
+				if n.VLANID > 0 {
+					ipVLAN = strconv.Itoa(n.VLANID)
+					vlansMenu := menuItems.GetByParentAndID(nil, "VLANs")
+					if vlansMenu != nil {
+						for _, menuItem := range menuItems.GetChilds(vlansMenu) {
+							vlan, ok := menuItem.(*VLAN)
+							if !ok {
+								continue
+							}
+							if vlan.ID == strconv.Itoa(n.VLANID) {
+								ipVLAN = fmt.Sprintf("%s (%s)", vlan.ID, vlan.DisplayName)
+								break
+							}
+						}
+					}
+				}
 				summaryRows = append(summaryRows, map[string]string{
 					"Network":     markdownCode(ipTreePrefix + ip["Address"]),
 					"Name":        markdownInline(defaultIfEmpty(ip["DisplayName"], "-")),
 					"Allocation":  "Reserved IP",
-					"VLAN":        "-",
+					"VLAN":        markdownInline(ipVLAN),
 					"Description": markdownInline(clampOverviewDescription(defaultIfEmpty(ip["Description"], "-"), 60)),
 				})
 			}

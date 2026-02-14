@@ -1,6 +1,0 @@
-allocation_mode: 2
-description: Laptops and phones
-display_name: Home Users
-id: 192.168.1.0/24
-parent: Networks -> 192.168.0.0/16
-vlan_id: 20

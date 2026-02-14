@@ -1,5 +1,0 @@
-allocation_mode: 0
-description: ""
-display_name: ""
-id: 192.168.111.0/24
-parent: Networks -> 192.168.0.0/16

@@ -1,0 +1,6 @@
+allocation_mode: 2
+description: Cameras and sensors
+display_name: Home IoT
+id: 192.168.128.0/18
+parent: Networks -> 192.168.0.0/16
+vlan_id: 30
