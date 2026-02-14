@@ -10,8 +10,8 @@
 ║                        ║│fd00::ffff:ffff:ffff:ffff                           │
 ║                        ║│Total /64 Networks  : 1                             │
 ║                        ║│Allocation Mode     : Unallocated                   │
-║                        ║│                                                    │
-║                        ║│                                                    │
+║                        ║│Mode Meaning        : Can be split or assigned as   │
+║                        ║│Subnet Container / Host Pool.                       │
 ║                        ║│                                                    │
 ║                        ║│                                                    │
 ║                        ║│                                                    │

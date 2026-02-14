@@ -4,197 +4,197 @@
 
 ## Overview
 
-> Legend: `Subnets` contains child networks, `Hosts` contains reservable IPs, and `Reserved IP` is a concrete host reservation.
+> Legend: `Subnet Container` holds child networks, `Host Pool` holds reservable IPs, and `Reserved IP` is a concrete host reservation.
 
 | Network | Name | Allocation | Description |
 |---------|------|------------|-------------|
-| `10.0.0.0/12` [link](#network-0a000000_12) | AWS | Subnets | AWS cloud supernet |
-| `| ├── 10.0.0.0/14` [link](#network-0a000000_14) | AWS us-east-1 VPC | Subnets | AWS us-east-1 VPC multi-tier |
-| `| | ├── 10.0.0.0/16` [link](#network-0a000000_16) | Public | Subnets | Public tier across AZs |
-| `| | | ├── 10.0.0.0/18` [link](#network-0a000000_18) | Public AZ-a | Hosts | Public hosts in AZ-a |
-| `| | | | ├── 10.0.0.1` | gateway | Reserved IP | Default gateway |
-| `| | | | ├── 10.0.0.2` | dns | Reserved IP | Resolver |
-| `| | | | └── 10.0.0.10` | nat | Reserved IP | NAT/egress |
-| `| | | ├── 10.0.64.0/18` [link](#network-0a004000_18) | - | Unallocated | - |
-| `| | | ├── 10.0.128.0/18` [link](#network-0a008000_18) | - | Unallocated | - |
-| `| | | └── 10.0.192.0/18` [link](#network-0a00c000_18) | - | Unallocated | - |
-| `| | ├── 10.1.0.0/16` [link](#network-0a010000_16) | Private | Subnets | Private tier across AZs |
-| `| | | ├── 10.1.0.0/18` [link](#network-0a010000_18) | Private AZ-a | Hosts | Private hosts in AZ-a |
-| `| | | | ├── 10.1.0.1` | gateway | Reserved IP | Default gateway |
-| `| | | | ├── 10.1.0.2` | dns | Reserved IP | Resolver |
-| `| | | | └── 10.1.0.10` | app-lb | Reserved IP | Internal LB |
-| `| | | ├── 10.1.64.0/18` [link](#network-0a014000_18) | - | Unallocated | - |
-| `| | | ├── 10.1.128.0/18` [link](#network-0a018000_18) | - | Unallocated | - |
-| `| | | └── 10.1.192.0/18` [link](#network-0a01c000_18) | - | Unallocated | - |
-| `| | ├── 10.2.0.0/16` [link](#network-0a020000_16) | Backend | Subnets | Backend tier across AZs |
-| `| | | ├── 10.2.0.0/18` [link](#network-0a020000_18) | Backend AZ-a | Hosts | Backend hosts in AZ-a |
-| `| | | | ├── 10.2.0.1` | gateway | Reserved IP | Default gateway |
-| `| | | | ├── 10.2.0.2` | dns | Reserved IP | Resolver |
-| `| | | | └── 10.2.0.10` | db | Reserved IP | Database VIP |
-| `| | | ├── 10.2.64.0/18` [link](#network-0a024000_18) | - | Unallocated | - |
-| `| | | ├── 10.2.128.0/18` [link](#network-0a028000_18) | - | Unallocated | - |
-| `| | | └── 10.2.192.0/18` [link](#network-0a02c000_18) | - | Unallocated | - |
-| `| | └── 10.3.0.0/16` [link](#network-0a030000_16) | - | Unallocated | - |
-| `| ├── 10.4.0.0/14` [link](#network-0a040000_14) | AWS eu-west-1 VPC | Subnets | AWS eu-west-1 VPC multi-tier |
-| `| | ├── 10.4.0.0/16` [link](#network-0a040000_16) | Public | Subnets | Public tier across AZs |
-| `| | | ├── 10.4.0.0/18` [link](#network-0a040000_18) | - | Unallocated | - |
-| `| | | ├── 10.4.64.0/18` [link](#network-0a044000_18) | - | Unallocated | - |
-| `| | | ├── 10.4.128.0/18` [link](#network-0a048000_18) | - | Unallocated | - |
-| `| | | └── 10.4.192.0/18` [link](#network-0a04c000_18) | - | Unallocated | - |
-| `| | ├── 10.5.0.0/16` [link](#network-0a050000_16) | Private | Subnets | Private tier across AZs |
-| `| | | ├── 10.5.0.0/18` [link](#network-0a050000_18) | - | Unallocated | - |
-| `| | | ├── 10.5.64.0/18` [link](#network-0a054000_18) | - | Unallocated | - |
-| `| | | ├── 10.5.128.0/18` [link](#network-0a058000_18) | - | Unallocated | - |
-| `| | | └── 10.5.192.0/18` [link](#network-0a05c000_18) | - | Unallocated | - |
-| `| | ├── 10.6.0.0/16` [link](#network-0a060000_16) | Backend | Subnets | Backend tier across AZs |
-| `| | | ├── 10.6.0.0/18` [link](#network-0a060000_18) | - | Unallocated | - |
-| `| | | ├── 10.6.64.0/18` [link](#network-0a064000_18) | - | Unallocated | - |
-| `| | | ├── 10.6.128.0/18` [link](#network-0a068000_18) | - | Unallocated | - |
-| `| | | └── 10.6.192.0/18` [link](#network-0a06c000_18) | - | Unallocated | - |
-| `| | └── 10.7.0.0/16` [link](#network-0a070000_16) | - | Unallocated | - |
-| `| ├── 10.8.0.0/14` [link](#network-0a080000_14) | - | Unallocated | - |
-| `| └── 10.12.0.0/14` [link](#network-0a0c0000_14) | - | Unallocated | - |
-| `10.16.0.0/12` [link](#network-0a100000_12) | GCP | Subnets | GCP cloud supernet |
-| `| ├── 10.16.0.0/14` [link](#network-0a100000_14) | GCP us-east-1 VPC | Subnets | GCP us-east-1 VPC multi-tier |
-| `| | ├── 10.16.0.0/16` [link](#network-0a100000_16) | Public | Subnets | Public tier across AZs |
-| `| | | ├── 10.16.0.0/18` [link](#network-0a100000_18) | Public AZ-a | Hosts | Public hosts in AZ-a |
-| `| | | | ├── 10.16.0.1` | gateway | Reserved IP | Default gateway |
-| `| | | | ├── 10.16.0.2` | dns | Reserved IP | Resolver |
-| `| | | | └── 10.16.0.10` | nat | Reserved IP | NAT/egress |
-| `| | | ├── 10.16.64.0/18` [link](#network-0a104000_18) | - | Unallocated | - |
-| `| | | ├── 10.16.128.0/18` [link](#network-0a108000_18) | - | Unallocated | - |
-| `| | | └── 10.16.192.0/18` [link](#network-0a10c000_18) | - | Unallocated | - |
-| `| | ├── 10.17.0.0/16` [link](#network-0a110000_16) | Private | Subnets | Private tier across AZs |
-| `| | | ├── 10.17.0.0/18` [link](#network-0a110000_18) | Private AZ-a | Hosts | Private hosts in AZ-a |
-| `| | | | ├── 10.17.0.1` | gateway | Reserved IP | Default gateway |
-| `| | | | ├── 10.17.0.2` | dns | Reserved IP | Resolver |
-| `| | | | └── 10.17.0.10` | app-lb | Reserved IP | Internal LB |
-| `| | | ├── 10.17.64.0/18` [link](#network-0a114000_18) | - | Unallocated | - |
-| `| | | ├── 10.17.128.0/18` [link](#network-0a118000_18) | - | Unallocated | - |
-| `| | | └── 10.17.192.0/18` [link](#network-0a11c000_18) | - | Unallocated | - |
-| `| | ├── 10.18.0.0/16` [link](#network-0a120000_16) | Backend | Subnets | Backend tier across AZs |
-| `| | | ├── 10.18.0.0/18` [link](#network-0a120000_18) | Backend AZ-a | Hosts | Backend hosts in AZ-a |
-| `| | | | ├── 10.18.0.1` | gateway | Reserved IP | Default gateway |
-| `| | | | ├── 10.18.0.2` | dns | Reserved IP | Resolver |
-| `| | | | └── 10.18.0.10` | db | Reserved IP | Database VIP |
-| `| | | ├── 10.18.64.0/18` [link](#network-0a124000_18) | - | Unallocated | - |
-| `| | | ├── 10.18.128.0/18` [link](#network-0a128000_18) | - | Unallocated | - |
-| `| | | └── 10.18.192.0/18` [link](#network-0a12c000_18) | - | Unallocated | - |
-| `| | └── 10.19.0.0/16` [link](#network-0a130000_16) | - | Unallocated | - |
-| `| ├── 10.20.0.0/14` [link](#network-0a140000_14) | GCP eu-west-1 VPC | Subnets | GCP eu-west-1 VPC multi-tier |
-| `| | ├── 10.20.0.0/16` [link](#network-0a140000_16) | Public | Subnets | Public tier across AZs |
-| `| | | ├── 10.20.0.0/18` [link](#network-0a140000_18) | - | Unallocated | - |
-| `| | | ├── 10.20.64.0/18` [link](#network-0a144000_18) | - | Unallocated | - |
-| `| | | ├── 10.20.128.0/18` [link](#network-0a148000_18) | - | Unallocated | - |
-| `| | | └── 10.20.192.0/18` [link](#network-0a14c000_18) | - | Unallocated | - |
-| `| | ├── 10.21.0.0/16` [link](#network-0a150000_16) | Private | Subnets | Private tier across AZs |
-| `| | | ├── 10.21.0.0/18` [link](#network-0a150000_18) | - | Unallocated | - |
-| `| | | ├── 10.21.64.0/18` [link](#network-0a154000_18) | - | Unallocated | - |
-| `| | | ├── 10.21.128.0/18` [link](#network-0a158000_18) | - | Unallocated | - |
-| `| | | └── 10.21.192.0/18` [link](#network-0a15c000_18) | - | Unallocated | - |
-| `| | ├── 10.22.0.0/16` [link](#network-0a160000_16) | Backend | Subnets | Backend tier across AZs |
-| `| | | ├── 10.22.0.0/18` [link](#network-0a160000_18) | - | Unallocated | - |
-| `| | | ├── 10.22.64.0/18` [link](#network-0a164000_18) | - | Unallocated | - |
-| `| | | ├── 10.22.128.0/18` [link](#network-0a168000_18) | - | Unallocated | - |
-| `| | | └── 10.22.192.0/18` [link](#network-0a16c000_18) | - | Unallocated | - |
-| `| | └── 10.23.0.0/16` [link](#network-0a170000_16) | - | Unallocated | - |
-| `| ├── 10.24.0.0/14` [link](#network-0a180000_14) | - | Unallocated | - |
-| `| └── 10.28.0.0/14` [link](#network-0a1c0000_14) | - | Unallocated | - |
-| `10.32.0.0/12` [link](#network-0a200000_12) | Azure | Subnets | Azure cloud supernet |
-| `| ├── 10.32.0.0/14` [link](#network-0a200000_14) | Azure us-east-1 VPC | Subnets | Azure us-east-1 VPC multi-tier |
-| `| | ├── 10.32.0.0/16` [link](#network-0a200000_16) | Public | Subnets | Public tier across AZs |
-| `| | | ├── 10.32.0.0/18` [link](#network-0a200000_18) | Public AZ-a | Hosts | Public hosts in AZ-a |
-| `| | | | ├── 10.32.0.1` | gateway | Reserved IP | Default gateway |
-| `| | | | ├── 10.32.0.2` | dns | Reserved IP | Resolver |
-| `| | | | └── 10.32.0.10` | nat | Reserved IP | NAT/egress |
-| `| | | ├── 10.32.64.0/18` [link](#network-0a204000_18) | - | Unallocated | - |
-| `| | | ├── 10.32.128.0/18` [link](#network-0a208000_18) | - | Unallocated | - |
-| `| | | └── 10.32.192.0/18` [link](#network-0a20c000_18) | - | Unallocated | - |
-| `| | ├── 10.33.0.0/16` [link](#network-0a210000_16) | Private | Subnets | Private tier across AZs |
-| `| | | ├── 10.33.0.0/18` [link](#network-0a210000_18) | Private AZ-a | Hosts | Private hosts in AZ-a |
-| `| | | | ├── 10.33.0.1` | gateway | Reserved IP | Default gateway |
-| `| | | | ├── 10.33.0.2` | dns | Reserved IP | Resolver |
-| `| | | | └── 10.33.0.10` | app-lb | Reserved IP | Internal LB |
-| `| | | ├── 10.33.64.0/18` [link](#network-0a214000_18) | - | Unallocated | - |
-| `| | | ├── 10.33.128.0/18` [link](#network-0a218000_18) | - | Unallocated | - |
-| `| | | └── 10.33.192.0/18` [link](#network-0a21c000_18) | - | Unallocated | - |
-| `| | ├── 10.34.0.0/16` [link](#network-0a220000_16) | Backend | Subnets | Backend tier across AZs |
-| `| | | ├── 10.34.0.0/18` [link](#network-0a220000_18) | Backend AZ-a | Hosts | Backend hosts in AZ-a |
-| `| | | | ├── 10.34.0.1` | gateway | Reserved IP | Default gateway |
-| `| | | | ├── 10.34.0.2` | dns | Reserved IP | Resolver |
-| `| | | | └── 10.34.0.10` | db | Reserved IP | Database VIP |
-| `| | | ├── 10.34.64.0/18` [link](#network-0a224000_18) | - | Unallocated | - |
-| `| | | ├── 10.34.128.0/18` [link](#network-0a228000_18) | - | Unallocated | - |
-| `| | | └── 10.34.192.0/18` [link](#network-0a22c000_18) | - | Unallocated | - |
-| `| | └── 10.35.0.0/16` [link](#network-0a230000_16) | - | Unallocated | - |
-| `| ├── 10.36.0.0/14` [link](#network-0a240000_14) | Azure eu-west-1 VPC | Subnets | Azure eu-west-1 VPC multi-tier |
-| `| | ├── 10.36.0.0/16` [link](#network-0a240000_16) | Public | Subnets | Public tier across AZs |
-| `| | | ├── 10.36.0.0/18` [link](#network-0a240000_18) | - | Unallocated | - |
-| `| | | ├── 10.36.64.0/18` [link](#network-0a244000_18) | - | Unallocated | - |
-| `| | | ├── 10.36.128.0/18` [link](#network-0a248000_18) | - | Unallocated | - |
-| `| | | └── 10.36.192.0/18` [link](#network-0a24c000_18) | - | Unallocated | - |
-| `| | ├── 10.37.0.0/16` [link](#network-0a250000_16) | Private | Subnets | Private tier across AZs |
-| `| | | ├── 10.37.0.0/18` [link](#network-0a250000_18) | - | Unallocated | - |
-| `| | | ├── 10.37.64.0/18` [link](#network-0a254000_18) | - | Unallocated | - |
-| `| | | ├── 10.37.128.0/18` [link](#network-0a258000_18) | - | Unallocated | - |
-| `| | | └── 10.37.192.0/18` [link](#network-0a25c000_18) | - | Unallocated | - |
-| `| | ├── 10.38.0.0/16` [link](#network-0a260000_16) | Backend | Subnets | Backend tier across AZs |
-| `| | | ├── 10.38.0.0/18` [link](#network-0a260000_18) | - | Unallocated | - |
-| `| | | ├── 10.38.64.0/18` [link](#network-0a264000_18) | - | Unallocated | - |
-| `| | | ├── 10.38.128.0/18` [link](#network-0a268000_18) | - | Unallocated | - |
-| `| | | └── 10.38.192.0/18` [link](#network-0a26c000_18) | - | Unallocated | - |
-| `| | └── 10.39.0.0/16` [link](#network-0a270000_16) | - | Unallocated | - |
-| `| ├── 10.40.0.0/14` [link](#network-0a280000_14) | - | Unallocated | - |
-| `| └── 10.44.0.0/14` [link](#network-0a2c0000_14) | - | Unallocated | - |
-| `fd10::/32` [link](#network-fd100000000000000000000000000000_32) | AWS IPv6 | Subnets | AWS dual-stack IPv6 supernet |
-| `| ├── fd10::/36` [link](#network-fd100000000000000000000000000000_36) | AWS us-east-1 VPC v6 | Hosts | IPv6 regional VPC in us-east-1 |
-| `| | ├── fd10::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
-| `| | └── fd10::53` | dns-v6 | Reserved IP | Resolver IPv6 |
-| `| ├── fd10:0:1000::/36` [link](#network-fd100000100000000000000000000000_36) | AWS eu-west-1 VPC v6 | Hosts | IPv6 regional VPC in eu-west-1 |
-| `| | ├── fd10:0:1000::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
-| `| | └── fd10:0:1000::53` | dns-v6 | Reserved IP | Resolver IPv6 |
-| `| ├── fd10:0:2000::/36` [link](#network-fd100000200000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd10:0:3000::/36` [link](#network-fd100000300000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd10:0:4000::/36` [link](#network-fd100000400000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd10:0:5000::/36` [link](#network-fd100000500000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd10:0:6000::/36` [link](#network-fd100000600000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd10:0:7000::/36` [link](#network-fd100000700000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd10:0:8000::/36` [link](#network-fd100000800000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd10:0:9000::/36` [link](#network-fd100000900000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd10:0:a000::/36` [link](#network-fd100000a00000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd10:0:b000::/36` [link](#network-fd100000b00000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd10:0:c000::/36` [link](#network-fd100000c00000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd10:0:d000::/36` [link](#network-fd100000d00000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd10:0:e000::/36` [link](#network-fd100000e00000000000000000000000_36) | - | Unallocated | - |
-| `| └── fd10:0:f000::/36` [link](#network-fd100000f00000000000000000000000_36) | - | Unallocated | - |
-| `fd20::/32` [link](#network-fd200000000000000000000000000000_32) | GCP IPv6 | Subnets | GCP dual-stack IPv6 supernet |
-| `| ├── fd20::/36` [link](#network-fd200000000000000000000000000000_36) | GCP us-east-1 VPC v6 | Hosts | IPv6 regional VPC in us-east-1 |
-| `| | ├── fd20::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
-| `| | └── fd20::53` | dns-v6 | Reserved IP | Resolver IPv6 |
-| `| ├── fd20:0:1000::/36` [link](#network-fd200000100000000000000000000000_36) | GCP eu-west-1 VPC v6 | Hosts | IPv6 regional VPC in eu-west-1 |
-| `| | ├── fd20:0:1000::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
-| `| | └── fd20:0:1000::53` | dns-v6 | Reserved IP | Resolver IPv6 |
-| `| ├── fd20:0:2000::/36` [link](#network-fd200000200000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd20:0:3000::/36` [link](#network-fd200000300000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd20:0:4000::/36` [link](#network-fd200000400000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd20:0:5000::/36` [link](#network-fd200000500000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd20:0:6000::/36` [link](#network-fd200000600000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd20:0:7000::/36` [link](#network-fd200000700000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd20:0:8000::/36` [link](#network-fd200000800000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd20:0:9000::/36` [link](#network-fd200000900000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd20:0:a000::/36` [link](#network-fd200000a00000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd20:0:b000::/36` [link](#network-fd200000b00000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd20:0:c000::/36` [link](#network-fd200000c00000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd20:0:d000::/36` [link](#network-fd200000d00000000000000000000000_36) | - | Unallocated | - |
-| `| ├── fd20:0:e000::/36` [link](#network-fd200000e00000000000000000000000_36) | - | Unallocated | - |
-| `| └── fd20:0:f000::/36` [link](#network-fd200000f00000000000000000000000_36) | - | Unallocated | - |
-| `fd30::/32` [link](#network-fd300000000000000000000000000000_32) | Azure IPv6 | Subnets | Azure dual-stack IPv6 supernet |
-| `  ├── fd30::/36` [link](#network-fd300000000000000000000000000000_36) | Azure us-east-1 VPC v6 | Hosts | IPv6 regional VPC in us-east-1 |
-| `  | ├── fd30::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
-| `  | └── fd30::53` | dns-v6 | Reserved IP | Resolver IPv6 |
-| `  ├── fd30:0:1000::/36` [link](#network-fd300000100000000000000000000000_36) | Azure eu-west-1 VPC v6 | Hosts | IPv6 regional VPC in eu-west-1 |
-| `  | ├── fd30:0:1000::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
-| `  | └── fd30:0:1000::53` | dns-v6 | Reserved IP | Resolver IPv6 |
+| `10.0.0.0/12` [link](#network-0a000000_12) | AWS | Subnet Container | AWS cloud supernet |
+| `│ ├── 10.0.0.0/14` [link](#network-0a000000_14) | AWS us-east-1 VPC | Subnet Container | AWS us-east-1 VPC multi-tier |
+| `│ │ ├── 10.0.0.0/16` [link](#network-0a000000_16) | Public | Subnet Container | Public tier across AZs |
+| `│ │ │ ├── 10.0.0.0/18` [link](#network-0a000000_18) | Public AZ-a | Host Pool | Public hosts in AZ-a |
+| `│ │ │ │ ├── 10.0.0.1` | gateway | Reserved IP | Default gateway |
+| `│ │ │ │ ├── 10.0.0.2` | dns | Reserved IP | Resolver |
+| `│ │ │ │ └── 10.0.0.10` | nat | Reserved IP | NAT/egress |
+| `│ │ │ ├── 10.0.64.0/18` [link](#network-0a004000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.0.128.0/18` [link](#network-0a008000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.0.192.0/18` [link](#network-0a00c000_18) | - | Unallocated | - |
+| `│ │ ├── 10.1.0.0/16` [link](#network-0a010000_16) | Private | Subnet Container | Private tier across AZs |
+| `│ │ │ ├── 10.1.0.0/18` [link](#network-0a010000_18) | Private AZ-a | Host Pool | Private hosts in AZ-a |
+| `│ │ │ │ ├── 10.1.0.1` | gateway | Reserved IP | Default gateway |
+| `│ │ │ │ ├── 10.1.0.2` | dns | Reserved IP | Resolver |
+| `│ │ │ │ └── 10.1.0.10` | app-lb | Reserved IP | Internal LB |
+| `│ │ │ ├── 10.1.64.0/18` [link](#network-0a014000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.1.128.0/18` [link](#network-0a018000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.1.192.0/18` [link](#network-0a01c000_18) | - | Unallocated | - |
+| `│ │ ├── 10.2.0.0/16` [link](#network-0a020000_16) | Backend | Subnet Container | Backend tier across AZs |
+| `│ │ │ ├── 10.2.0.0/18` [link](#network-0a020000_18) | Backend AZ-a | Host Pool | Backend hosts in AZ-a |
+| `│ │ │ │ ├── 10.2.0.1` | gateway | Reserved IP | Default gateway |
+| `│ │ │ │ ├── 10.2.0.2` | dns | Reserved IP | Resolver |
+| `│ │ │ │ └── 10.2.0.10` | db | Reserved IP | Database VIP |
+| `│ │ │ ├── 10.2.64.0/18` [link](#network-0a024000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.2.128.0/18` [link](#network-0a028000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.2.192.0/18` [link](#network-0a02c000_18) | - | Unallocated | - |
+| `│ │ └── 10.3.0.0/16` [link](#network-0a030000_16) | - | Unallocated | - |
+| `│ ├── 10.4.0.0/14` [link](#network-0a040000_14) | AWS eu-west-1 VPC | Subnet Container | AWS eu-west-1 VPC multi-tier |
+| `│ │ ├── 10.4.0.0/16` [link](#network-0a040000_16) | Public | Subnet Container | Public tier across AZs |
+| `│ │ │ ├── 10.4.0.0/18` [link](#network-0a040000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.4.64.0/18` [link](#network-0a044000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.4.128.0/18` [link](#network-0a048000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.4.192.0/18` [link](#network-0a04c000_18) | - | Unallocated | - |
+| `│ │ ├── 10.5.0.0/16` [link](#network-0a050000_16) | Private | Subnet Container | Private tier across AZs |
+| `│ │ │ ├── 10.5.0.0/18` [link](#network-0a050000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.5.64.0/18` [link](#network-0a054000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.5.128.0/18` [link](#network-0a058000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.5.192.0/18` [link](#network-0a05c000_18) | - | Unallocated | - |
+| `│ │ ├── 10.6.0.0/16` [link](#network-0a060000_16) | Backend | Subnet Container | Backend tier across AZs |
+| `│ │ │ ├── 10.6.0.0/18` [link](#network-0a060000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.6.64.0/18` [link](#network-0a064000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.6.128.0/18` [link](#network-0a068000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.6.192.0/18` [link](#network-0a06c000_18) | - | Unallocated | - |
+| `│ │ └── 10.7.0.0/16` [link](#network-0a070000_16) | - | Unallocated | - |
+| `│ ├── 10.8.0.0/14` [link](#network-0a080000_14) | - | Unallocated | - |
+| `│ └── 10.12.0.0/14` [link](#network-0a0c0000_14) | - | Unallocated | - |
+| `10.16.0.0/12` [link](#network-0a100000_12) | GCP | Subnet Container | GCP cloud supernet |
+| `│ ├── 10.16.0.0/14` [link](#network-0a100000_14) | GCP us-east-1 VPC | Subnet Container | GCP us-east-1 VPC multi-tier |
+| `│ │ ├── 10.16.0.0/16` [link](#network-0a100000_16) | Public | Subnet Container | Public tier across AZs |
+| `│ │ │ ├── 10.16.0.0/18` [link](#network-0a100000_18) | Public AZ-a | Host Pool | Public hosts in AZ-a |
+| `│ │ │ │ ├── 10.16.0.1` | gateway | Reserved IP | Default gateway |
+| `│ │ │ │ ├── 10.16.0.2` | dns | Reserved IP | Resolver |
+| `│ │ │ │ └── 10.16.0.10` | nat | Reserved IP | NAT/egress |
+| `│ │ │ ├── 10.16.64.0/18` [link](#network-0a104000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.16.128.0/18` [link](#network-0a108000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.16.192.0/18` [link](#network-0a10c000_18) | - | Unallocated | - |
+| `│ │ ├── 10.17.0.0/16` [link](#network-0a110000_16) | Private | Subnet Container | Private tier across AZs |
+| `│ │ │ ├── 10.17.0.0/18` [link](#network-0a110000_18) | Private AZ-a | Host Pool | Private hosts in AZ-a |
+| `│ │ │ │ ├── 10.17.0.1` | gateway | Reserved IP | Default gateway |
+| `│ │ │ │ ├── 10.17.0.2` | dns | Reserved IP | Resolver |
+| `│ │ │ │ └── 10.17.0.10` | app-lb | Reserved IP | Internal LB |
+| `│ │ │ ├── 10.17.64.0/18` [link](#network-0a114000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.17.128.0/18` [link](#network-0a118000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.17.192.0/18` [link](#network-0a11c000_18) | - | Unallocated | - |
+| `│ │ ├── 10.18.0.0/16` [link](#network-0a120000_16) | Backend | Subnet Container | Backend tier across AZs |
+| `│ │ │ ├── 10.18.0.0/18` [link](#network-0a120000_18) | Backend AZ-a | Host Pool | Backend hosts in AZ-a |
+| `│ │ │ │ ├── 10.18.0.1` | gateway | Reserved IP | Default gateway |
+| `│ │ │ │ ├── 10.18.0.2` | dns | Reserved IP | Resolver |
+| `│ │ │ │ └── 10.18.0.10` | db | Reserved IP | Database VIP |
+| `│ │ │ ├── 10.18.64.0/18` [link](#network-0a124000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.18.128.0/18` [link](#network-0a128000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.18.192.0/18` [link](#network-0a12c000_18) | - | Unallocated | - |
+| `│ │ └── 10.19.0.0/16` [link](#network-0a130000_16) | - | Unallocated | - |
+| `│ ├── 10.20.0.0/14` [link](#network-0a140000_14) | GCP eu-west-1 VPC | Subnet Container | GCP eu-west-1 VPC multi-tier |
+| `│ │ ├── 10.20.0.0/16` [link](#network-0a140000_16) | Public | Subnet Container | Public tier across AZs |
+| `│ │ │ ├── 10.20.0.0/18` [link](#network-0a140000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.20.64.0/18` [link](#network-0a144000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.20.128.0/18` [link](#network-0a148000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.20.192.0/18` [link](#network-0a14c000_18) | - | Unallocated | - |
+| `│ │ ├── 10.21.0.0/16` [link](#network-0a150000_16) | Private | Subnet Container | Private tier across AZs |
+| `│ │ │ ├── 10.21.0.0/18` [link](#network-0a150000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.21.64.0/18` [link](#network-0a154000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.21.128.0/18` [link](#network-0a158000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.21.192.0/18` [link](#network-0a15c000_18) | - | Unallocated | - |
+| `│ │ ├── 10.22.0.0/16` [link](#network-0a160000_16) | Backend | Subnet Container | Backend tier across AZs |
+| `│ │ │ ├── 10.22.0.0/18` [link](#network-0a160000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.22.64.0/18` [link](#network-0a164000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.22.128.0/18` [link](#network-0a168000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.22.192.0/18` [link](#network-0a16c000_18) | - | Unallocated | - |
+| `│ │ └── 10.23.0.0/16` [link](#network-0a170000_16) | - | Unallocated | - |
+| `│ ├── 10.24.0.0/14` [link](#network-0a180000_14) | - | Unallocated | - |
+| `│ └── 10.28.0.0/14` [link](#network-0a1c0000_14) | - | Unallocated | - |
+| `10.32.0.0/12` [link](#network-0a200000_12) | Azure | Subnet Container | Azure cloud supernet |
+| `│ ├── 10.32.0.0/14` [link](#network-0a200000_14) | Azure us-east-1 VPC | Subnet Container | Azure us-east-1 VPC multi-tier |
+| `│ │ ├── 10.32.0.0/16` [link](#network-0a200000_16) | Public | Subnet Container | Public tier across AZs |
+| `│ │ │ ├── 10.32.0.0/18` [link](#network-0a200000_18) | Public AZ-a | Host Pool | Public hosts in AZ-a |
+| `│ │ │ │ ├── 10.32.0.1` | gateway | Reserved IP | Default gateway |
+| `│ │ │ │ ├── 10.32.0.2` | dns | Reserved IP | Resolver |
+| `│ │ │ │ └── 10.32.0.10` | nat | Reserved IP | NAT/egress |
+| `│ │ │ ├── 10.32.64.0/18` [link](#network-0a204000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.32.128.0/18` [link](#network-0a208000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.32.192.0/18` [link](#network-0a20c000_18) | - | Unallocated | - |
+| `│ │ ├── 10.33.0.0/16` [link](#network-0a210000_16) | Private | Subnet Container | Private tier across AZs |
+| `│ │ │ ├── 10.33.0.0/18` [link](#network-0a210000_18) | Private AZ-a | Host Pool | Private hosts in AZ-a |
+| `│ │ │ │ ├── 10.33.0.1` | gateway | Reserved IP | Default gateway |
+| `│ │ │ │ ├── 10.33.0.2` | dns | Reserved IP | Resolver |
+| `│ │ │ │ └── 10.33.0.10` | app-lb | Reserved IP | Internal LB |
+| `│ │ │ ├── 10.33.64.0/18` [link](#network-0a214000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.33.128.0/18` [link](#network-0a218000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.33.192.0/18` [link](#network-0a21c000_18) | - | Unallocated | - |
+| `│ │ ├── 10.34.0.0/16` [link](#network-0a220000_16) | Backend | Subnet Container | Backend tier across AZs |
+| `│ │ │ ├── 10.34.0.0/18` [link](#network-0a220000_18) | Backend AZ-a | Host Pool | Backend hosts in AZ-a |
+| `│ │ │ │ ├── 10.34.0.1` | gateway | Reserved IP | Default gateway |
+| `│ │ │ │ ├── 10.34.0.2` | dns | Reserved IP | Resolver |
+| `│ │ │ │ └── 10.34.0.10` | db | Reserved IP | Database VIP |
+| `│ │ │ ├── 10.34.64.0/18` [link](#network-0a224000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.34.128.0/18` [link](#network-0a228000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.34.192.0/18` [link](#network-0a22c000_18) | - | Unallocated | - |
+| `│ │ └── 10.35.0.0/16` [link](#network-0a230000_16) | - | Unallocated | - |
+| `│ ├── 10.36.0.0/14` [link](#network-0a240000_14) | Azure eu-west-1 VPC | Subnet Container | Azure eu-west-1 VPC multi-tier |
+| `│ │ ├── 10.36.0.0/16` [link](#network-0a240000_16) | Public | Subnet Container | Public tier across AZs |
+| `│ │ │ ├── 10.36.0.0/18` [link](#network-0a240000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.36.64.0/18` [link](#network-0a244000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.36.128.0/18` [link](#network-0a248000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.36.192.0/18` [link](#network-0a24c000_18) | - | Unallocated | - |
+| `│ │ ├── 10.37.0.0/16` [link](#network-0a250000_16) | Private | Subnet Container | Private tier across AZs |
+| `│ │ │ ├── 10.37.0.0/18` [link](#network-0a250000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.37.64.0/18` [link](#network-0a254000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.37.128.0/18` [link](#network-0a258000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.37.192.0/18` [link](#network-0a25c000_18) | - | Unallocated | - |
+| `│ │ ├── 10.38.0.0/16` [link](#network-0a260000_16) | Backend | Subnet Container | Backend tier across AZs |
+| `│ │ │ ├── 10.38.0.0/18` [link](#network-0a260000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.38.64.0/18` [link](#network-0a264000_18) | - | Unallocated | - |
+| `│ │ │ ├── 10.38.128.0/18` [link](#network-0a268000_18) | - | Unallocated | - |
+| `│ │ │ └── 10.38.192.0/18` [link](#network-0a26c000_18) | - | Unallocated | - |
+| `│ │ └── 10.39.0.0/16` [link](#network-0a270000_16) | - | Unallocated | - |
+| `│ ├── 10.40.0.0/14` [link](#network-0a280000_14) | - | Unallocated | - |
+| `│ └── 10.44.0.0/14` [link](#network-0a2c0000_14) | - | Unallocated | - |
+| `fd10::/32` [link](#network-fd100000000000000000000000000000_32) | AWS IPv6 | Subnet Container | AWS dual-stack IPv6 supernet |
+| `│ ├── fd10::/36` [link](#network-fd100000000000000000000000000000_36) | AWS us-east-1 VPC v6 | Host Pool | IPv6 regional VPC in us-east-1 |
+| `│ │ ├── fd10::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
+| `│ │ └── fd10::53` | dns-v6 | Reserved IP | Resolver IPv6 |
+| `│ ├── fd10:0:1000::/36` [link](#network-fd100000100000000000000000000000_36) | AWS eu-west-1 VPC v6 | Host Pool | IPv6 regional VPC in eu-west-1 |
+| `│ │ ├── fd10:0:1000::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
+| `│ │ └── fd10:0:1000::53` | dns-v6 | Reserved IP | Resolver IPv6 |
+| `│ ├── fd10:0:2000::/36` [link](#network-fd100000200000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd10:0:3000::/36` [link](#network-fd100000300000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd10:0:4000::/36` [link](#network-fd100000400000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd10:0:5000::/36` [link](#network-fd100000500000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd10:0:6000::/36` [link](#network-fd100000600000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd10:0:7000::/36` [link](#network-fd100000700000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd10:0:8000::/36` [link](#network-fd100000800000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd10:0:9000::/36` [link](#network-fd100000900000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd10:0:a000::/36` [link](#network-fd100000a00000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd10:0:b000::/36` [link](#network-fd100000b00000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd10:0:c000::/36` [link](#network-fd100000c00000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd10:0:d000::/36` [link](#network-fd100000d00000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd10:0:e000::/36` [link](#network-fd100000e00000000000000000000000_36) | - | Unallocated | - |
+| `│ └── fd10:0:f000::/36` [link](#network-fd100000f00000000000000000000000_36) | - | Unallocated | - |
+| `fd20::/32` [link](#network-fd200000000000000000000000000000_32) | GCP IPv6 | Subnet Container | GCP dual-stack IPv6 supernet |
+| `│ ├── fd20::/36` [link](#network-fd200000000000000000000000000000_36) | GCP us-east-1 VPC v6 | Host Pool | IPv6 regional VPC in us-east-1 |
+| `│ │ ├── fd20::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
+| `│ │ └── fd20::53` | dns-v6 | Reserved IP | Resolver IPv6 |
+| `│ ├── fd20:0:1000::/36` [link](#network-fd200000100000000000000000000000_36) | GCP eu-west-1 VPC v6 | Host Pool | IPv6 regional VPC in eu-west-1 |
+| `│ │ ├── fd20:0:1000::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
+| `│ │ └── fd20:0:1000::53` | dns-v6 | Reserved IP | Resolver IPv6 |
+| `│ ├── fd20:0:2000::/36` [link](#network-fd200000200000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd20:0:3000::/36` [link](#network-fd200000300000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd20:0:4000::/36` [link](#network-fd200000400000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd20:0:5000::/36` [link](#network-fd200000500000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd20:0:6000::/36` [link](#network-fd200000600000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd20:0:7000::/36` [link](#network-fd200000700000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd20:0:8000::/36` [link](#network-fd200000800000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd20:0:9000::/36` [link](#network-fd200000900000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd20:0:a000::/36` [link](#network-fd200000a00000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd20:0:b000::/36` [link](#network-fd200000b00000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd20:0:c000::/36` [link](#network-fd200000c00000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd20:0:d000::/36` [link](#network-fd200000d00000000000000000000000_36) | - | Unallocated | - |
+| `│ ├── fd20:0:e000::/36` [link](#network-fd200000e00000000000000000000000_36) | - | Unallocated | - |
+| `│ └── fd20:0:f000::/36` [link](#network-fd200000f00000000000000000000000_36) | - | Unallocated | - |
+| `fd30::/32` [link](#network-fd300000000000000000000000000000_32) | Azure IPv6 | Subnet Container | Azure dual-stack IPv6 supernet |
+| `  ├── fd30::/36` [link](#network-fd300000000000000000000000000000_36) | Azure us-east-1 VPC v6 | Host Pool | IPv6 regional VPC in us-east-1 |
+| `  │ ├── fd30::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
+| `  │ └── fd30::53` | dns-v6 | Reserved IP | Resolver IPv6 |
+| `  ├── fd30:0:1000::/36` [link](#network-fd300000100000000000000000000000_36) | Azure eu-west-1 VPC v6 | Host Pool | IPv6 regional VPC in eu-west-1 |
+| `  │ ├── fd30:0:1000::1` | gateway-v6 | Reserved IP | Default gateway IPv6 |
+| `  │ └── fd30:0:1000::53` | dns-v6 | Reserved IP | Resolver IPv6 |
 | `  ├── fd30:0:2000::/36` [link](#network-fd300000200000000000000000000000_36) | - | Unallocated | - |
 | `  ├── fd30:0:3000::/36` [link](#network-fd300000300000000000000000000000_36) | - | Unallocated | - |
 | `  ├── fd30:0:4000::/36` [link](#network-fd300000400000000000000000000000_36) | - | Unallocated | - |
@@ -226,7 +226,8 @@
 | **Total Hosts** | `1,048,576` |
 | **Usable Range** | `10.0.0.1 - 10.15.255.254` |
 | **Usable Hosts** | `1,048,574` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > AWS cloud supernet
 
@@ -246,7 +247,8 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.0.0.1 - 10.3.255.254` |
 | **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > AWS us-east-1 VPC multi-tier
 
@@ -266,7 +268,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.0.0.1 - 10.0.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Public tier across AZs
 
@@ -286,7 +289,8 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.0.0.1 - 10.0.63.254` |
 | **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > Public hosts in AZ-a
 
@@ -315,6 +319,7 @@
 | **Usable Range** | `10.0.64.1 - 10.0.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -333,6 +338,7 @@
 | **Usable Range** | `10.0.128.1 - 10.0.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -351,6 +357,7 @@
 | **Usable Range** | `10.0.192.1 - 10.0.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -368,7 +375,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.1.0.1 - 10.1.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Private tier across AZs
 
@@ -388,7 +396,8 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.1.0.1 - 10.1.63.254` |
 | **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > Private hosts in AZ-a
 
@@ -417,6 +426,7 @@
 | **Usable Range** | `10.1.64.1 - 10.1.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -435,6 +445,7 @@
 | **Usable Range** | `10.1.128.1 - 10.1.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -453,6 +464,7 @@
 | **Usable Range** | `10.1.192.1 - 10.1.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -470,7 +482,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.2.0.1 - 10.2.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Backend tier across AZs
 
@@ -490,7 +503,8 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.2.0.1 - 10.2.63.254` |
 | **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > Backend hosts in AZ-a
 
@@ -519,6 +533,7 @@
 | **Usable Range** | `10.2.64.1 - 10.2.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -537,6 +552,7 @@
 | **Usable Range** | `10.2.128.1 - 10.2.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -555,6 +571,7 @@
 | **Usable Range** | `10.2.192.1 - 10.2.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -573,6 +590,7 @@
 | **Usable Range** | `10.3.0.1 - 10.3.255.254` |
 | **Usable Hosts** | `65,534` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -590,7 +608,8 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.4.0.1 - 10.7.255.254` |
 | **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > AWS eu-west-1 VPC multi-tier
 
@@ -610,7 +629,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.4.0.1 - 10.4.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Public tier across AZs
 
@@ -631,6 +651,7 @@
 | **Usable Range** | `10.4.0.1 - 10.4.63.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -649,6 +670,7 @@
 | **Usable Range** | `10.4.64.1 - 10.4.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -667,6 +689,7 @@
 | **Usable Range** | `10.4.128.1 - 10.4.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -685,6 +708,7 @@
 | **Usable Range** | `10.4.192.1 - 10.4.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -702,7 +726,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.5.0.1 - 10.5.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Private tier across AZs
 
@@ -723,6 +748,7 @@
 | **Usable Range** | `10.5.0.1 - 10.5.63.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -741,6 +767,7 @@
 | **Usable Range** | `10.5.64.1 - 10.5.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -759,6 +786,7 @@
 | **Usable Range** | `10.5.128.1 - 10.5.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -777,6 +805,7 @@
 | **Usable Range** | `10.5.192.1 - 10.5.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -794,7 +823,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.6.0.1 - 10.6.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Backend tier across AZs
 
@@ -815,6 +845,7 @@
 | **Usable Range** | `10.6.0.1 - 10.6.63.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -833,6 +864,7 @@
 | **Usable Range** | `10.6.64.1 - 10.6.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -851,6 +883,7 @@
 | **Usable Range** | `10.6.128.1 - 10.6.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -869,6 +902,7 @@
 | **Usable Range** | `10.6.192.1 - 10.6.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -887,6 +921,7 @@
 | **Usable Range** | `10.7.0.1 - 10.7.255.254` |
 | **Usable Hosts** | `65,534` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -905,6 +940,7 @@
 | **Usable Range** | `10.8.0.1 - 10.11.255.254` |
 | **Usable Hosts** | `262,142` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -923,6 +959,7 @@
 | **Usable Range** | `10.12.0.1 - 10.15.255.254` |
 | **Usable Hosts** | `262,142` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -940,7 +977,8 @@
 | **Total Hosts** | `1,048,576` |
 | **Usable Range** | `10.16.0.1 - 10.31.255.254` |
 | **Usable Hosts** | `1,048,574` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > GCP cloud supernet
 
@@ -960,7 +998,8 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.16.0.1 - 10.19.255.254` |
 | **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > GCP us-east-1 VPC multi-tier
 
@@ -980,7 +1019,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.16.0.1 - 10.16.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Public tier across AZs
 
@@ -1000,7 +1040,8 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.16.0.1 - 10.16.63.254` |
 | **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > Public hosts in AZ-a
 
@@ -1029,6 +1070,7 @@
 | **Usable Range** | `10.16.64.1 - 10.16.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1047,6 +1089,7 @@
 | **Usable Range** | `10.16.128.1 - 10.16.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1065,6 +1108,7 @@
 | **Usable Range** | `10.16.192.1 - 10.16.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1082,7 +1126,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.17.0.1 - 10.17.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Private tier across AZs
 
@@ -1102,7 +1147,8 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.17.0.1 - 10.17.63.254` |
 | **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > Private hosts in AZ-a
 
@@ -1131,6 +1177,7 @@
 | **Usable Range** | `10.17.64.1 - 10.17.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1149,6 +1196,7 @@
 | **Usable Range** | `10.17.128.1 - 10.17.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1167,6 +1215,7 @@
 | **Usable Range** | `10.17.192.1 - 10.17.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1184,7 +1233,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.18.0.1 - 10.18.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Backend tier across AZs
 
@@ -1204,7 +1254,8 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.18.0.1 - 10.18.63.254` |
 | **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > Backend hosts in AZ-a
 
@@ -1233,6 +1284,7 @@
 | **Usable Range** | `10.18.64.1 - 10.18.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1251,6 +1303,7 @@
 | **Usable Range** | `10.18.128.1 - 10.18.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1269,6 +1322,7 @@
 | **Usable Range** | `10.18.192.1 - 10.18.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1287,6 +1341,7 @@
 | **Usable Range** | `10.19.0.1 - 10.19.255.254` |
 | **Usable Hosts** | `65,534` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1304,7 +1359,8 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.20.0.1 - 10.23.255.254` |
 | **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > GCP eu-west-1 VPC multi-tier
 
@@ -1324,7 +1380,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.20.0.1 - 10.20.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Public tier across AZs
 
@@ -1345,6 +1402,7 @@
 | **Usable Range** | `10.20.0.1 - 10.20.63.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1363,6 +1421,7 @@
 | **Usable Range** | `10.20.64.1 - 10.20.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1381,6 +1440,7 @@
 | **Usable Range** | `10.20.128.1 - 10.20.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1399,6 +1459,7 @@
 | **Usable Range** | `10.20.192.1 - 10.20.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1416,7 +1477,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.21.0.1 - 10.21.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Private tier across AZs
 
@@ -1437,6 +1499,7 @@
 | **Usable Range** | `10.21.0.1 - 10.21.63.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1455,6 +1518,7 @@
 | **Usable Range** | `10.21.64.1 - 10.21.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1473,6 +1537,7 @@
 | **Usable Range** | `10.21.128.1 - 10.21.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1491,6 +1556,7 @@
 | **Usable Range** | `10.21.192.1 - 10.21.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1508,7 +1574,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.22.0.1 - 10.22.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Backend tier across AZs
 
@@ -1529,6 +1596,7 @@
 | **Usable Range** | `10.22.0.1 - 10.22.63.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1547,6 +1615,7 @@
 | **Usable Range** | `10.22.64.1 - 10.22.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1565,6 +1634,7 @@
 | **Usable Range** | `10.22.128.1 - 10.22.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1583,6 +1653,7 @@
 | **Usable Range** | `10.22.192.1 - 10.22.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1601,6 +1672,7 @@
 | **Usable Range** | `10.23.0.1 - 10.23.255.254` |
 | **Usable Hosts** | `65,534` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1619,6 +1691,7 @@
 | **Usable Range** | `10.24.0.1 - 10.27.255.254` |
 | **Usable Hosts** | `262,142` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1637,6 +1710,7 @@
 | **Usable Range** | `10.28.0.1 - 10.31.255.254` |
 | **Usable Hosts** | `262,142` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1654,7 +1728,8 @@
 | **Total Hosts** | `1,048,576` |
 | **Usable Range** | `10.32.0.1 - 10.47.255.254` |
 | **Usable Hosts** | `1,048,574` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Azure cloud supernet
 
@@ -1674,7 +1749,8 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.32.0.1 - 10.35.255.254` |
 | **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Azure us-east-1 VPC multi-tier
 
@@ -1694,7 +1770,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.32.0.1 - 10.32.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Public tier across AZs
 
@@ -1714,7 +1791,8 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.32.0.1 - 10.32.63.254` |
 | **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > Public hosts in AZ-a
 
@@ -1743,6 +1821,7 @@
 | **Usable Range** | `10.32.64.1 - 10.32.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1761,6 +1840,7 @@
 | **Usable Range** | `10.32.128.1 - 10.32.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1779,6 +1859,7 @@
 | **Usable Range** | `10.32.192.1 - 10.32.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1796,7 +1877,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.33.0.1 - 10.33.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Private tier across AZs
 
@@ -1816,7 +1898,8 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.33.0.1 - 10.33.63.254` |
 | **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > Private hosts in AZ-a
 
@@ -1845,6 +1928,7 @@
 | **Usable Range** | `10.33.64.1 - 10.33.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1863,6 +1947,7 @@
 | **Usable Range** | `10.33.128.1 - 10.33.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1881,6 +1966,7 @@
 | **Usable Range** | `10.33.192.1 - 10.33.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1898,7 +1984,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.34.0.1 - 10.34.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Backend tier across AZs
 
@@ -1918,7 +2005,8 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.34.0.1 - 10.34.63.254` |
 | **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > Backend hosts in AZ-a
 
@@ -1947,6 +2035,7 @@
 | **Usable Range** | `10.34.64.1 - 10.34.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1965,6 +2054,7 @@
 | **Usable Range** | `10.34.128.1 - 10.34.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -1983,6 +2073,7 @@
 | **Usable Range** | `10.34.192.1 - 10.34.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2001,6 +2092,7 @@
 | **Usable Range** | `10.35.0.1 - 10.35.255.254` |
 | **Usable Hosts** | `65,534` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2018,7 +2110,8 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.36.0.1 - 10.39.255.254` |
 | **Usable Hosts** | `262,142` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Azure eu-west-1 VPC multi-tier
 
@@ -2038,7 +2131,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.36.0.1 - 10.36.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Public tier across AZs
 
@@ -2059,6 +2153,7 @@
 | **Usable Range** | `10.36.0.1 - 10.36.63.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2077,6 +2172,7 @@
 | **Usable Range** | `10.36.64.1 - 10.36.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2095,6 +2191,7 @@
 | **Usable Range** | `10.36.128.1 - 10.36.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2113,6 +2210,7 @@
 | **Usable Range** | `10.36.192.1 - 10.36.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2130,7 +2228,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.37.0.1 - 10.37.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Private tier across AZs
 
@@ -2151,6 +2250,7 @@
 | **Usable Range** | `10.37.0.1 - 10.37.63.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2169,6 +2269,7 @@
 | **Usable Range** | `10.37.64.1 - 10.37.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2187,6 +2288,7 @@
 | **Usable Range** | `10.37.128.1 - 10.37.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2205,6 +2307,7 @@
 | **Usable Range** | `10.37.192.1 - 10.37.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2222,7 +2325,8 @@
 | **Total Hosts** | `65,536` |
 | **Usable Range** | `10.38.0.1 - 10.38.255.254` |
 | **Usable Hosts** | `65,534` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Backend tier across AZs
 
@@ -2243,6 +2347,7 @@
 | **Usable Range** | `10.38.0.1 - 10.38.63.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2261,6 +2366,7 @@
 | **Usable Range** | `10.38.64.1 - 10.38.127.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2279,6 +2385,7 @@
 | **Usable Range** | `10.38.128.1 - 10.38.191.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2297,6 +2404,7 @@
 | **Usable Range** | `10.38.192.1 - 10.38.255.254` |
 | **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2315,6 +2423,7 @@
 | **Usable Range** | `10.39.0.1 - 10.39.255.254` |
 | **Usable Hosts** | `65,534` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2333,6 +2442,7 @@
 | **Usable Range** | `10.40.0.1 - 10.43.255.254` |
 | **Usable Hosts** | `262,142` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2351,6 +2461,7 @@
 | **Usable Range** | `10.44.0.1 - 10.47.255.254` |
 | **Usable Hosts** | `262,142` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2365,7 +2476,8 @@
 | **Subnet Mask** | `ffff:ffff::` |
 | **Range** | `fd10:: - fd10:0:ffff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `4,294,967,296` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > AWS dual-stack IPv6 supernet
 
@@ -2382,7 +2494,8 @@
 | **Subnet Mask** | `ffff:ffff:f000::` |
 | **Range** | `fd10:: - fd10:0:fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > IPv6 regional VPC in us-east-1
 
@@ -2406,7 +2519,8 @@
 | **Subnet Mask** | `ffff:ffff:f000::` |
 | **Range** | `fd10:0:1000:: - fd10:0:1fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > IPv6 regional VPC in eu-west-1
 
@@ -2431,6 +2545,7 @@
 | **Range** | `fd10:0:2000:: - fd10:0:2fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2446,6 +2561,7 @@
 | **Range** | `fd10:0:3000:: - fd10:0:3fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2461,6 +2577,7 @@
 | **Range** | `fd10:0:4000:: - fd10:0:4fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2476,6 +2593,7 @@
 | **Range** | `fd10:0:5000:: - fd10:0:5fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2491,6 +2609,7 @@
 | **Range** | `fd10:0:6000:: - fd10:0:6fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2506,6 +2625,7 @@
 | **Range** | `fd10:0:7000:: - fd10:0:7fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2521,6 +2641,7 @@
 | **Range** | `fd10:0:8000:: - fd10:0:8fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2536,6 +2657,7 @@
 | **Range** | `fd10:0:9000:: - fd10:0:9fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2551,6 +2673,7 @@
 | **Range** | `fd10:0:a000:: - fd10:0:afff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2566,6 +2689,7 @@
 | **Range** | `fd10:0:b000:: - fd10:0:bfff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2581,6 +2705,7 @@
 | **Range** | `fd10:0:c000:: - fd10:0:cfff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2596,6 +2721,7 @@
 | **Range** | `fd10:0:d000:: - fd10:0:dfff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2611,6 +2737,7 @@
 | **Range** | `fd10:0:e000:: - fd10:0:efff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2626,6 +2753,7 @@
 | **Range** | `fd10:0:f000:: - fd10:0:ffff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2640,7 +2768,8 @@
 | **Subnet Mask** | `ffff:ffff::` |
 | **Range** | `fd20:: - fd20:0:ffff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `4,294,967,296` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > GCP dual-stack IPv6 supernet
 
@@ -2657,7 +2786,8 @@
 | **Subnet Mask** | `ffff:ffff:f000::` |
 | **Range** | `fd20:: - fd20:0:fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > IPv6 regional VPC in us-east-1
 
@@ -2681,7 +2811,8 @@
 | **Subnet Mask** | `ffff:ffff:f000::` |
 | **Range** | `fd20:0:1000:: - fd20:0:1fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > IPv6 regional VPC in eu-west-1
 
@@ -2706,6 +2837,7 @@
 | **Range** | `fd20:0:2000:: - fd20:0:2fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2721,6 +2853,7 @@
 | **Range** | `fd20:0:3000:: - fd20:0:3fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2736,6 +2869,7 @@
 | **Range** | `fd20:0:4000:: - fd20:0:4fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2751,6 +2885,7 @@
 | **Range** | `fd20:0:5000:: - fd20:0:5fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2766,6 +2901,7 @@
 | **Range** | `fd20:0:6000:: - fd20:0:6fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2781,6 +2917,7 @@
 | **Range** | `fd20:0:7000:: - fd20:0:7fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2796,6 +2933,7 @@
 | **Range** | `fd20:0:8000:: - fd20:0:8fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2811,6 +2949,7 @@
 | **Range** | `fd20:0:9000:: - fd20:0:9fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2826,6 +2965,7 @@
 | **Range** | `fd20:0:a000:: - fd20:0:afff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2841,6 +2981,7 @@
 | **Range** | `fd20:0:b000:: - fd20:0:bfff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2856,6 +2997,7 @@
 | **Range** | `fd20:0:c000:: - fd20:0:cfff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2871,6 +3013,7 @@
 | **Range** | `fd20:0:d000:: - fd20:0:dfff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2886,6 +3029,7 @@
 | **Range** | `fd20:0:e000:: - fd20:0:efff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2901,6 +3045,7 @@
 | **Range** | `fd20:0:f000:: - fd20:0:ffff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2915,7 +3060,8 @@
 | **Subnet Mask** | `ffff:ffff::` |
 | **Range** | `fd30:: - fd30:0:ffff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `4,294,967,296` |
-| **Allocation Mode** | `Subnets` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
 
 > Azure dual-stack IPv6 supernet
 
@@ -2932,7 +3078,8 @@
 | **Subnet Mask** | `ffff:ffff:f000::` |
 | **Range** | `fd30:: - fd30:0:fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > IPv6 regional VPC in us-east-1
 
@@ -2956,7 +3103,8 @@
 | **Subnet Mask** | `ffff:ffff:f000::` |
 | **Range** | `fd30:0:1000:: - fd30:0:1fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Hosts` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
 > IPv6 regional VPC in eu-west-1
 
@@ -2981,6 +3129,7 @@
 | **Range** | `fd30:0:2000:: - fd30:0:2fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -2996,6 +3145,7 @@
 | **Range** | `fd30:0:3000:: - fd30:0:3fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -3011,6 +3161,7 @@
 | **Range** | `fd30:0:4000:: - fd30:0:4fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -3026,6 +3177,7 @@
 | **Range** | `fd30:0:5000:: - fd30:0:5fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -3041,6 +3193,7 @@
 | **Range** | `fd30:0:6000:: - fd30:0:6fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -3056,6 +3209,7 @@
 | **Range** | `fd30:0:7000:: - fd30:0:7fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -3071,6 +3225,7 @@
 | **Range** | `fd30:0:8000:: - fd30:0:8fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -3086,6 +3241,7 @@
 | **Range** | `fd30:0:9000:: - fd30:0:9fff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -3101,6 +3257,7 @@
 | **Range** | `fd30:0:a000:: - fd30:0:afff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -3116,6 +3273,7 @@
 | **Range** | `fd30:0:b000:: - fd30:0:bfff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -3131,6 +3289,7 @@
 | **Range** | `fd30:0:c000:: - fd30:0:cfff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -3146,6 +3305,7 @@
 | **Range** | `fd30:0:d000:: - fd30:0:dfff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -3161,6 +3321,7 @@
 | **Range** | `fd30:0:e000:: - fd30:0:efff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
@@ -3176,5 +3337,6 @@
 | **Range** | `fd30:0:f000:: - fd30:0:ffff:ffff:ffff:ffff:ffff:ffff` |
 | **Total /64 Networks** | `268,435,456` |
 | **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---

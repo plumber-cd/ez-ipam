@@ -419,18 +419,18 @@ func setupApp() {
 		cancelDialog := func() {
 			getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Name")
 			getAndClearTextFromTextArea(allocateNetworkSubnetsModeDialog, "Description")
-			getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Prefix Len")
+			getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Child Prefix Len")
 			pages.SwitchToPage(mainPage)
 			app.SetFocus(navigationPanel)
 		}
 		allocateNetworkSubnetsModeDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
 			AddInputField("Name", "", 42, nil, nil).
 			AddTextArea("Description", "", 50, 3, 0, nil).
-			AddInputField("Prefix Len", "", 42, nil, nil).
+			AddInputField("Child Prefix Len", "", 42, nil, nil).
 			AddButton("Save", func() {
 				displayName := getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Name")
 				description := getAndClearTextFromTextArea(allocateNetworkSubnetsModeDialog, "Description")
-				subnetsPrefix := getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Prefix Len")
+				subnetsPrefix := getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Child Prefix Len")
 				subnetsPrefix = strings.TrimLeft(subnetsPrefix, "/")
 				subnetsPrefixInt, err := strconv.Atoi(subnetsPrefix)
 				if err != nil {
@@ -444,7 +444,7 @@ func setupApp() {
 				app.SetFocus(navigationPanel)
 			}).
 			AddButton("Cancel", cancelDialog)
-		allocateNetworkSubnetsModeDialog.SetBorder(true).SetTitle("Allocate Subnets")
+		allocateNetworkSubnetsModeDialog.SetBorder(true).SetTitle("Set as Subnet Container")
 		wireDialogFormKeys(allocateNetworkSubnetsModeDialog, cancelDialog)
 		allocateNetworkSubnetsModeFlex := createDialogPage(allocateNetworkSubnetsModeDialog, width, height)
 		pages.AddPage(allocateNetworkSubnetsModePage, allocateNetworkSubnetsModeFlex, true, false)
@@ -472,7 +472,7 @@ func setupApp() {
 				app.SetFocus(navigationPanel)
 			}).
 			AddButton("Cancel", cancelDialog)
-		allocateNetworkHostsModeDialog.SetBorder(true).SetTitle("Allocate Hosts")
+		allocateNetworkHostsModeDialog.SetBorder(true).SetTitle("Set as Host Pool")
 		wireDialogFormKeys(allocateNetworkHostsModeDialog, cancelDialog)
 		allocateNetworkHostsModeFlex := createDialogPage(allocateNetworkHostsModeDialog, width, height)
 		pages.AddPage(allocateNetworkHostsModePage, allocateNetworkHostsModeFlex, true, false)
@@ -499,7 +499,7 @@ func setupApp() {
 				app.SetFocus(navigationPanel)
 			}).
 			AddButton("Cancel", cancelDialog)
-		updateNetworkAllocationDialog.SetBorder(true).SetTitle("Update Allocation")
+		updateNetworkAllocationDialog.SetBorder(true).SetTitle("Update Metadata")
 		wireDialogFormKeys(updateNetworkAllocationDialog, cancelDialog)
 		updateNetworkAllocationFlex := createDialogPage(updateNetworkAllocationDialog, width, height)
 		pages.AddPage(updateNetworkAllocationPage, updateNetworkAllocationFlex, true, false)
@@ -863,7 +863,7 @@ func save() {
 		stringWriter := new(strings.Builder)
 		for _, hasNext := range ancestorHasNext {
 			if hasNext {
-				stringWriter.WriteString("| ")
+				stringWriter.WriteString("│ ")
 			} else {
 				stringWriter.WriteString("  ")
 			}
@@ -911,14 +911,14 @@ func save() {
 			networksMode[path] = "Unallocated"
 			networksTitle[path] = fmt.Sprintf("`%s` _(Unallocated)_", n.ID)
 		case AllocationModeSubnets:
-			networksMode[path] = "Subnets"
+			networksMode[path] = "Subnet Container"
 			if n.DisplayName != "" {
 				networksTitle[path] = fmt.Sprintf("`%s` -- %s", n.ID, n.DisplayName)
 			} else {
 				networksTitle[path] = fmt.Sprintf("`%s`", n.ID)
 			}
 		case AllocationModeHosts:
-			networksMode[path] = "Hosts"
+			networksMode[path] = "Host Pool"
 			if n.DisplayName != "" {
 				networksTitle[path] = fmt.Sprintf("`%s` -- %s", n.ID, n.DisplayName)
 			} else {

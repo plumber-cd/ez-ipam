@@ -4,7 +4,7 @@
 
 ## Overview
 
-> Legend: `Subnets` contains child networks, `Hosts` contains reservable IPs, and `Reserved IP` is a concrete host reservation.
+> Legend: `Subnet Container` holds child networks, `Host Pool` holds reservable IPs, and `Reserved IP` is a concrete host reservation.
 
 | Network | Name | Allocation | Description |
 |---------|------|------------|-------------|
@@ -36,7 +36,7 @@
 > {{ $description }}
 {{- end }}
 
-{{- if and (eq (index $.NetworksMode $path) "Hosts") (index $.NetworksHasReservedIPs $path) }}
+{{- if index $.NetworksHasReservedIPs $path }}
 
 {{ index $.NetworksHeading $path }} Reserved IPs
 

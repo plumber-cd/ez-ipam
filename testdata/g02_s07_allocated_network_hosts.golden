@@ -11,13 +11,13 @@
 ║                        ║│Total Hosts         : 256                           │
 ║                        ║│Usable Range        : 10.0.0.1 - 10.0.0.254         │
 ║                        ║│Usable Hosts        : 254                           │
-║                        ║│Allocation Mode     : Hosts                         │
+║                        ║│Allocation Mode     : Host Pool                     │
+║                        ║│Mode Meaning        : Leaf node: reserve concrete   │
+║                        ║│IP addresses here.                                  │
 ║                        ║│                                                    │
 ║                        ║│                                                    │
 ║                        ║│                                                    │
 ║                        ║│desc                                                │
-║                        ║│                                                    │
-║                        ║│                                                    │
 ║                        ║└────────────────────────────────────────────────────┘
 ║                        ║┌───────────────────────Status───────────────────────┐
 ║                        ║│Allocated network: Networks -> 10.0.0.0/24          │

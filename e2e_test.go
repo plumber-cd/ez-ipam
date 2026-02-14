@@ -84,7 +84,7 @@ func splitFocusedNetwork(h *TestHarness, newPrefix string) {
 
 func allocateSubnetsFocused(h *TestHarness, name, description, prefix string) {
 	h.PressRune('a')
-	h.AssertScreenContains("Allocate Subnets")
+	h.AssertScreenContains("Subnet Container")
 	h.TypeText(name)
 	h.PressTab()
 	h.TypeText(description)
@@ -95,7 +95,7 @@ func allocateSubnetsFocused(h *TestHarness, name, description, prefix string) {
 
 func allocateHostsFocused(h *TestHarness, name, description string) {
 	h.PressRune('A')
-	h.AssertScreenContains("Allocate Hosts")
+	h.AssertScreenContains("Host Pool")
 	h.TypeText(name)
 	h.PressTab()
 	h.TypeText(description)
@@ -105,7 +105,7 @@ func allocateHostsFocused(h *TestHarness, name, description string) {
 
 func updateAllocationFocused(h *TestHarness, nameSuffix, descriptionSuffix string) {
 	h.PressRune('u')
-	h.AssertScreenContains("Update Allocation")
+	h.AssertScreenContains("Update Metadata")
 	h.TypeText(nameSuffix)
 	h.PressTab()
 	h.TypeText(descriptionSuffix)
@@ -161,7 +161,7 @@ func TestVimNavigationAndKeysLineContext(t *testing.T) {
 
 	moveFocusToID(t, h, "10.0.0.0/24")
 	_, focusKeys := currentKeys()
-	if !strings.Contains(strings.Join(focusKeys, " | "), "<a> Allocate Subnets") {
+	if !strings.Contains(strings.Join(focusKeys, " | "), "<a> Set Subnet Container") {
 		t.Fatalf("expected allocation keys on unallocated network, got %#v", focusKeys)
 	}
 	h.PressRune('j')

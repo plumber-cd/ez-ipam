@@ -12,8 +12,8 @@
 ║                        ║│Usable Range        : 10.0.0.1 - 10.0.0.254         │
 ║                        ║│Usable Hosts        : 254                           │
 ║                        ║│Allocation Mode     : Unallocated                   │
-║                        ║│                                                    │
-║                        ║│                                                    │
+║                        ║│Mode Meaning        : Can be split or assigned as   │
+║                        ║│Subnet Container / Host Pool.                       │
 ║                        ║│                                                    │
 ║                        ║│                                                    │
 ║                        ║│                                                    │

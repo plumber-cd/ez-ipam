@@ -677,13 +677,13 @@ func (n *Network) OnChangedFunc() {
 
 	if n.AllocationMode != AllocationModeUnallocated {
 		currentFocusKeys = []string{
-			"<u> Update Allocation",
+			"<u> Update Metadata",
 			"<d> Deallocate",
 		}
 	} else {
 		currentFocusKeys = []string{
-			"<a> Allocate Subnets",
-			"<A> Allocate Hosts",
+			"<a> Set Subnet Container",
+			"<A> Set Host Pool",
 			"<s> Split",
 		}
 		if hasAnySummarizableRange(getUnallocatedSiblingNetworks(n)) {
@@ -717,7 +717,9 @@ func (n *Network) CurrentMenuInputCapture(event *tcell.EventKey) *tcell.EventKey
 		switch event.Rune() {
 		case 'r':
 			if n.AllocationMode != AllocationModeHosts {
-				return event
+				statusLine.Clear()
+				statusLine.SetText("Reserve IP is available only in Host Pool networks.")
+				return nil
 			}
 
 			reserveIPDialog.SetTitle(fmt.Sprintf("Reserve IP in %s", n.ID))
@@ -737,30 +739,36 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 		switch event.Rune() {
 		case 'a':
 			if n.AllocationMode != AllocationModeUnallocated {
-				return event
+				statusLine.Clear()
+				statusLine.SetText("This network is already allocated. Deallocate it first to switch to Subnet Container mode.")
+				return nil
 			}
 
-			allocateNetworkSubnetsModeDialog.SetTitle(fmt.Sprintf("Allocate Subnets for %s", n.ID))
+			allocateNetworkSubnetsModeDialog.SetTitle(fmt.Sprintf("Set as Subnet Container for %s", n.ID))
 			allocateNetworkSubnetsModeDialog.SetFocus(0)
 			pages.ShowPage(allocateNetworkSubnetsModePage)
 			app.SetFocus(allocateNetworkSubnetsModeDialog)
 			return nil
 		case 'A':
 			if n.AllocationMode != AllocationModeUnallocated {
-				return event
+				statusLine.Clear()
+				statusLine.SetText("This network is already allocated. Deallocate it first to switch to Host Pool mode.")
+				return nil
 			}
 
-			allocateNetworkHostsModeDialog.SetTitle(fmt.Sprintf("Allocate Hosts for %s", n.ID))
+			allocateNetworkHostsModeDialog.SetTitle(fmt.Sprintf("Set as Host Pool for %s", n.ID))
 			allocateNetworkHostsModeDialog.SetFocus(0)
 			pages.ShowPage(allocateNetworkHostsModePage)
 			app.SetFocus(allocateNetworkHostsModeDialog)
 			return nil
 		case 'u':
 			if n.AllocationMode == AllocationModeUnallocated {
-				return event
+				statusLine.Clear()
+				statusLine.SetText("No allocation metadata yet. Use Subnet Container or Host Pool first.")
+				return nil
 			}
 
-			updateNetworkAllocationDialog.SetTitle(fmt.Sprintf("Update Allocation for %s", n.ID))
+			updateNetworkAllocationDialog.SetTitle(fmt.Sprintf("Update Metadata for %s", n.ID))
 			setTextFromInputField(updateNetworkAllocationDialog, "Name", n.DisplayName)
 			setTextFromTextArea(updateNetworkAllocationDialog, "Description", n.Description)
 			updateNetworkAllocationDialog.SetFocus(0)
@@ -769,7 +777,9 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 			return nil
 		case 's':
 			if n.AllocationMode != AllocationModeUnallocated {
-				return event
+				statusLine.Clear()
+				statusLine.SetText("Split is available only for unallocated networks.")
+				return nil
 			}
 
 			splitNetworkDialog.SetTitle(fmt.Sprintf("Split %s", n.ID))
@@ -779,7 +789,9 @@ func (n *Network) CurrentFocusInputCapture(event *tcell.EventKey) *tcell.EventKe
 			return nil
 		case 'S':
 			if n.AllocationMode != AllocationModeUnallocated {
-				return event
+				statusLine.Clear()
+				statusLine.SetText("Summarize is available only for unallocated sibling networks.")
+				return nil
 			}
 
 			candidates := getUnallocatedSiblingNetworks(n)
@@ -943,10 +955,16 @@ func (n *Network) RenderDetailsMap() ([]string, map[string]string, error) {
 	switch n.AllocationMode {
 	case AllocationModeUnallocated:
 		result["Allocation Mode"] = "Unallocated"
+		index = append(index, "Mode Meaning")
+		result["Mode Meaning"] = "Can be split or assigned as Subnet Container / Host Pool."
 	case AllocationModeSubnets:
-		result["Allocation Mode"] = "Subnets"
+		result["Allocation Mode"] = "Subnet Container"
+		index = append(index, "Mode Meaning")
+		result["Mode Meaning"] = "Branch node: contains child networks."
 	case AllocationModeHosts:
-		result["Allocation Mode"] = "Hosts"
+		result["Allocation Mode"] = "Host Pool"
+		index = append(index, "Mode Meaning")
+		result["Mode Meaning"] = "Leaf node: reserve concrete IP addresses here."
 	default:
 		panic("Unknown AllocationMode")
 	}
