@@ -1,0 +1,5 @@
+allocation_mode: 0
+description: ""
+display_name: ""
+id: 10.16.128.0/17
+parent: Networks -> 10.0.0.0/10 -> 10.16.0.0/12 -> 10.16.0.0/14

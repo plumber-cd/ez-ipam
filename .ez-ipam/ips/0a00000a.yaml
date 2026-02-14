@@ -1,4 +1,0 @@
-description: NAT/egress
-display_name: nat
-id: 10.0.0.10
-parent: Networks -> 10.0.0.0/18

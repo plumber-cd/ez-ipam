@@ -1,5 +1,5 @@
-allocation_mode: 2
-description: AWS us-east-1 VPC regional VPC
-display_name: AWS us-east-1 VPC
+allocation_mode: 1
+description: Regional primary VPC
+display_name: Primary VPC
 id: 10.0.0.0/18
-parent: Networks
+parent: Networks -> 10.0.0.0/10 -> 10.0.0.0/12 -> 10.0.0.0/14

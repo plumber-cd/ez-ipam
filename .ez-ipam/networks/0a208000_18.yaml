@@ -1,5 +1,0 @@
-allocation_mode: 2
-description: Azure shared-services VPC regional VPC
-display_name: Azure shared-services VPC
-id: 10.32.128.0/18
-parent: Networks

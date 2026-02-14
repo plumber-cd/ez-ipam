@@ -1,5 +1,0 @@
-allocation_mode: 2
-description: IPv6 regional VPC in eu-west-1
-display_name: AWS eu-west-1 VPC v6
-id: fd10:0:1000::/36
-parent: Networks

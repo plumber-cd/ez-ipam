@@ -1,5 +1,0 @@
-allocation_mode: 2
-description: AWS data VPC regional VPC
-display_name: AWS data VPC
-id: 10.0.192.0/18
-parent: Networks

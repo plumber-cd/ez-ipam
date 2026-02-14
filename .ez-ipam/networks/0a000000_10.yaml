@@ -1,0 +1,5 @@
+allocation_mode: 1
+description: Cloud supernet
+display_name: Cloud
+id: 10.0.0.0/10
+parent: Networks

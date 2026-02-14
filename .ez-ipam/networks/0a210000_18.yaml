@@ -1,5 +1,0 @@
-allocation_mode: 2
-description: Azure sandbox VPC regional VPC
-display_name: Azure sandbox VPC
-id: 10.33.0.0/18
-parent: Networks

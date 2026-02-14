@@ -1,0 +1,5 @@
+allocation_mode: 1
+description: Primary region
+display_name: AWS us-east-1
+id: 10.0.0.0/14
+parent: Networks -> 10.0.0.0/10 -> 10.0.0.0/12

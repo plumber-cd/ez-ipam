@@ -1,0 +1,5 @@
+allocation_mode: 1
+description: Private subnet type
+display_name: Private
+id: 10.36.16.0/20
+parent: Networks -> 10.0.0.0/10 -> 10.32.0.0/12 -> 10.36.0.0/14 -> 10.36.0.0/18

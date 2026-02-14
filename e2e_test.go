@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"net"
 	"os"
 	"path/filepath"
 	"strings"
@@ -707,229 +705,165 @@ func TestGoldenDialogsAndScreens(t *testing.T) {
 
 func TestDemoState(t *testing.T) {
 	h := NewTestHarness(t)
+	runSync := func(fn func()) {
+		done := make(chan struct{})
+		app.QueueUpdateDraw(func() {
+			fn()
+			close(done)
+		})
+		<-done
+	}
 
-	navigateToVLANs(t, h)
-	addVLANViaDialog(h, "10", "Home-Infra", "Home infrastructure")
-	addVLANViaDialog(h, "20", "Home-Users", "User devices")
-	addVLANViaDialog(h, "30", "Home-IoT", "IoT devices")
+	mustAddNetwork := func(cidr, parentPath, name, description string, mode AllocationMode, vlanID int) string {
+		network := &Network{
+			MenuFolder: &MenuFolder{
+				ID:         cidr,
+				ParentPath: parentPath,
+			},
+			AllocationMode: mode,
+			DisplayName:    name,
+			Description:    description,
+			VLANID:         vlanID,
+		}
+		menuItems.MustAdd(network)
+		return network.GetPath()
+	}
+	mustAddIP := func(address, parentPath, name, description string) {
+		menuItems.MustAdd(&IP{
+			MenuFolder: &MenuFolder{
+				ID:         address,
+				ParentPath: parentPath,
+			},
+			DisplayName: name,
+			Description: description,
+		})
+	}
+
+	runSync(func() {
+		vlansRoot := menuItems.GetByParentAndID(nil, "VLANs")
+		menuItems.MustAdd(&VLAN{MenuFolder: &MenuFolder{ID: "10", ParentPath: vlansRoot.GetPath()}, DisplayName: "Home-Infra", Description: "Home infrastructure"})
+		menuItems.MustAdd(&VLAN{MenuFolder: &MenuFolder{ID: "20", ParentPath: vlansRoot.GetPath()}, DisplayName: "Home-Users", Description: "User devices"})
+		menuItems.MustAdd(&VLAN{MenuFolder: &MenuFolder{ID: "30", ParentPath: vlansRoot.GetPath()}, DisplayName: "Home-IoT", Description: "IoT devices"})
+
+		networksRoot := menuItems.GetByParentAndID(nil, "Networks").GetPath()
+		cloudPath := mustAddNetwork("10.0.0.0/10", networksRoot, "Cloud", "Cloud supernet", AllocationModeSubnets, 0)
+		homePath := mustAddNetwork("192.168.0.0/16", networksRoot, "Home", "Home supernet with VLAN segments", AllocationModeSubnets, 0)
+
+		type cloud struct {
+			ipv4 string
+			name string
+		}
+		clouds := []cloud{
+			{ipv4: "10.0.0.0/12", name: "AWS"},
+			{ipv4: "10.16.0.0/12", name: "GCP"},
+			{ipv4: "10.32.0.0/12", name: "Azure"},
+		}
+
+		for _, c := range clouds {
+			cloudBlockPath := mustAddNetwork(c.ipv4, cloudPath, c.name, c.name+" provider block", AllocationModeSubnets, 0)
+
+			var regionA, regionB, regionSpare string
+			switch c.ipv4 {
+			case "10.0.0.0/12":
+				regionA, regionB, regionSpare = "10.0.0.0/14", "10.4.0.0/14", "10.8.0.0/13"
+			case "10.16.0.0/12":
+				regionA, regionB, regionSpare = "10.16.0.0/14", "10.20.0.0/14", "10.24.0.0/13"
+			default:
+				regionA, regionB, regionSpare = "10.32.0.0/14", "10.36.0.0/14", "10.40.0.0/13"
+			}
+			regionAPath := mustAddNetwork(regionA, cloudBlockPath, c.name+" us-east-1", "Primary region", AllocationModeSubnets, 0)
+			regionBPath := mustAddNetwork(regionB, cloudBlockPath, c.name+" eu-west-1", "Secondary region", AllocationModeSubnets, 0)
+			mustAddNetwork(regionSpare, cloudBlockPath, "", "", AllocationModeUnallocated, 0)
+
+			regionPaths := []string{regionAPath, regionBPath}
+			for _, regionPath := range regionPaths {
+				var vpcCIDR, spare18, spare17 string
+				switch {
+				case strings.Contains(regionPath, "10.0.0.0/14"):
+					vpcCIDR, spare18, spare17 = "10.0.0.0/18", "10.0.64.0/18", "10.0.128.0/17"
+				case strings.Contains(regionPath, "10.4.0.0/14"):
+					vpcCIDR, spare18, spare17 = "10.4.0.0/18", "10.4.64.0/18", "10.4.128.0/17"
+				case strings.Contains(regionPath, "10.16.0.0/14"):
+					vpcCIDR, spare18, spare17 = "10.16.0.0/18", "10.16.64.0/18", "10.16.128.0/17"
+				case strings.Contains(regionPath, "10.20.0.0/14"):
+					vpcCIDR, spare18, spare17 = "10.20.0.0/18", "10.20.64.0/18", "10.20.128.0/17"
+				case strings.Contains(regionPath, "10.32.0.0/14"):
+					vpcCIDR, spare18, spare17 = "10.32.0.0/18", "10.32.64.0/18", "10.32.128.0/17"
+				default:
+					vpcCIDR, spare18, spare17 = "10.36.0.0/18", "10.36.64.0/18", "10.36.128.0/17"
+				}
+
+				vpcPath := mustAddNetwork(vpcCIDR, regionPath, "Primary VPC", "Regional primary VPC", AllocationModeSubnets, 0)
+				mustAddNetwork(spare18, regionPath, "", "", AllocationModeUnallocated, 0)
+				mustAddNetwork(spare17, regionPath, "", "", AllocationModeUnallocated, 0)
+
+				var public20, private20, backend20, spare20 string
+				switch vpcCIDR {
+				case "10.0.0.0/18":
+					public20, private20, backend20, spare20 = "10.0.0.0/20", "10.0.16.0/20", "10.0.32.0/20", "10.0.48.0/20"
+				case "10.4.0.0/18":
+					public20, private20, backend20, spare20 = "10.4.0.0/20", "10.4.16.0/20", "10.4.32.0/20", "10.4.48.0/20"
+				case "10.16.0.0/18":
+					public20, private20, backend20, spare20 = "10.16.0.0/20", "10.16.16.0/20", "10.16.32.0/20", "10.16.48.0/20"
+				case "10.20.0.0/18":
+					public20, private20, backend20, spare20 = "10.20.0.0/20", "10.20.16.0/20", "10.20.32.0/20", "10.20.48.0/20"
+				case "10.32.0.0/18":
+					public20, private20, backend20, spare20 = "10.32.0.0/20", "10.32.16.0/20", "10.32.32.0/20", "10.32.48.0/20"
+				default:
+					public20, private20, backend20, spare20 = "10.36.0.0/20", "10.36.16.0/20", "10.36.32.0/20", "10.36.48.0/20"
+				}
+
+				typePath := mustAddNetwork(public20, vpcPath, "Public", "Public subnet type", AllocationModeSubnets, 0)
+				mustAddNetwork(private20, vpcPath, "Private", "Private subnet type", AllocationModeSubnets, 0)
+				mustAddNetwork(backend20, vpcPath, "Backend", "Backend subnet type", AllocationModeSubnets, 0)
+				mustAddNetwork(spare20, vpcPath, "", "", AllocationModeUnallocated, 0)
+
+				var azA, azB, azSpare string
+				switch public20 {
+				case "10.0.0.0/20":
+					azA, azB, azSpare = "10.0.0.0/22", "10.0.4.0/22", "10.0.8.0/21"
+				case "10.4.0.0/20":
+					azA, azB, azSpare = "10.4.0.0/22", "10.4.4.0/22", "10.4.8.0/21"
+				case "10.16.0.0/20":
+					azA, azB, azSpare = "10.16.0.0/22", "10.16.4.0/22", "10.16.8.0/21"
+				case "10.20.0.0/20":
+					azA, azB, azSpare = "10.20.0.0/22", "10.20.4.0/22", "10.20.8.0/21"
+				case "10.32.0.0/20":
+					azA, azB, azSpare = "10.32.0.0/22", "10.32.4.0/22", "10.32.8.0/21"
+				default:
+					azA, azB, azSpare = "10.36.0.0/22", "10.36.4.0/22", "10.36.8.0/21"
+				}
+				azAPath := mustAddNetwork(azA, typePath, "AZ-a", "Availability zone A", AllocationModeHosts, 0)
+				mustAddNetwork(azB, typePath, "AZ-b", "Availability zone B", AllocationModeHosts, 0)
+				mustAddNetwork(azSpare, typePath, "", "", AllocationModeUnallocated, 0)
+				mustAddIP(strings.Split(azA, "/")[0][:len(strings.Split(azA, "/")[0])-1]+"1", azAPath, "gateway", "Default gateway")
+			}
+
+		}
+
+		mustAddNetwork("10.48.0.0/12", cloudPath, "", "", AllocationModeUnallocated, 0)
+
+		homeInfra := mustAddNetwork("192.168.0.0/24", homePath, "Home Infra", "Routers and servers", AllocationModeHosts, 10)
+		homeUsers := mustAddNetwork("192.168.1.0/24", homePath, "Home Users", "Laptops and phones", AllocationModeHosts, 20)
+		homeIoT := mustAddNetwork("192.168.2.0/24", homePath, "Home IoT", "Cameras and sensors", AllocationModeHosts, 30)
+		mustAddNetwork("192.168.4.0/22", homePath, "", "", AllocationModeUnallocated, 0)
+		mustAddNetwork("192.168.8.0/21", homePath, "", "", AllocationModeUnallocated, 0)
+		mustAddNetwork("192.168.16.0/20", homePath, "", "", AllocationModeUnallocated, 0)
+		mustAddNetwork("192.168.32.0/19", homePath, "", "", AllocationModeUnallocated, 0)
+		mustAddNetwork("192.168.64.0/18", homePath, "", "", AllocationModeUnallocated, 0)
+		mustAddNetwork("192.168.128.0/17", homePath, "", "", AllocationModeUnallocated, 0)
+		mustAddIP("192.168.0.1", homeInfra, "gateway", "Default gateway")
+		mustAddIP("192.168.0.10", homeInfra, "nas", "NAS")
+		mustAddIP("192.168.1.1", homeUsers, "gateway", "Default gateway")
+		mustAddIP("192.168.1.50", homeUsers, "printer", "Office printer")
+		mustAddIP("192.168.2.1", homeIoT, "gateway", "Default gateway")
+		mustAddIP("192.168.2.20", homeIoT, "camera-nvr", "NVR")
+
+		save()
+	})
+
 	navigateToNetworksRoot(t, h)
 
-	type cloudPlan struct {
-		cloudCIDR     string
-		cloudName     string
-		ipv6CloudCIDR string
-	}
-	clouds := []cloudPlan{
-		{cloudCIDR: "10.0.0.0/12", cloudName: "AWS", ipv6CloudCIDR: "fd10::/32"},
-		{cloudCIDR: "10.16.0.0/12", cloudName: "GCP", ipv6CloudCIDR: "fd20::/32"},
-		{cloudCIDR: "10.32.0.0/12", cloudName: "Azure", ipv6CloudCIDR: "fd30::/32"},
-	}
-
-	carveRequiredIPv4Subnets := func(rootCIDR string, requiredCount, targetPrefix int) []string {
-		if requiredCount < 1 {
-			return []string{}
-		}
-		initialPrefix := targetPrefix - 5
-		moveFocusToID(t, h, rootCIDR)
-		splitFocusedNetwork(h, fmt.Sprintf("%d", initialPrefix))
-		allCIDRs, err := splitNetwork(rootCIDR, initialPrefix)
-		if err != nil {
-			t.Fatalf("initial split for %s failed: %v", rootCIDR, err)
-		}
-		if len(allCIDRs) == 0 {
-			t.Fatalf("initial split produced no CIDRs for %s", rootCIDR)
-		}
-
-		countTarget := func(cidrs []string) int {
-			count := 0
-			for _, cidr := range cidrs {
-				_, ipNet, err := net.ParseCIDR(cidr)
-				if err != nil {
-					continue
-				}
-				ones, _ := ipNet.Mask.Size()
-				if ones == targetPrefix {
-					count++
-				}
-			}
-			return count
-		}
-
-		for countTarget(allCIDRs) < requiredCount {
-			splitIndex := -1
-			splitPrefix := 0
-			for i, cidr := range allCIDRs {
-				_, ipNet, err := net.ParseCIDR(cidr)
-				if err != nil {
-					continue
-				}
-				ones, _ := ipNet.Mask.Size()
-				if ones < targetPrefix {
-					splitIndex = i
-					splitPrefix = ones
-					break
-				}
-			}
-			if splitIndex < 0 {
-				t.Fatalf("unable to carve enough /%d subnets from %s", targetPrefix, rootCIDR)
-			}
-
-			toSplit := allCIDRs[splitIndex]
-			moveFocusToID(t, h, toSplit)
-			splitFocusedNetwork(h, fmt.Sprintf("%d", splitPrefix+1))
-			children, err := splitNetwork(toSplit, splitPrefix+1)
-			if err != nil || len(children) != 2 {
-				t.Fatalf("split %s into /%d failed: %v", toSplit, splitPrefix+1, err)
-			}
-
-			updated := make([]string, 0, len(allCIDRs)+1)
-			updated = append(updated, allCIDRs[:splitIndex]...)
-			updated = append(updated, children...)
-			updated = append(updated, allCIDRs[splitIndex+1:]...)
-			allCIDRs = updated
-		}
-
-		result := []string{}
-		for _, cidr := range allCIDRs {
-			_, ipNet, err := net.ParseCIDR(cidr)
-			if err != nil {
-				continue
-			}
-			ones, _ := ipNet.Mask.Size()
-			if ones == targetPrefix {
-				result = append(result, cidr)
-				if len(result) == requiredCount {
-					break
-				}
-			}
-		}
-		if len(result) != requiredCount {
-			t.Fatalf("expected %d carved /%d subnets, got %d", requiredCount, targetPrefix, len(result))
-		}
-		return result
-	}
-
-	configureCloudVPC := func(vpcCIDR, vpcName string, withInfraReservations bool) {
-		moveFocusToID(t, h, vpcCIDR)
-		allocateHostsFocused(h, vpcName, vpcName+" regional VPC", "")
-
-		if withInfraReservations {
-			h.PressEnter()
-			base := strings.Split(vpcCIDR, "/")[0]
-			octets := strings.Split(base, ".")
-			if len(octets) != 4 {
-				t.Fatalf("expected IPv4 subnet for demo VPC, got %s", vpcCIDR)
-			}
-			prefix3 := strings.Join(octets[:3], ".")
-			reserveIPFromCurrentNetwork(h, fmt.Sprintf("%s.%s", prefix3, "1"), "gateway", "Default gateway")
-			reserveIPFromCurrentNetwork(h, fmt.Sprintf("%s.%s", prefix3, "2"), "dns", "Resolver")
-			reserveIPFromCurrentNetwork(h, fmt.Sprintf("%s.%s", prefix3, "10"), "nat", "NAT/egress")
-			h.PressBackspace()
-		}
-	}
-
-	for _, cloud := range clouds {
-		addNetworkViaDialog(h, cloud.cloudCIDR)
-		vpcCIDRs := carveRequiredIPv4Subnets(cloud.cloudCIDR, 5, 18)
-		configureCloudVPC(vpcCIDRs[0], cloud.cloudName+" us-east-1 VPC", true)
-		configureCloudVPC(vpcCIDRs[1], cloud.cloudName+" eu-west-1 VPC", false)
-		configureCloudVPC(vpcCIDRs[2], cloud.cloudName+" shared-services VPC", false)
-		configureCloudVPC(vpcCIDRs[3], cloud.cloudName+" data VPC", false)
-		configureCloudVPC(vpcCIDRs[4], cloud.cloudName+" sandbox VPC", false)
-
-		addNetworkViaDialog(h, cloud.ipv6CloudCIDR)
-		moveFocusToID(t, h, cloud.ipv6CloudCIDR)
-		splitFocusedNetwork(h, "33")
-
-		v6Halves, err := splitNetwork(cloud.ipv6CloudCIDR, 33)
-		if err != nil || len(v6Halves) < 1 {
-			t.Fatalf("split IPv6 cloud %s into /33 failed: %v", cloud.ipv6CloudCIDR, err)
-		}
-		activeV6 := v6Halves[0]
-		v6Regions := []string{}
-		for prefix := 34; prefix <= 36; prefix++ {
-			moveFocusToID(t, h, activeV6)
-			splitFocusedNetwork(h, fmt.Sprintf("%d", prefix))
-			children, err := splitNetwork(activeV6, prefix)
-			if err != nil || len(children) < 2 {
-				t.Fatalf("split %s into /%d failed: %v", activeV6, prefix, err)
-			}
-			if prefix == 36 {
-				v6Regions = children[:2]
-			}
-			activeV6 = children[0]
-		}
-		if len(v6Regions) < 2 {
-			t.Fatalf("expected at least 2 IPv6 regional ranges for %s", cloud.ipv6CloudCIDR)
-		}
-
-		moveFocusToID(t, h, v6Regions[0])
-		allocateHostsFocused(h, cloud.cloudName+" us-east-1 VPC v6", "IPv6 regional VPC in us-east-1", "")
-		h.PressEnter()
-		base0 := strings.Split(v6Regions[0], "/")[0]
-		reserveIPFromCurrentNetwork(h, base0+"1", "gateway-v6", "Default gateway IPv6")
-		reserveIPFromCurrentNetwork(h, base0+"53", "dns-v6", "Resolver IPv6")
-		h.PressBackspace()
-
-		moveFocusToID(t, h, v6Regions[1])
-		allocateHostsFocused(h, cloud.cloudName+" eu-west-1 VPC v6", "IPv6 regional VPC in eu-west-1", "")
-		h.PressEnter()
-		base1 := strings.Split(v6Regions[1], "/")[0]
-		reserveIPFromCurrentNetwork(h, base1+"1", "gateway-v6", "Default gateway IPv6")
-		reserveIPFromCurrentNetwork(h, base1+"53", "dns-v6", "Resolver IPv6")
-		h.PressBackspace()
-	}
-
-	addNetworkViaDialog(h, "192.168.0.0/16")
-	moveFocusToID(t, h, "192.168.0.0/16")
-	allocateSubnetsFocused(h, "Home", "Home supernet with VLAN segments", "", "17")
-	h.PressEnter()
-
-	activeCIDR := "192.168.0.0/17"
-	for prefix := 18; prefix <= 22; prefix++ {
-		moveFocusToID(t, h, activeCIDR)
-		splitFocusedNetwork(h, fmt.Sprintf("%d", prefix))
-		childCIDRs, err := splitNetwork(activeCIDR, prefix)
-		if err != nil {
-			t.Fatalf("split %s into /%d: %v", activeCIDR, prefix, err)
-		}
-		activeCIDR = childCIDRs[0]
-	}
-
-	moveFocusToID(t, h, activeCIDR)
-	splitFocusedNetwork(h, "24")
-
-	homeCIDRs, err := splitNetwork(activeCIDR, 24)
-	if err != nil {
-		t.Fatalf("split home supernet: %v", err)
-	}
-	if len(homeCIDRs) < 3 {
-		t.Fatalf("expected at least 3 home VLAN subnets")
-	}
-
-	moveFocusToID(t, h, homeCIDRs[0])
-	allocateHostsFocused(h, "Home Infra", "Routers and servers", "10")
-	h.PressEnter()
-	reserveIPFromCurrentNetwork(h, "192.168.0.1", "gateway", "Default gateway")
-	reserveIPFromCurrentNetwork(h, "192.168.0.10", "nas", "NAS")
-	h.PressBackspace()
-
-	moveFocusToID(t, h, homeCIDRs[1])
-	allocateHostsFocused(h, "Home Users", "Laptops and phones", "20")
-	h.PressEnter()
-	reserveIPFromCurrentNetwork(h, "192.168.1.1", "gateway", "Default gateway")
-	reserveIPFromCurrentNetwork(h, "192.168.1.50", "printer", "Office printer")
-	h.PressBackspace()
-
-	moveFocusToID(t, h, homeCIDRs[2])
-	allocateHostsFocused(h, "Home IoT", "Cameras and sensors", "30")
-	h.PressEnter()
-	reserveIPFromCurrentNetwork(h, "192.168.2.1", "gateway", "Default gateway")
-	reserveIPFromCurrentNetwork(h, "192.168.2.20", "camera-nvr", "NVR")
-	h.PressBackspace()
-	navigateToNetworksRoot(t, h)
-
-	h.PressCtrl('s')
 	h.AssertStatusContains("Saved to .ez-ipam/ and EZ-IPAM.md")
 	h.AssertGoldenSnapshot("g03_s01_demo_state_main")
 	h.SaveDemoArtifactsToRepo()

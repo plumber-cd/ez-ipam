@@ -8,89 +8,102 @@
 
 | Network | Name | Allocation | VLAN | Description |
 |---------|------|------------|------|-------------|
-| `10.0.0.0/18` [link](#network-0a000000_18) | AWS us-east-1 VPC | Host Pool | - | AWS us-east-1 VPC regional VPC |
-| `│ ├── 10.0.0.1` | gateway | Reserved IP | - | Default gateway |
-| `│ ├── 10.0.0.2` | dns | Reserved IP | - | Resolver |
-| `│ └── 10.0.0.10` | nat | Reserved IP | - | NAT/egress |
-| `10.0.64.0/18` [link](#network-0a004000_18) | AWS eu-west-1 VPC | Host Pool | - | AWS eu-west-1 VPC regional VPC |
-| `10.0.128.0/18` [link](#network-0a008000_18) | AWS shared-services VPC | Host Pool | - | AWS shared-services VPC regional VPC |
-| `10.0.192.0/18` [link](#network-0a00c000_18) | AWS data VPC | Host Pool | - | AWS data VPC regional VPC |
-| `10.1.0.0/18` [link](#network-0a010000_18) | AWS sandbox VPC | Host Pool | - | AWS sandbox VPC regional VPC |
-| `10.1.64.0/18` [link](#network-0a014000_18) | - | Unallocated | - | - |
-| `10.1.128.0/17` [link](#network-0a018000_17) | - | Unallocated | - | - |
-| `10.2.0.0/15` [link](#network-0a020000_15) | - | Unallocated | - | - |
-| `10.4.0.0/14` [link](#network-0a040000_14) | - | Unallocated | - | - |
-| `10.8.0.0/13` [link](#network-0a080000_13) | - | Unallocated | - | - |
-| `10.16.0.0/18` [link](#network-0a100000_18) | GCP us-east-1 VPC | Host Pool | - | GCP us-east-1 VPC regional VPC |
-| `│ ├── 10.16.0.1` | gateway | Reserved IP | - | Default gateway |
-| `│ ├── 10.16.0.2` | dns | Reserved IP | - | Resolver |
-| `│ └── 10.16.0.10` | nat | Reserved IP | - | NAT/egress |
-| `10.16.64.0/18` [link](#network-0a104000_18) | GCP eu-west-1 VPC | Host Pool | - | GCP eu-west-1 VPC regional VPC |
-| `10.16.128.0/18` [link](#network-0a108000_18) | GCP shared-services VPC | Host Pool | - | GCP shared-services VPC regional VPC |
-| `10.16.192.0/18` [link](#network-0a10c000_18) | GCP data VPC | Host Pool | - | GCP data VPC regional VPC |
-| `10.17.0.0/18` [link](#network-0a110000_18) | GCP sandbox VPC | Host Pool | - | GCP sandbox VPC regional VPC |
-| `10.17.64.0/18` [link](#network-0a114000_18) | - | Unallocated | - | - |
-| `10.17.128.0/17` [link](#network-0a118000_17) | - | Unallocated | - | - |
-| `10.18.0.0/15` [link](#network-0a120000_15) | - | Unallocated | - | - |
-| `10.20.0.0/14` [link](#network-0a140000_14) | - | Unallocated | - | - |
-| `10.24.0.0/13` [link](#network-0a180000_13) | - | Unallocated | - | - |
-| `10.32.0.0/18` [link](#network-0a200000_18) | Azure us-east-1 VPC | Host Pool | - | Azure us-east-1 VPC regional VPC |
-| `│ ├── 10.32.0.1` | gateway | Reserved IP | - | Default gateway |
-| `│ ├── 10.32.0.2` | dns | Reserved IP | - | Resolver |
-| `│ └── 10.32.0.10` | nat | Reserved IP | - | NAT/egress |
-| `10.32.64.0/18` [link](#network-0a204000_18) | Azure eu-west-1 VPC | Host Pool | - | Azure eu-west-1 VPC regional VPC |
-| `10.32.128.0/18` [link](#network-0a208000_18) | Azure shared-services VPC | Host Pool | - | Azure shared-services VPC regional VPC |
-| `10.32.192.0/18` [link](#network-0a20c000_18) | Azure data VPC | Host Pool | - | Azure data VPC regional VPC |
-| `10.33.0.0/18` [link](#network-0a210000_18) | Azure sandbox VPC | Host Pool | - | Azure sandbox VPC regional VPC |
-| `10.33.64.0/18` [link](#network-0a214000_18) | - | Unallocated | - | - |
-| `10.33.128.0/17` [link](#network-0a218000_17) | - | Unallocated | - | - |
-| `10.34.0.0/15` [link](#network-0a220000_15) | - | Unallocated | - | - |
-| `10.36.0.0/14` [link](#network-0a240000_14) | - | Unallocated | - | - |
-| `10.40.0.0/13` [link](#network-0a280000_13) | - | Unallocated | - | - |
+| `10.0.0.0/10` [link](#network-0a000000_10) | Cloud | Subnet Container | - | Cloud supernet |
+| `│ ├── 10.0.0.0/12` [link](#network-0a000000_12) | AWS | Subnet Container | - | AWS provider block |
+| `│ │ ├── 10.0.0.0/14` [link](#network-0a000000_14) | AWS us-east-1 | Subnet Container | - | Primary region |
+| `│ │ │ ├── 10.0.0.0/18` [link](#network-0a000000_18) | Primary VPC | Subnet Container | - | Regional primary VPC |
+| `│ │ │ │ ├── 10.0.0.0/20` [link](#network-0a000000_20) | Public | Subnet Container | - | Public subnet type |
+| `│ │ │ │ │ ├── 10.0.0.0/22` [link](#network-0a000000_22) | AZ-a | Host Pool | - | Availability zone A |
+| `│ │ │ │ │ │ └── 10.0.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ ├── 10.0.4.0/22` [link](#network-0a000400_22) | AZ-b | Host Pool | - | Availability zone B |
+| `│ │ │ │ │ └── 10.0.8.0/21` [link](#network-0a000800_21) | - | Unallocated | - | - |
+| `│ │ │ │ ├── 10.0.16.0/20` [link](#network-0a001000_20) | Private | Subnet Container | - | Private subnet type |
+| `│ │ │ │ ├── 10.0.32.0/20` [link](#network-0a002000_20) | Backend | Subnet Container | - | Backend subnet type |
+| `│ │ │ │ └── 10.0.48.0/20` [link](#network-0a003000_20) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.0.64.0/18` [link](#network-0a004000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.0.128.0/17` [link](#network-0a008000_17) | - | Unallocated | - | - |
+| `│ │ ├── 10.4.0.0/14` [link](#network-0a040000_14) | AWS eu-west-1 | Subnet Container | - | Secondary region |
+| `│ │ │ ├── 10.4.0.0/18` [link](#network-0a040000_18) | Primary VPC | Subnet Container | - | Regional primary VPC |
+| `│ │ │ │ ├── 10.4.0.0/20` [link](#network-0a040000_20) | Public | Subnet Container | - | Public subnet type |
+| `│ │ │ │ │ ├── 10.4.0.0/22` [link](#network-0a040000_22) | AZ-a | Host Pool | - | Availability zone A |
+| `│ │ │ │ │ │ └── 10.4.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ ├── 10.4.4.0/22` [link](#network-0a040400_22) | AZ-b | Host Pool | - | Availability zone B |
+| `│ │ │ │ │ └── 10.4.8.0/21` [link](#network-0a040800_21) | - | Unallocated | - | - |
+| `│ │ │ │ ├── 10.4.16.0/20` [link](#network-0a041000_20) | Private | Subnet Container | - | Private subnet type |
+| `│ │ │ │ ├── 10.4.32.0/20` [link](#network-0a042000_20) | Backend | Subnet Container | - | Backend subnet type |
+| `│ │ │ │ └── 10.4.48.0/20` [link](#network-0a043000_20) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.4.64.0/18` [link](#network-0a044000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.4.128.0/17` [link](#network-0a048000_17) | - | Unallocated | - | - |
+| `│ │ └── 10.8.0.0/13` [link](#network-0a080000_13) | - | Unallocated | - | - |
+| `│ ├── 10.16.0.0/12` [link](#network-0a100000_12) | GCP | Subnet Container | - | GCP provider block |
+| `│ │ ├── 10.16.0.0/14` [link](#network-0a100000_14) | GCP us-east-1 | Subnet Container | - | Primary region |
+| `│ │ │ ├── 10.16.0.0/18` [link](#network-0a100000_18) | Primary VPC | Subnet Container | - | Regional primary VPC |
+| `│ │ │ │ ├── 10.16.0.0/20` [link](#network-0a100000_20) | Public | Subnet Container | - | Public subnet type |
+| `│ │ │ │ │ ├── 10.16.0.0/22` [link](#network-0a100000_22) | AZ-a | Host Pool | - | Availability zone A |
+| `│ │ │ │ │ │ └── 10.16.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ ├── 10.16.4.0/22` [link](#network-0a100400_22) | AZ-b | Host Pool | - | Availability zone B |
+| `│ │ │ │ │ └── 10.16.8.0/21` [link](#network-0a100800_21) | - | Unallocated | - | - |
+| `│ │ │ │ ├── 10.16.16.0/20` [link](#network-0a101000_20) | Private | Subnet Container | - | Private subnet type |
+| `│ │ │ │ ├── 10.16.32.0/20` [link](#network-0a102000_20) | Backend | Subnet Container | - | Backend subnet type |
+| `│ │ │ │ └── 10.16.48.0/20` [link](#network-0a103000_20) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.16.64.0/18` [link](#network-0a104000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.16.128.0/17` [link](#network-0a108000_17) | - | Unallocated | - | - |
+| `│ │ ├── 10.20.0.0/14` [link](#network-0a140000_14) | GCP eu-west-1 | Subnet Container | - | Secondary region |
+| `│ │ │ ├── 10.20.0.0/18` [link](#network-0a140000_18) | Primary VPC | Subnet Container | - | Regional primary VPC |
+| `│ │ │ │ ├── 10.20.0.0/20` [link](#network-0a140000_20) | Public | Subnet Container | - | Public subnet type |
+| `│ │ │ │ │ ├── 10.20.0.0/22` [link](#network-0a140000_22) | AZ-a | Host Pool | - | Availability zone A |
+| `│ │ │ │ │ │ └── 10.20.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ ├── 10.20.4.0/22` [link](#network-0a140400_22) | AZ-b | Host Pool | - | Availability zone B |
+| `│ │ │ │ │ └── 10.20.8.0/21` [link](#network-0a140800_21) | - | Unallocated | - | - |
+| `│ │ │ │ ├── 10.20.16.0/20` [link](#network-0a141000_20) | Private | Subnet Container | - | Private subnet type |
+| `│ │ │ │ ├── 10.20.32.0/20` [link](#network-0a142000_20) | Backend | Subnet Container | - | Backend subnet type |
+| `│ │ │ │ └── 10.20.48.0/20` [link](#network-0a143000_20) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.20.64.0/18` [link](#network-0a144000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.20.128.0/17` [link](#network-0a148000_17) | - | Unallocated | - | - |
+| `│ │ └── 10.24.0.0/13` [link](#network-0a180000_13) | - | Unallocated | - | - |
+| `│ ├── 10.32.0.0/12` [link](#network-0a200000_12) | Azure | Subnet Container | - | Azure provider block |
+| `│ │ ├── 10.32.0.0/14` [link](#network-0a200000_14) | Azure us-east-1 | Subnet Container | - | Primary region |
+| `│ │ │ ├── 10.32.0.0/18` [link](#network-0a200000_18) | Primary VPC | Subnet Container | - | Regional primary VPC |
+| `│ │ │ │ ├── 10.32.0.0/20` [link](#network-0a200000_20) | Public | Subnet Container | - | Public subnet type |
+| `│ │ │ │ │ ├── 10.32.0.0/22` [link](#network-0a200000_22) | AZ-a | Host Pool | - | Availability zone A |
+| `│ │ │ │ │ │ └── 10.32.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ ├── 10.32.4.0/22` [link](#network-0a200400_22) | AZ-b | Host Pool | - | Availability zone B |
+| `│ │ │ │ │ └── 10.32.8.0/21` [link](#network-0a200800_21) | - | Unallocated | - | - |
+| `│ │ │ │ ├── 10.32.16.0/20` [link](#network-0a201000_20) | Private | Subnet Container | - | Private subnet type |
+| `│ │ │ │ ├── 10.32.32.0/20` [link](#network-0a202000_20) | Backend | Subnet Container | - | Backend subnet type |
+| `│ │ │ │ └── 10.32.48.0/20` [link](#network-0a203000_20) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.32.64.0/18` [link](#network-0a204000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.32.128.0/17` [link](#network-0a208000_17) | - | Unallocated | - | - |
+| `│ │ ├── 10.36.0.0/14` [link](#network-0a240000_14) | Azure eu-west-1 | Subnet Container | - | Secondary region |
+| `│ │ │ ├── 10.36.0.0/18` [link](#network-0a240000_18) | Primary VPC | Subnet Container | - | Regional primary VPC |
+| `│ │ │ │ ├── 10.36.0.0/20` [link](#network-0a240000_20) | Public | Subnet Container | - | Public subnet type |
+| `│ │ │ │ │ ├── 10.36.0.0/22` [link](#network-0a240000_22) | AZ-a | Host Pool | - | Availability zone A |
+| `│ │ │ │ │ │ └── 10.36.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ ├── 10.36.4.0/22` [link](#network-0a240400_22) | AZ-b | Host Pool | - | Availability zone B |
+| `│ │ │ │ │ └── 10.36.8.0/21` [link](#network-0a240800_21) | - | Unallocated | - | - |
+| `│ │ │ │ ├── 10.36.16.0/20` [link](#network-0a241000_20) | Private | Subnet Container | - | Private subnet type |
+| `│ │ │ │ ├── 10.36.32.0/20` [link](#network-0a242000_20) | Backend | Subnet Container | - | Backend subnet type |
+| `│ │ │ │ └── 10.36.48.0/20` [link](#network-0a243000_20) | - | Unallocated | - | - |
+| `│ │ │ ├── 10.36.64.0/18` [link](#network-0a244000_18) | - | Unallocated | - | - |
+| `│ │ │ └── 10.36.128.0/17` [link](#network-0a248000_17) | - | Unallocated | - | - |
+| `│ │ └── 10.40.0.0/13` [link](#network-0a280000_13) | - | Unallocated | - | - |
+| `│ └── 10.48.0.0/12` [link](#network-0a300000_12) | - | Unallocated | - | - |
 | `192.168.0.0/16` [link](#network-c0a80000_16) | Home | Subnet Container | - | Home supernet with VLAN segments |
-| `│ ├── 192.168.0.0/24` [link](#network-c0a80000_24) | Home Infra | Host Pool | 10 (Home-Infra) | Routers and servers |
-| `│ │ ├── 192.168.0.1` | gateway | Reserved IP | 10 (Home-Infra) | Default gateway |
-| `│ │ └── 192.168.0.10` | nas | Reserved IP | 10 (Home-Infra) | NAS |
-| `│ ├── 192.168.1.0/24` [link](#network-c0a80100_24) | Home Users | Host Pool | 20 (Home-Users) | Laptops and phones |
-| `│ │ ├── 192.168.1.1` | gateway | Reserved IP | 20 (Home-Users) | Default gateway |
-| `│ │ └── 192.168.1.50` | printer | Reserved IP | 20 (Home-Users) | Office printer |
-| `│ ├── 192.168.2.0/24` [link](#network-c0a80200_24) | Home IoT | Host Pool | 30 (Home-IoT) | Cameras and sensors |
-| `│ │ ├── 192.168.2.1` | gateway | Reserved IP | 30 (Home-IoT) | Default gateway |
-| `│ │ └── 192.168.2.20` | camera-nvr | Reserved IP | 30 (Home-IoT) | NVR |
-| `│ ├── 192.168.3.0/24` [link](#network-c0a80300_24) | - | Unallocated | - | - |
-| `│ ├── 192.168.4.0/22` [link](#network-c0a80400_22) | - | Unallocated | - | - |
-| `│ ├── 192.168.8.0/21` [link](#network-c0a80800_21) | - | Unallocated | - | - |
-| `│ ├── 192.168.16.0/20` [link](#network-c0a81000_20) | - | Unallocated | - | - |
-| `│ ├── 192.168.32.0/19` [link](#network-c0a82000_19) | - | Unallocated | - | - |
-| `│ ├── 192.168.64.0/18` [link](#network-c0a84000_18) | - | Unallocated | - | - |
-| `│ └── 192.168.128.0/17` [link](#network-c0a88000_17) | - | Unallocated | - | - |
-| `fd10::/36` [link](#network-fd100000000000000000000000000000_36) | AWS us-east-1 VPC v6 | Host Pool | - | IPv6 regional VPC in us-east-1 |
-| `│ ├── fd10::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
-| `│ └── fd10::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
-| `fd10:0:1000::/36` [link](#network-fd100000100000000000000000000000_36) | AWS eu-west-1 VPC v6 | Host Pool | - | IPv6 regional VPC in eu-west-1 |
-| `│ ├── fd10:0:1000::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
-| `│ └── fd10:0:1000::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
-| `fd10:0:2000::/35` [link](#network-fd100000200000000000000000000000_35) | - | Unallocated | - | - |
-| `fd10:0:4000::/34` [link](#network-fd100000400000000000000000000000_34) | - | Unallocated | - | - |
-| `fd10:0:8000::/33` [link](#network-fd100000800000000000000000000000_33) | - | Unallocated | - | - |
-| `fd20::/36` [link](#network-fd200000000000000000000000000000_36) | GCP us-east-1 VPC v6 | Host Pool | - | IPv6 regional VPC in us-east-1 |
-| `│ ├── fd20::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
-| `│ └── fd20::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
-| `fd20:0:1000::/36` [link](#network-fd200000100000000000000000000000_36) | GCP eu-west-1 VPC v6 | Host Pool | - | IPv6 regional VPC in eu-west-1 |
-| `│ ├── fd20:0:1000::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
-| `│ └── fd20:0:1000::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
-| `fd20:0:2000::/35` [link](#network-fd200000200000000000000000000000_35) | - | Unallocated | - | - |
-| `fd20:0:4000::/34` [link](#network-fd200000400000000000000000000000_34) | - | Unallocated | - | - |
-| `fd20:0:8000::/33` [link](#network-fd200000800000000000000000000000_33) | - | Unallocated | - | - |
-| `fd30::/36` [link](#network-fd300000000000000000000000000000_36) | Azure us-east-1 VPC v6 | Host Pool | - | IPv6 regional VPC in us-east-1 |
-| `│ ├── fd30::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
-| `│ └── fd30::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
-| `fd30:0:1000::/36` [link](#network-fd300000100000000000000000000000_36) | Azure eu-west-1 VPC v6 | Host Pool | - | IPv6 regional VPC in eu-west-1 |
-| `│ ├── fd30:0:1000::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
-| `│ └── fd30:0:1000::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
-| `fd30:0:2000::/35` [link](#network-fd300000200000000000000000000000_35) | - | Unallocated | - | - |
-| `fd30:0:4000::/34` [link](#network-fd300000400000000000000000000000_34) | - | Unallocated | - | - |
-| `fd30:0:8000::/33` [link](#network-fd300000800000000000000000000000_33) | - | Unallocated | - | - |
+| `  ├── 192.168.0.0/24` [link](#network-c0a80000_24) | Home Infra | Host Pool | 10 (Home-Infra) | Routers and servers |
+| `  │ ├── 192.168.0.1` | gateway | Reserved IP | 10 (Home-Infra) | Default gateway |
+| `  │ └── 192.168.0.10` | nas | Reserved IP | 10 (Home-Infra) | NAS |
+| `  ├── 192.168.1.0/24` [link](#network-c0a80100_24) | Home Users | Host Pool | 20 (Home-Users) | Laptops and phones |
+| `  │ ├── 192.168.1.1` | gateway | Reserved IP | 20 (Home-Users) | Default gateway |
+| `  │ └── 192.168.1.50` | printer | Reserved IP | 20 (Home-Users) | Office printer |
+| `  ├── 192.168.2.0/24` [link](#network-c0a80200_24) | Home IoT | Host Pool | 30 (Home-IoT) | Cameras and sensors |
+| `  │ ├── 192.168.2.1` | gateway | Reserved IP | 30 (Home-IoT) | Default gateway |
+| `  │ └── 192.168.2.20` | camera-nvr | Reserved IP | 30 (Home-IoT) | NVR |
+| `  ├── 192.168.4.0/22` [link](#network-c0a80400_22) | - | Unallocated | - | - |
+| `  ├── 192.168.8.0/21` [link](#network-c0a80800_21) | - | Unallocated | - | - |
+| `  ├── 192.168.16.0/20` [link](#network-c0a81000_20) | - | Unallocated | - | - |
+| `  ├── 192.168.32.0/19` [link](#network-c0a82000_19) | - | Unallocated | - | - |
+| `  ├── 192.168.64.0/18` [link](#network-c0a84000_18) | - | Unallocated | - | - |
+| `  └── 192.168.128.0/17` [link](#network-c0a88000_17) | - | Unallocated | - | - |
 
 ## VLANs
 
@@ -102,8 +115,71 @@
 
 ## Detailed Networks
 
+<a id="network-0a000000_10"></a>
+### `10.0.0.0/10` -- Cloud
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.0.0.0/10` |
+| **Network Address** | `10.0.0.0` |
+| **Mask Bits** | `10` |
+| **Subnet Mask** | `255.192.0.0` |
+| **Broadcast Address** | `10.63.255.255` |
+| **Range** | `10.0.0.0 - 10.63.255.255` |
+| **Total Hosts** | `4,194,304` |
+| **Usable Range** | `10.0.0.1 - 10.63.255.254` |
+| **Usable Hosts** | `4,194,302` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Cloud supernet
+
+---
+
+<a id="network-0a000000_12"></a>
+#### `10.0.0.0/12` -- AWS
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.0.0.0/12` |
+| **Network Address** | `10.0.0.0` |
+| **Mask Bits** | `12` |
+| **Subnet Mask** | `255.240.0.0` |
+| **Broadcast Address** | `10.15.255.255` |
+| **Range** | `10.0.0.0 - 10.15.255.255` |
+| **Total Hosts** | `1,048,576` |
+| **Usable Range** | `10.0.0.1 - 10.15.255.254` |
+| **Usable Hosts** | `1,048,574` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> AWS provider block
+
+---
+
+<a id="network-0a000000_14"></a>
+##### `10.0.0.0/14` -- AWS us-east-1
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.0.0.0/14` |
+| **Network Address** | `10.0.0.0` |
+| **Mask Bits** | `14` |
+| **Subnet Mask** | `255.252.0.0` |
+| **Broadcast Address** | `10.3.255.255` |
+| **Range** | `10.0.0.0 - 10.3.255.255` |
+| **Total Hosts** | `262,144` |
+| **Usable Range** | `10.0.0.1 - 10.3.255.254` |
+| **Usable Hosts** | `262,142` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Primary region
+
+---
+
 <a id="network-0a000000_18"></a>
-### `10.0.0.0/18` -- AWS us-east-1 VPC
+###### `10.0.0.0/18` -- Primary VPC
 
 | Property | Value |
 |----------|-------|
@@ -116,23 +192,164 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.0.0.1 - 10.0.63.254` |
 | **Usable Hosts** | `16,382` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Regional primary VPC
+
+---
+
+<a id="network-0a000000_20"></a>
+###### `10.0.0.0/20` -- Public
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.0.0.0/20` |
+| **Network Address** | `10.0.0.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.0.15.255` |
+| **Range** | `10.0.0.0 - 10.0.15.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.0.0.1 - 10.0.15.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Public subnet type
+
+---
+
+<a id="network-0a000000_22"></a>
+###### `10.0.0.0/22` -- AZ-a
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.0.0.0/22` |
+| **Network Address** | `10.0.0.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `10.0.3.255` |
+| **Range** | `10.0.0.0 - 10.0.3.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `10.0.0.1 - 10.0.3.254` |
+| **Usable Hosts** | `1,022` |
 | **Allocation Mode** | `Host Pool` |
 | **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
-> AWS us-east-1 VPC regional VPC
+> Availability zone A
 
-### Reserved IPs
+###### Reserved IPs
 
 | IP | Name | Description |
 |----|------|-------------|
 | `10.0.0.1` | `gateway` | Default gateway |
-| `10.0.0.2` | `dns` | Resolver |
-| `10.0.0.10` | `nat` | NAT/egress |
+
+---
+
+<a id="network-0a000400_22"></a>
+###### `10.0.4.0/22` -- AZ-b
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.0.4.0/22` |
+| **Network Address** | `10.0.4.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `10.0.7.255` |
+| **Range** | `10.0.4.0 - 10.0.7.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `10.0.4.1 - 10.0.7.254` |
+| **Usable Hosts** | `1,022` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+
+> Availability zone B
+
+---
+
+<a id="network-0a000800_21"></a>
+###### `10.0.8.0/21` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.0.8.0/21` |
+| **Network Address** | `10.0.8.0` |
+| **Mask Bits** | `21` |
+| **Subnet Mask** | `255.255.248.0` |
+| **Broadcast Address** | `10.0.15.255` |
+| **Range** | `10.0.8.0 - 10.0.15.255` |
+| **Total Hosts** | `2,048` |
+| **Usable Range** | `10.0.8.1 - 10.0.15.254` |
+| **Usable Hosts** | `2,046` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-0a001000_20"></a>
+###### `10.0.16.0/20` -- Private
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.0.16.0/20` |
+| **Network Address** | `10.0.16.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.0.31.255` |
+| **Range** | `10.0.16.0 - 10.0.31.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.0.16.1 - 10.0.31.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Private subnet type
+
+---
+
+<a id="network-0a002000_20"></a>
+###### `10.0.32.0/20` -- Backend
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.0.32.0/20` |
+| **Network Address** | `10.0.32.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.0.47.255` |
+| **Range** | `10.0.32.0 - 10.0.47.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.0.32.1 - 10.0.47.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Backend subnet type
+
+---
+
+<a id="network-0a003000_20"></a>
+###### `10.0.48.0/20` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.0.48.0/20` |
+| **Network Address** | `10.0.48.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.0.63.255` |
+| **Range** | `10.0.48.0 - 10.0.63.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.0.48.1 - 10.0.63.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
 <a id="network-0a004000_18"></a>
-### `10.0.64.0/18` -- AWS eu-west-1 VPC
+###### `10.0.64.0/18` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
@@ -145,135 +362,32 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.0.64.1 - 10.0.127.254` |
 | **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> AWS eu-west-1 VPC regional VPC
-
----
-
-<a id="network-0a008000_18"></a>
-### `10.0.128.0/18` -- AWS shared-services VPC
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.0.128.0/18` |
-| **Network Address** | `10.0.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.0.191.255` |
-| **Range** | `10.0.128.0 - 10.0.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.0.128.1 - 10.0.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> AWS shared-services VPC regional VPC
-
----
-
-<a id="network-0a00c000_18"></a>
-### `10.0.192.0/18` -- AWS data VPC
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.0.192.0/18` |
-| **Network Address** | `10.0.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.0.255.255` |
-| **Range** | `10.0.192.0 - 10.0.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.0.192.1 - 10.0.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> AWS data VPC regional VPC
-
----
-
-<a id="network-0a010000_18"></a>
-### `10.1.0.0/18` -- AWS sandbox VPC
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.1.0.0/18` |
-| **Network Address** | `10.1.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.1.63.255` |
-| **Range** | `10.1.0.0 - 10.1.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.1.0.1 - 10.1.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> AWS sandbox VPC regional VPC
-
----
-
-<a id="network-0a014000_18"></a>
-### `10.1.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.1.64.0/18` |
-| **Network Address** | `10.1.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.1.127.255` |
-| **Range** | `10.1.64.0 - 10.1.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.1.64.1 - 10.1.127.254` |
-| **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
-<a id="network-0a018000_17"></a>
-### `10.1.128.0/17` _(Unallocated)_
+<a id="network-0a008000_17"></a>
+###### `10.0.128.0/17` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `10.1.128.0/17` |
-| **Network Address** | `10.1.128.0` |
+| **CIDR** | `10.0.128.0/17` |
+| **Network Address** | `10.0.128.0` |
 | **Mask Bits** | `17` |
 | **Subnet Mask** | `255.255.128.0` |
-| **Broadcast Address** | `10.1.255.255` |
-| **Range** | `10.1.128.0 - 10.1.255.255` |
+| **Broadcast Address** | `10.0.255.255` |
+| **Range** | `10.0.128.0 - 10.0.255.255` |
 | **Total Hosts** | `32,768` |
-| **Usable Range** | `10.1.128.1 - 10.1.255.254` |
+| **Usable Range** | `10.0.128.1 - 10.0.255.254` |
 | **Usable Hosts** | `32,766` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
-<a id="network-0a020000_15"></a>
-### `10.2.0.0/15` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.2.0.0/15` |
-| **Network Address** | `10.2.0.0` |
-| **Mask Bits** | `15` |
-| **Subnet Mask** | `255.254.0.0` |
-| **Broadcast Address** | `10.3.255.255` |
-| **Range** | `10.2.0.0 - 10.3.255.255` |
-| **Total Hosts** | `131,072` |
-| **Usable Range** | `10.2.0.1 - 10.3.255.254` |
-| **Usable Hosts** | `131,070` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
 <a id="network-0a040000_14"></a>
-### `10.4.0.0/14` _(Unallocated)_
+##### `10.4.0.0/14` -- AWS eu-west-1
 
 | Property | Value |
 |----------|-------|
@@ -286,13 +400,223 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.4.0.1 - 10.7.255.254` |
 | **Usable Hosts** | `262,142` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Secondary region
+
+---
+
+<a id="network-0a040000_18"></a>
+###### `10.4.0.0/18` -- Primary VPC
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.4.0.0/18` |
+| **Network Address** | `10.4.0.0` |
+| **Mask Bits** | `18` |
+| **Subnet Mask** | `255.255.192.0` |
+| **Broadcast Address** | `10.4.63.255` |
+| **Range** | `10.4.0.0 - 10.4.63.255` |
+| **Total Hosts** | `16,384` |
+| **Usable Range** | `10.4.0.1 - 10.4.63.254` |
+| **Usable Hosts** | `16,382` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Regional primary VPC
+
+---
+
+<a id="network-0a040000_20"></a>
+###### `10.4.0.0/20` -- Public
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.4.0.0/20` |
+| **Network Address** | `10.4.0.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.4.15.255` |
+| **Range** | `10.4.0.0 - 10.4.15.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.4.0.1 - 10.4.15.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Public subnet type
+
+---
+
+<a id="network-0a040000_22"></a>
+###### `10.4.0.0/22` -- AZ-a
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.4.0.0/22` |
+| **Network Address** | `10.4.0.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `10.4.3.255` |
+| **Range** | `10.4.0.0 - 10.4.3.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `10.4.0.1 - 10.4.3.254` |
+| **Usable Hosts** | `1,022` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+
+> Availability zone A
+
+###### Reserved IPs
+
+| IP | Name | Description |
+|----|------|-------------|
+| `10.4.0.1` | `gateway` | Default gateway |
+
+---
+
+<a id="network-0a040400_22"></a>
+###### `10.4.4.0/22` -- AZ-b
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.4.4.0/22` |
+| **Network Address** | `10.4.4.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `10.4.7.255` |
+| **Range** | `10.4.4.0 - 10.4.7.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `10.4.4.1 - 10.4.7.254` |
+| **Usable Hosts** | `1,022` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+
+> Availability zone B
+
+---
+
+<a id="network-0a040800_21"></a>
+###### `10.4.8.0/21` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.4.8.0/21` |
+| **Network Address** | `10.4.8.0` |
+| **Mask Bits** | `21` |
+| **Subnet Mask** | `255.255.248.0` |
+| **Broadcast Address** | `10.4.15.255` |
+| **Range** | `10.4.8.0 - 10.4.15.255` |
+| **Total Hosts** | `2,048` |
+| **Usable Range** | `10.4.8.1 - 10.4.15.254` |
+| **Usable Hosts** | `2,046` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-0a041000_20"></a>
+###### `10.4.16.0/20` -- Private
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.4.16.0/20` |
+| **Network Address** | `10.4.16.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.4.31.255` |
+| **Range** | `10.4.16.0 - 10.4.31.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.4.16.1 - 10.4.31.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Private subnet type
+
+---
+
+<a id="network-0a042000_20"></a>
+###### `10.4.32.0/20` -- Backend
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.4.32.0/20` |
+| **Network Address** | `10.4.32.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.4.47.255` |
+| **Range** | `10.4.32.0 - 10.4.47.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.4.32.1 - 10.4.47.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Backend subnet type
+
+---
+
+<a id="network-0a043000_20"></a>
+###### `10.4.48.0/20` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.4.48.0/20` |
+| **Network Address** | `10.4.48.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.4.63.255` |
+| **Range** | `10.4.48.0 - 10.4.63.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.4.48.1 - 10.4.63.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-0a044000_18"></a>
+###### `10.4.64.0/18` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.4.64.0/18` |
+| **Network Address** | `10.4.64.0` |
+| **Mask Bits** | `18` |
+| **Subnet Mask** | `255.255.192.0` |
+| **Broadcast Address** | `10.4.127.255` |
+| **Range** | `10.4.64.0 - 10.4.127.255` |
+| **Total Hosts** | `16,384` |
+| **Usable Range** | `10.4.64.1 - 10.4.127.254` |
+| **Usable Hosts** | `16,382` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-0a048000_17"></a>
+###### `10.4.128.0/17` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.4.128.0/17` |
+| **Network Address** | `10.4.128.0` |
+| **Mask Bits** | `17` |
+| **Subnet Mask** | `255.255.128.0` |
+| **Broadcast Address** | `10.4.255.255` |
+| **Range** | `10.4.128.0 - 10.4.255.255` |
+| **Total Hosts** | `32,768` |
+| **Usable Range** | `10.4.128.1 - 10.4.255.254` |
+| **Usable Hosts** | `32,766` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
 <a id="network-0a080000_13"></a>
-### `10.8.0.0/13` _(Unallocated)_
+##### `10.8.0.0/13` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
@@ -310,8 +634,50 @@
 
 ---
 
+<a id="network-0a100000_12"></a>
+#### `10.16.0.0/12` -- GCP
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.16.0.0/12` |
+| **Network Address** | `10.16.0.0` |
+| **Mask Bits** | `12` |
+| **Subnet Mask** | `255.240.0.0` |
+| **Broadcast Address** | `10.31.255.255` |
+| **Range** | `10.16.0.0 - 10.31.255.255` |
+| **Total Hosts** | `1,048,576` |
+| **Usable Range** | `10.16.0.1 - 10.31.255.254` |
+| **Usable Hosts** | `1,048,574` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> GCP provider block
+
+---
+
+<a id="network-0a100000_14"></a>
+##### `10.16.0.0/14` -- GCP us-east-1
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.16.0.0/14` |
+| **Network Address** | `10.16.0.0` |
+| **Mask Bits** | `14` |
+| **Subnet Mask** | `255.252.0.0` |
+| **Broadcast Address** | `10.19.255.255` |
+| **Range** | `10.16.0.0 - 10.19.255.255` |
+| **Total Hosts** | `262,144` |
+| **Usable Range** | `10.16.0.1 - 10.19.255.254` |
+| **Usable Hosts** | `262,142` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Primary region
+
+---
+
 <a id="network-0a100000_18"></a>
-### `10.16.0.0/18` -- GCP us-east-1 VPC
+###### `10.16.0.0/18` -- Primary VPC
 
 | Property | Value |
 |----------|-------|
@@ -324,23 +690,164 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.16.0.1 - 10.16.63.254` |
 | **Usable Hosts** | `16,382` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Regional primary VPC
+
+---
+
+<a id="network-0a100000_20"></a>
+###### `10.16.0.0/20` -- Public
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.16.0.0/20` |
+| **Network Address** | `10.16.0.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.16.15.255` |
+| **Range** | `10.16.0.0 - 10.16.15.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.16.0.1 - 10.16.15.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Public subnet type
+
+---
+
+<a id="network-0a100000_22"></a>
+###### `10.16.0.0/22` -- AZ-a
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.16.0.0/22` |
+| **Network Address** | `10.16.0.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `10.16.3.255` |
+| **Range** | `10.16.0.0 - 10.16.3.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `10.16.0.1 - 10.16.3.254` |
+| **Usable Hosts** | `1,022` |
 | **Allocation Mode** | `Host Pool` |
 | **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
-> GCP us-east-1 VPC regional VPC
+> Availability zone A
 
-### Reserved IPs
+###### Reserved IPs
 
 | IP | Name | Description |
 |----|------|-------------|
 | `10.16.0.1` | `gateway` | Default gateway |
-| `10.16.0.2` | `dns` | Resolver |
-| `10.16.0.10` | `nat` | NAT/egress |
+
+---
+
+<a id="network-0a100400_22"></a>
+###### `10.16.4.0/22` -- AZ-b
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.16.4.0/22` |
+| **Network Address** | `10.16.4.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `10.16.7.255` |
+| **Range** | `10.16.4.0 - 10.16.7.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `10.16.4.1 - 10.16.7.254` |
+| **Usable Hosts** | `1,022` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+
+> Availability zone B
+
+---
+
+<a id="network-0a100800_21"></a>
+###### `10.16.8.0/21` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.16.8.0/21` |
+| **Network Address** | `10.16.8.0` |
+| **Mask Bits** | `21` |
+| **Subnet Mask** | `255.255.248.0` |
+| **Broadcast Address** | `10.16.15.255` |
+| **Range** | `10.16.8.0 - 10.16.15.255` |
+| **Total Hosts** | `2,048` |
+| **Usable Range** | `10.16.8.1 - 10.16.15.254` |
+| **Usable Hosts** | `2,046` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-0a101000_20"></a>
+###### `10.16.16.0/20` -- Private
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.16.16.0/20` |
+| **Network Address** | `10.16.16.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.16.31.255` |
+| **Range** | `10.16.16.0 - 10.16.31.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.16.16.1 - 10.16.31.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Private subnet type
+
+---
+
+<a id="network-0a102000_20"></a>
+###### `10.16.32.0/20` -- Backend
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.16.32.0/20` |
+| **Network Address** | `10.16.32.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.16.47.255` |
+| **Range** | `10.16.32.0 - 10.16.47.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.16.32.1 - 10.16.47.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Backend subnet type
+
+---
+
+<a id="network-0a103000_20"></a>
+###### `10.16.48.0/20` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.16.48.0/20` |
+| **Network Address** | `10.16.48.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.16.63.255` |
+| **Range** | `10.16.48.0 - 10.16.63.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.16.48.1 - 10.16.63.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
 <a id="network-0a104000_18"></a>
-### `10.16.64.0/18` -- GCP eu-west-1 VPC
+###### `10.16.64.0/18` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
@@ -353,135 +860,32 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.16.64.1 - 10.16.127.254` |
 | **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> GCP eu-west-1 VPC regional VPC
-
----
-
-<a id="network-0a108000_18"></a>
-### `10.16.128.0/18` -- GCP shared-services VPC
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.16.128.0/18` |
-| **Network Address** | `10.16.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.16.191.255` |
-| **Range** | `10.16.128.0 - 10.16.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.16.128.1 - 10.16.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> GCP shared-services VPC regional VPC
-
----
-
-<a id="network-0a10c000_18"></a>
-### `10.16.192.0/18` -- GCP data VPC
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.16.192.0/18` |
-| **Network Address** | `10.16.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.16.255.255` |
-| **Range** | `10.16.192.0 - 10.16.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.16.192.1 - 10.16.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> GCP data VPC regional VPC
-
----
-
-<a id="network-0a110000_18"></a>
-### `10.17.0.0/18` -- GCP sandbox VPC
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.17.0.0/18` |
-| **Network Address** | `10.17.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.17.63.255` |
-| **Range** | `10.17.0.0 - 10.17.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.17.0.1 - 10.17.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> GCP sandbox VPC regional VPC
-
----
-
-<a id="network-0a114000_18"></a>
-### `10.17.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.17.64.0/18` |
-| **Network Address** | `10.17.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.17.127.255` |
-| **Range** | `10.17.64.0 - 10.17.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.17.64.1 - 10.17.127.254` |
-| **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
-<a id="network-0a118000_17"></a>
-### `10.17.128.0/17` _(Unallocated)_
+<a id="network-0a108000_17"></a>
+###### `10.16.128.0/17` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `10.17.128.0/17` |
-| **Network Address** | `10.17.128.0` |
+| **CIDR** | `10.16.128.0/17` |
+| **Network Address** | `10.16.128.0` |
 | **Mask Bits** | `17` |
 | **Subnet Mask** | `255.255.128.0` |
-| **Broadcast Address** | `10.17.255.255` |
-| **Range** | `10.17.128.0 - 10.17.255.255` |
+| **Broadcast Address** | `10.16.255.255` |
+| **Range** | `10.16.128.0 - 10.16.255.255` |
 | **Total Hosts** | `32,768` |
-| **Usable Range** | `10.17.128.1 - 10.17.255.254` |
+| **Usable Range** | `10.16.128.1 - 10.16.255.254` |
 | **Usable Hosts** | `32,766` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
-<a id="network-0a120000_15"></a>
-### `10.18.0.0/15` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.18.0.0/15` |
-| **Network Address** | `10.18.0.0` |
-| **Mask Bits** | `15` |
-| **Subnet Mask** | `255.254.0.0` |
-| **Broadcast Address** | `10.19.255.255` |
-| **Range** | `10.18.0.0 - 10.19.255.255` |
-| **Total Hosts** | `131,072` |
-| **Usable Range** | `10.18.0.1 - 10.19.255.254` |
-| **Usable Hosts** | `131,070` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
 <a id="network-0a140000_14"></a>
-### `10.20.0.0/14` _(Unallocated)_
+##### `10.20.0.0/14` -- GCP eu-west-1
 
 | Property | Value |
 |----------|-------|
@@ -494,13 +898,223 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.20.0.1 - 10.23.255.254` |
 | **Usable Hosts** | `262,142` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Secondary region
+
+---
+
+<a id="network-0a140000_18"></a>
+###### `10.20.0.0/18` -- Primary VPC
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.20.0.0/18` |
+| **Network Address** | `10.20.0.0` |
+| **Mask Bits** | `18` |
+| **Subnet Mask** | `255.255.192.0` |
+| **Broadcast Address** | `10.20.63.255` |
+| **Range** | `10.20.0.0 - 10.20.63.255` |
+| **Total Hosts** | `16,384` |
+| **Usable Range** | `10.20.0.1 - 10.20.63.254` |
+| **Usable Hosts** | `16,382` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Regional primary VPC
+
+---
+
+<a id="network-0a140000_20"></a>
+###### `10.20.0.0/20` -- Public
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.20.0.0/20` |
+| **Network Address** | `10.20.0.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.20.15.255` |
+| **Range** | `10.20.0.0 - 10.20.15.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.20.0.1 - 10.20.15.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Public subnet type
+
+---
+
+<a id="network-0a140000_22"></a>
+###### `10.20.0.0/22` -- AZ-a
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.20.0.0/22` |
+| **Network Address** | `10.20.0.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `10.20.3.255` |
+| **Range** | `10.20.0.0 - 10.20.3.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `10.20.0.1 - 10.20.3.254` |
+| **Usable Hosts** | `1,022` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+
+> Availability zone A
+
+###### Reserved IPs
+
+| IP | Name | Description |
+|----|------|-------------|
+| `10.20.0.1` | `gateway` | Default gateway |
+
+---
+
+<a id="network-0a140400_22"></a>
+###### `10.20.4.0/22` -- AZ-b
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.20.4.0/22` |
+| **Network Address** | `10.20.4.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `10.20.7.255` |
+| **Range** | `10.20.4.0 - 10.20.7.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `10.20.4.1 - 10.20.7.254` |
+| **Usable Hosts** | `1,022` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+
+> Availability zone B
+
+---
+
+<a id="network-0a140800_21"></a>
+###### `10.20.8.0/21` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.20.8.0/21` |
+| **Network Address** | `10.20.8.0` |
+| **Mask Bits** | `21` |
+| **Subnet Mask** | `255.255.248.0` |
+| **Broadcast Address** | `10.20.15.255` |
+| **Range** | `10.20.8.0 - 10.20.15.255` |
+| **Total Hosts** | `2,048` |
+| **Usable Range** | `10.20.8.1 - 10.20.15.254` |
+| **Usable Hosts** | `2,046` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-0a141000_20"></a>
+###### `10.20.16.0/20` -- Private
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.20.16.0/20` |
+| **Network Address** | `10.20.16.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.20.31.255` |
+| **Range** | `10.20.16.0 - 10.20.31.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.20.16.1 - 10.20.31.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Private subnet type
+
+---
+
+<a id="network-0a142000_20"></a>
+###### `10.20.32.0/20` -- Backend
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.20.32.0/20` |
+| **Network Address** | `10.20.32.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.20.47.255` |
+| **Range** | `10.20.32.0 - 10.20.47.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.20.32.1 - 10.20.47.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Backend subnet type
+
+---
+
+<a id="network-0a143000_20"></a>
+###### `10.20.48.0/20` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.20.48.0/20` |
+| **Network Address** | `10.20.48.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.20.63.255` |
+| **Range** | `10.20.48.0 - 10.20.63.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.20.48.1 - 10.20.63.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-0a144000_18"></a>
+###### `10.20.64.0/18` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.20.64.0/18` |
+| **Network Address** | `10.20.64.0` |
+| **Mask Bits** | `18` |
+| **Subnet Mask** | `255.255.192.0` |
+| **Broadcast Address** | `10.20.127.255` |
+| **Range** | `10.20.64.0 - 10.20.127.255` |
+| **Total Hosts** | `16,384` |
+| **Usable Range** | `10.20.64.1 - 10.20.127.254` |
+| **Usable Hosts** | `16,382` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-0a148000_17"></a>
+###### `10.20.128.0/17` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.20.128.0/17` |
+| **Network Address** | `10.20.128.0` |
+| **Mask Bits** | `17` |
+| **Subnet Mask** | `255.255.128.0` |
+| **Broadcast Address** | `10.20.255.255` |
+| **Range** | `10.20.128.0 - 10.20.255.255` |
+| **Total Hosts** | `32,768` |
+| **Usable Range** | `10.20.128.1 - 10.20.255.254` |
+| **Usable Hosts** | `32,766` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
 <a id="network-0a180000_13"></a>
-### `10.24.0.0/13` _(Unallocated)_
+##### `10.24.0.0/13` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
@@ -518,8 +1132,50 @@
 
 ---
 
+<a id="network-0a200000_12"></a>
+#### `10.32.0.0/12` -- Azure
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.32.0.0/12` |
+| **Network Address** | `10.32.0.0` |
+| **Mask Bits** | `12` |
+| **Subnet Mask** | `255.240.0.0` |
+| **Broadcast Address** | `10.47.255.255` |
+| **Range** | `10.32.0.0 - 10.47.255.255` |
+| **Total Hosts** | `1,048,576` |
+| **Usable Range** | `10.32.0.1 - 10.47.255.254` |
+| **Usable Hosts** | `1,048,574` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Azure provider block
+
+---
+
+<a id="network-0a200000_14"></a>
+##### `10.32.0.0/14` -- Azure us-east-1
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.32.0.0/14` |
+| **Network Address** | `10.32.0.0` |
+| **Mask Bits** | `14` |
+| **Subnet Mask** | `255.252.0.0` |
+| **Broadcast Address** | `10.35.255.255` |
+| **Range** | `10.32.0.0 - 10.35.255.255` |
+| **Total Hosts** | `262,144` |
+| **Usable Range** | `10.32.0.1 - 10.35.255.254` |
+| **Usable Hosts** | `262,142` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Primary region
+
+---
+
 <a id="network-0a200000_18"></a>
-### `10.32.0.0/18` -- Azure us-east-1 VPC
+###### `10.32.0.0/18` -- Primary VPC
 
 | Property | Value |
 |----------|-------|
@@ -532,23 +1188,164 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.32.0.1 - 10.32.63.254` |
 | **Usable Hosts** | `16,382` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Regional primary VPC
+
+---
+
+<a id="network-0a200000_20"></a>
+###### `10.32.0.0/20` -- Public
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.32.0.0/20` |
+| **Network Address** | `10.32.0.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.32.15.255` |
+| **Range** | `10.32.0.0 - 10.32.15.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.32.0.1 - 10.32.15.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Public subnet type
+
+---
+
+<a id="network-0a200000_22"></a>
+###### `10.32.0.0/22` -- AZ-a
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.32.0.0/22` |
+| **Network Address** | `10.32.0.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `10.32.3.255` |
+| **Range** | `10.32.0.0 - 10.32.3.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `10.32.0.1 - 10.32.3.254` |
+| **Usable Hosts** | `1,022` |
 | **Allocation Mode** | `Host Pool` |
 | **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
 
-> Azure us-east-1 VPC regional VPC
+> Availability zone A
 
-### Reserved IPs
+###### Reserved IPs
 
 | IP | Name | Description |
 |----|------|-------------|
 | `10.32.0.1` | `gateway` | Default gateway |
-| `10.32.0.2` | `dns` | Resolver |
-| `10.32.0.10` | `nat` | NAT/egress |
+
+---
+
+<a id="network-0a200400_22"></a>
+###### `10.32.4.0/22` -- AZ-b
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.32.4.0/22` |
+| **Network Address** | `10.32.4.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `10.32.7.255` |
+| **Range** | `10.32.4.0 - 10.32.7.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `10.32.4.1 - 10.32.7.254` |
+| **Usable Hosts** | `1,022` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+
+> Availability zone B
+
+---
+
+<a id="network-0a200800_21"></a>
+###### `10.32.8.0/21` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.32.8.0/21` |
+| **Network Address** | `10.32.8.0` |
+| **Mask Bits** | `21` |
+| **Subnet Mask** | `255.255.248.0` |
+| **Broadcast Address** | `10.32.15.255` |
+| **Range** | `10.32.8.0 - 10.32.15.255` |
+| **Total Hosts** | `2,048` |
+| **Usable Range** | `10.32.8.1 - 10.32.15.254` |
+| **Usable Hosts** | `2,046` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-0a201000_20"></a>
+###### `10.32.16.0/20` -- Private
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.32.16.0/20` |
+| **Network Address** | `10.32.16.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.32.31.255` |
+| **Range** | `10.32.16.0 - 10.32.31.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.32.16.1 - 10.32.31.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Private subnet type
+
+---
+
+<a id="network-0a202000_20"></a>
+###### `10.32.32.0/20` -- Backend
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.32.32.0/20` |
+| **Network Address** | `10.32.32.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.32.47.255` |
+| **Range** | `10.32.32.0 - 10.32.47.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.32.32.1 - 10.32.47.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Backend subnet type
+
+---
+
+<a id="network-0a203000_20"></a>
+###### `10.32.48.0/20` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.32.48.0/20` |
+| **Network Address** | `10.32.48.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.32.63.255` |
+| **Range** | `10.32.48.0 - 10.32.63.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.32.48.1 - 10.32.63.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
 <a id="network-0a204000_18"></a>
-### `10.32.64.0/18` -- Azure eu-west-1 VPC
+###### `10.32.64.0/18` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
@@ -561,135 +1358,32 @@
 | **Total Hosts** | `16,384` |
 | **Usable Range** | `10.32.64.1 - 10.32.127.254` |
 | **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Azure eu-west-1 VPC regional VPC
-
----
-
-<a id="network-0a208000_18"></a>
-### `10.32.128.0/18` -- Azure shared-services VPC
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.32.128.0/18` |
-| **Network Address** | `10.32.128.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.32.191.255` |
-| **Range** | `10.32.128.0 - 10.32.191.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.32.128.1 - 10.32.191.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Azure shared-services VPC regional VPC
-
----
-
-<a id="network-0a20c000_18"></a>
-### `10.32.192.0/18` -- Azure data VPC
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.32.192.0/18` |
-| **Network Address** | `10.32.192.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.32.255.255` |
-| **Range** | `10.32.192.0 - 10.32.255.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.32.192.1 - 10.32.255.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Azure data VPC regional VPC
-
----
-
-<a id="network-0a210000_18"></a>
-### `10.33.0.0/18` -- Azure sandbox VPC
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.33.0.0/18` |
-| **Network Address** | `10.33.0.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.33.63.255` |
-| **Range** | `10.33.0.0 - 10.33.63.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.33.0.1 - 10.33.63.254` |
-| **Usable Hosts** | `16,382` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> Azure sandbox VPC regional VPC
-
----
-
-<a id="network-0a214000_18"></a>
-### `10.33.64.0/18` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.33.64.0/18` |
-| **Network Address** | `10.33.64.0` |
-| **Mask Bits** | `18` |
-| **Subnet Mask** | `255.255.192.0` |
-| **Broadcast Address** | `10.33.127.255` |
-| **Range** | `10.33.64.0 - 10.33.127.255` |
-| **Total Hosts** | `16,384` |
-| **Usable Range** | `10.33.64.1 - 10.33.127.254` |
-| **Usable Hosts** | `16,382` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
-<a id="network-0a218000_17"></a>
-### `10.33.128.0/17` _(Unallocated)_
+<a id="network-0a208000_17"></a>
+###### `10.32.128.0/17` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
-| **CIDR** | `10.33.128.0/17` |
-| **Network Address** | `10.33.128.0` |
+| **CIDR** | `10.32.128.0/17` |
+| **Network Address** | `10.32.128.0` |
 | **Mask Bits** | `17` |
 | **Subnet Mask** | `255.255.128.0` |
-| **Broadcast Address** | `10.33.255.255` |
-| **Range** | `10.33.128.0 - 10.33.255.255` |
+| **Broadcast Address** | `10.32.255.255` |
+| **Range** | `10.32.128.0 - 10.32.255.255` |
 | **Total Hosts** | `32,768` |
-| **Usable Range** | `10.33.128.1 - 10.33.255.254` |
+| **Usable Range** | `10.32.128.1 - 10.32.255.254` |
 | **Usable Hosts** | `32,766` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
-<a id="network-0a220000_15"></a>
-### `10.34.0.0/15` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `10.34.0.0/15` |
-| **Network Address** | `10.34.0.0` |
-| **Mask Bits** | `15` |
-| **Subnet Mask** | `255.254.0.0` |
-| **Broadcast Address** | `10.35.255.255` |
-| **Range** | `10.34.0.0 - 10.35.255.255` |
-| **Total Hosts** | `131,072` |
-| **Usable Range** | `10.34.0.1 - 10.35.255.254` |
-| **Usable Hosts** | `131,070` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
 <a id="network-0a240000_14"></a>
-### `10.36.0.0/14` _(Unallocated)_
+##### `10.36.0.0/14` -- Azure eu-west-1
 
 | Property | Value |
 |----------|-------|
@@ -702,13 +1396,223 @@
 | **Total Hosts** | `262,144` |
 | **Usable Range** | `10.36.0.1 - 10.39.255.254` |
 | **Usable Hosts** | `262,142` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Secondary region
+
+---
+
+<a id="network-0a240000_18"></a>
+###### `10.36.0.0/18` -- Primary VPC
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.36.0.0/18` |
+| **Network Address** | `10.36.0.0` |
+| **Mask Bits** | `18` |
+| **Subnet Mask** | `255.255.192.0` |
+| **Broadcast Address** | `10.36.63.255` |
+| **Range** | `10.36.0.0 - 10.36.63.255` |
+| **Total Hosts** | `16,384` |
+| **Usable Range** | `10.36.0.1 - 10.36.63.254` |
+| **Usable Hosts** | `16,382` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Regional primary VPC
+
+---
+
+<a id="network-0a240000_20"></a>
+###### `10.36.0.0/20` -- Public
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.36.0.0/20` |
+| **Network Address** | `10.36.0.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.36.15.255` |
+| **Range** | `10.36.0.0 - 10.36.15.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.36.0.1 - 10.36.15.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Public subnet type
+
+---
+
+<a id="network-0a240000_22"></a>
+###### `10.36.0.0/22` -- AZ-a
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.36.0.0/22` |
+| **Network Address** | `10.36.0.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `10.36.3.255` |
+| **Range** | `10.36.0.0 - 10.36.3.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `10.36.0.1 - 10.36.3.254` |
+| **Usable Hosts** | `1,022` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+
+> Availability zone A
+
+###### Reserved IPs
+
+| IP | Name | Description |
+|----|------|-------------|
+| `10.36.0.1` | `gateway` | Default gateway |
+
+---
+
+<a id="network-0a240400_22"></a>
+###### `10.36.4.0/22` -- AZ-b
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.36.4.0/22` |
+| **Network Address** | `10.36.4.0` |
+| **Mask Bits** | `22` |
+| **Subnet Mask** | `255.255.252.0` |
+| **Broadcast Address** | `10.36.7.255` |
+| **Range** | `10.36.4.0 - 10.36.7.255` |
+| **Total Hosts** | `1,024` |
+| **Usable Range** | `10.36.4.1 - 10.36.7.254` |
+| **Usable Hosts** | `1,022` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+
+> Availability zone B
+
+---
+
+<a id="network-0a240800_21"></a>
+###### `10.36.8.0/21` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.36.8.0/21` |
+| **Network Address** | `10.36.8.0` |
+| **Mask Bits** | `21` |
+| **Subnet Mask** | `255.255.248.0` |
+| **Broadcast Address** | `10.36.15.255` |
+| **Range** | `10.36.8.0 - 10.36.15.255` |
+| **Total Hosts** | `2,048` |
+| **Usable Range** | `10.36.8.1 - 10.36.15.254` |
+| **Usable Hosts** | `2,046` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-0a241000_20"></a>
+###### `10.36.16.0/20` -- Private
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.36.16.0/20` |
+| **Network Address** | `10.36.16.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.36.31.255` |
+| **Range** | `10.36.16.0 - 10.36.31.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.36.16.1 - 10.36.31.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Private subnet type
+
+---
+
+<a id="network-0a242000_20"></a>
+###### `10.36.32.0/20` -- Backend
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.36.32.0/20` |
+| **Network Address** | `10.36.32.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.36.47.255` |
+| **Range** | `10.36.32.0 - 10.36.47.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.36.32.1 - 10.36.47.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Backend subnet type
+
+---
+
+<a id="network-0a243000_20"></a>
+###### `10.36.48.0/20` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.36.48.0/20` |
+| **Network Address** | `10.36.48.0` |
+| **Mask Bits** | `20` |
+| **Subnet Mask** | `255.255.240.0` |
+| **Broadcast Address** | `10.36.63.255` |
+| **Range** | `10.36.48.0 - 10.36.63.255` |
+| **Total Hosts** | `4,096` |
+| **Usable Range** | `10.36.48.1 - 10.36.63.254` |
+| **Usable Hosts** | `4,094` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-0a244000_18"></a>
+###### `10.36.64.0/18` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.36.64.0/18` |
+| **Network Address** | `10.36.64.0` |
+| **Mask Bits** | `18` |
+| **Subnet Mask** | `255.255.192.0` |
+| **Broadcast Address** | `10.36.127.255` |
+| **Range** | `10.36.64.0 - 10.36.127.255` |
+| **Total Hosts** | `16,384` |
+| **Usable Range** | `10.36.64.1 - 10.36.127.254` |
+| **Usable Hosts** | `16,382` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-0a248000_17"></a>
+###### `10.36.128.0/17` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.36.128.0/17` |
+| **Network Address** | `10.36.128.0` |
+| **Mask Bits** | `17` |
+| **Subnet Mask** | `255.255.128.0` |
+| **Broadcast Address** | `10.36.255.255` |
+| **Range** | `10.36.128.0 - 10.36.255.255` |
+| **Total Hosts** | `32,768` |
+| **Usable Range** | `10.36.128.1 - 10.36.255.254` |
+| **Usable Hosts** | `32,766` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
 ---
 
 <a id="network-0a280000_13"></a>
-### `10.40.0.0/13` _(Unallocated)_
+##### `10.40.0.0/13` _(Unallocated)_
 
 | Property | Value |
 |----------|-------|
@@ -721,6 +1625,25 @@
 | **Total Hosts** | `524,288` |
 | **Usable Range** | `10.40.0.1 - 10.47.255.254` |
 | **Usable Hosts** | `524,286` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-0a300000_12"></a>
+#### `10.48.0.0/12` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `10.48.0.0/12` |
+| **Network Address** | `10.48.0.0` |
+| **Mask Bits** | `12` |
+| **Subnet Mask** | `255.240.0.0` |
+| **Broadcast Address** | `10.63.255.255` |
+| **Range** | `10.48.0.0 - 10.63.255.255` |
+| **Total Hosts** | `1,048,576` |
+| **Usable Range** | `10.48.0.1 - 10.63.255.254` |
+| **Usable Hosts** | `1,048,574` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
@@ -834,25 +1757,6 @@
 
 ---
 
-<a id="network-c0a80300_24"></a>
-#### `192.168.3.0/24` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `192.168.3.0/24` |
-| **Network Address** | `192.168.3.0` |
-| **Mask Bits** | `24` |
-| **Subnet Mask** | `255.255.255.0` |
-| **Broadcast Address** | `192.168.3.255` |
-| **Range** | `192.168.3.0 - 192.168.3.255` |
-| **Total Hosts** | `256` |
-| **Usable Range** | `192.168.3.1 - 192.168.3.254` |
-| **Usable Hosts** | `254` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
 <a id="network-c0a80400_22"></a>
 #### `192.168.4.0/22` _(Unallocated)_
 
@@ -962,300 +1866,6 @@
 | **Total Hosts** | `32,768` |
 | **Usable Range** | `192.168.128.1 - 192.168.255.254` |
 | **Usable Hosts** | `32,766` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000000000000000000000000000_36"></a>
-### `fd10::/36` -- AWS us-east-1 VPC v6
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10::/36` |
-| **Network Address** | `fd10::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:: - fd10:0:fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> IPv6 regional VPC in us-east-1
-
-### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `fd10::1` | `gateway-v6` | Default gateway IPv6 |
-| `fd10::53` | `dns-v6` | Resolver IPv6 |
-
----
-
-<a id="network-fd100000100000000000000000000000_36"></a>
-### `fd10:0:1000::/36` -- AWS eu-west-1 VPC v6
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:1000::/36` |
-| **Network Address** | `fd10:0:1000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd10:0:1000:: - fd10:0:1fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> IPv6 regional VPC in eu-west-1
-
-### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `fd10:0:1000::1` | `gateway-v6` | Default gateway IPv6 |
-| `fd10:0:1000::53` | `dns-v6` | Resolver IPv6 |
-
----
-
-<a id="network-fd100000200000000000000000000000_35"></a>
-### `fd10:0:2000::/35` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:2000::/35` |
-| **Network Address** | `fd10:0:2000::` |
-| **Mask Bits** | `35` |
-| **Subnet Mask** | `ffff:ffff:e000::` |
-| **Range** | `fd10:0:2000:: - fd10:0:3fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `536,870,912` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000400000000000000000000000_34"></a>
-### `fd10:0:4000::/34` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:4000::/34` |
-| **Network Address** | `fd10:0:4000::` |
-| **Mask Bits** | `34` |
-| **Subnet Mask** | `ffff:ffff:c000::` |
-| **Range** | `fd10:0:4000:: - fd10:0:7fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `1,073,741,824` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd100000800000000000000000000000_33"></a>
-### `fd10:0:8000::/33` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd10:0:8000::/33` |
-| **Network Address** | `fd10:0:8000::` |
-| **Mask Bits** | `33` |
-| **Subnet Mask** | `ffff:ffff:8000::` |
-| **Range** | `fd10:0:8000:: - fd10:0:ffff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `2,147,483,648` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000000000000000000000000000_36"></a>
-### `fd20::/36` -- GCP us-east-1 VPC v6
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20::/36` |
-| **Network Address** | `fd20::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:: - fd20:0:fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> IPv6 regional VPC in us-east-1
-
-### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `fd20::1` | `gateway-v6` | Default gateway IPv6 |
-| `fd20::53` | `dns-v6` | Resolver IPv6 |
-
----
-
-<a id="network-fd200000100000000000000000000000_36"></a>
-### `fd20:0:1000::/36` -- GCP eu-west-1 VPC v6
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:1000::/36` |
-| **Network Address** | `fd20:0:1000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd20:0:1000:: - fd20:0:1fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> IPv6 regional VPC in eu-west-1
-
-### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `fd20:0:1000::1` | `gateway-v6` | Default gateway IPv6 |
-| `fd20:0:1000::53` | `dns-v6` | Resolver IPv6 |
-
----
-
-<a id="network-fd200000200000000000000000000000_35"></a>
-### `fd20:0:2000::/35` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:2000::/35` |
-| **Network Address** | `fd20:0:2000::` |
-| **Mask Bits** | `35` |
-| **Subnet Mask** | `ffff:ffff:e000::` |
-| **Range** | `fd20:0:2000:: - fd20:0:3fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `536,870,912` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000400000000000000000000000_34"></a>
-### `fd20:0:4000::/34` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:4000::/34` |
-| **Network Address** | `fd20:0:4000::` |
-| **Mask Bits** | `34` |
-| **Subnet Mask** | `ffff:ffff:c000::` |
-| **Range** | `fd20:0:4000:: - fd20:0:7fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `1,073,741,824` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd200000800000000000000000000000_33"></a>
-### `fd20:0:8000::/33` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd20:0:8000::/33` |
-| **Network Address** | `fd20:0:8000::` |
-| **Mask Bits** | `33` |
-| **Subnet Mask** | `ffff:ffff:8000::` |
-| **Range** | `fd20:0:8000:: - fd20:0:ffff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `2,147,483,648` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000000000000000000000000000_36"></a>
-### `fd30::/36` -- Azure us-east-1 VPC v6
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30::/36` |
-| **Network Address** | `fd30::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:: - fd30:0:fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> IPv6 regional VPC in us-east-1
-
-### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `fd30::1` | `gateway-v6` | Default gateway IPv6 |
-| `fd30::53` | `dns-v6` | Resolver IPv6 |
-
----
-
-<a id="network-fd300000100000000000000000000000_36"></a>
-### `fd30:0:1000::/36` -- Azure eu-west-1 VPC v6
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:1000::/36` |
-| **Network Address** | `fd30:0:1000::` |
-| **Mask Bits** | `36` |
-| **Subnet Mask** | `ffff:ffff:f000::` |
-| **Range** | `fd30:0:1000:: - fd30:0:1fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `268,435,456` |
-| **Allocation Mode** | `Host Pool` |
-| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
-
-> IPv6 regional VPC in eu-west-1
-
-### Reserved IPs
-
-| IP | Name | Description |
-|----|------|-------------|
-| `fd30:0:1000::1` | `gateway-v6` | Default gateway IPv6 |
-| `fd30:0:1000::53` | `dns-v6` | Resolver IPv6 |
-
----
-
-<a id="network-fd300000200000000000000000000000_35"></a>
-### `fd30:0:2000::/35` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:2000::/35` |
-| **Network Address** | `fd30:0:2000::` |
-| **Mask Bits** | `35` |
-| **Subnet Mask** | `ffff:ffff:e000::` |
-| **Range** | `fd30:0:2000:: - fd30:0:3fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `536,870,912` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000400000000000000000000000_34"></a>
-### `fd30:0:4000::/34` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:4000::/34` |
-| **Network Address** | `fd30:0:4000::` |
-| **Mask Bits** | `34` |
-| **Subnet Mask** | `ffff:ffff:c000::` |
-| **Range** | `fd30:0:4000:: - fd30:0:7fff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `1,073,741,824` |
-| **Allocation Mode** | `Unallocated` |
-| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
-
----
-
-<a id="network-fd300000800000000000000000000000_33"></a>
-### `fd30:0:8000::/33` _(Unallocated)_
-
-| Property | Value |
-|----------|-------|
-| **CIDR** | `fd30:0:8000::/33` |
-| **Network Address** | `fd30:0:8000::` |
-| **Mask Bits** | `33` |
-| **Subnet Mask** | `ffff:ffff:8000::` |
-| **Range** | `fd30:0:8000:: - fd30:0:ffff:ffff:ffff:ffff:ffff:ffff` |
-| **Total /64 Networks** | `2,147,483,648` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 

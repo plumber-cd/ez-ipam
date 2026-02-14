@@ -2,24 +2,24 @@
 │Networks                                                                      │
 └──────────────────────────────────────────────────────────────────────────────┘
 ╔══════════Menu══════════╗┌───────────────────────Details──────────────────────┐
-║10.0.0.0/18 (AWS us-east║│CIDR                : 10.0.0.0/18                   │
-║10.0.64.0/18 (AWS eu-wes║│Network Address     : 10.0.0.0                      │
-║10.0.128.0/18 (AWS share║│Mask Bits           : 18                            │
-║10.0.192.0/18 (AWS data ║│Subnet Mask         : 255.255.192.0                 │
-║10.1.0.0/18 (AWS sandbox║│Broadcast Address   : 10.0.63.255                   │
-║10.1.64.0/18 (*)        ║│Range               : 10.0.0.0 - 10.0.63.255        │
-║10.1.128.0/17 (*)       ║│Total Hosts         : 16,384                        │
-║10.2.0.0/15 (*)         ║│Usable Range        : 10.0.0.1 - 10.0.63.254        │
-║10.4.0.0/14 (*)         ║│Usable Hosts        : 16,382                        │
-║10.8.0.0/13 (*)         ║│Allocation Mode     : Host Pool                     │
-║10.16.0.0/18 (GCP us-eas║│Mode Meaning        : Leaf node: reserve concrete   │
-║10.16.64.0/18 (GCP eu-we║│IP addresses here.                                  │
-║10.16.128.0/18 (GCP shar║│                                                    │
-║10.16.192.0/18 (GCP data║│                                                    │
-║10.17.0.0/18 (GCP sandbo║│                                                    │
-║10.17.64.0/18 (*)       ║│AWS us-east-1 VPC regional VPC                      │
-║10.17.128.0/17 (*)      ║└────────────────────────────────────────────────────┘
-║10.18.0.0/15 (*)        ║┌───────────────────────Status───────────────────────┐
-║10.20.0.0/14 (*)        ║│Saved to .ez-ipam/ and EZ-IPAM.md                   │
+║10.0.0.0/10 (Cloud)     ║│CIDR                : 10.0.0.0/10                   │
+║192.168.0.0/16 (Home)   ║│Network Address     : 10.0.0.0                      │
+║                        ║│Mask Bits           : 10                            │
+║                        ║│Subnet Mask         : 255.192.0.0                   │
+║                        ║│Broadcast Address   : 10.63.255.255                 │
+║                        ║│Range               : 10.0.0.0 - 10.63.255.255      │
+║                        ║│Total Hosts         : 4,194,304                     │
+║                        ║│Usable Range        : 10.0.0.1 - 10.63.255.254      │
+║                        ║│Usable Hosts        : 4,194,302                     │
+║                        ║│Allocation Mode     : Subnet Container              │
+║                        ║│Mode Meaning        : Branch node: contains child   │
+║                        ║│networks.                                           │
+║                        ║│                                                    │
+║                        ║│                                                    │
+║                        ║│                                                    │
+║                        ║│Cloud supernet                                      │
+║                        ║└────────────────────────────────────────────────────┘
+║                        ║┌───────────────────────Status───────────────────────┐
+║                        ║│Saved to .ez-ipam/ and EZ-IPAM.md                   │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
  <enter>/<double-click> Open | <backspace> Back | <q> Quit | <ctrl+s> Save |    

@@ -1,4 +1,0 @@
-description: Resolver IPv6
-display_name: dns-v6
-id: fd10::53
-parent: Networks -> fd10::/36

@@ -1,0 +1,5 @@
+allocation_mode: 1
+description: Azure provider block
+display_name: Azure
+id: 10.32.0.0/12
+parent: Networks -> 10.0.0.0/10

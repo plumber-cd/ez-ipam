@@ -1,5 +1,0 @@
-allocation_mode: 2
-description: GCP shared-services VPC regional VPC
-display_name: GCP shared-services VPC
-id: 10.16.128.0/18
-parent: Networks

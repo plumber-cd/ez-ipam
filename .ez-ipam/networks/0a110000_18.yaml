@@ -1,5 +1,0 @@
-allocation_mode: 2
-description: GCP sandbox VPC regional VPC
-display_name: GCP sandbox VPC
-id: 10.17.0.0/18
-parent: Networks

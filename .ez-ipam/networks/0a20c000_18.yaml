@@ -1,5 +1,0 @@
-allocation_mode: 2
-description: Azure data VPC regional VPC
-display_name: Azure data VPC
-id: 10.32.192.0/18
-parent: Networks
