@@ -34,6 +34,7 @@ const (
 	networksDirName  = "networks"
 	ipsDirName       = "ips"
 	markdownFileName = "EZ-IPAM.md"
+	formFieldWidth   = 42
 )
 
 var (
@@ -314,7 +315,7 @@ func setupApp() {
 			app.SetFocus(navigationPanel)
 		}
 		newNetworkDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
-			AddInputField("CIDR", "", 42, nil, nil).
+			AddInputField("CIDR", "", formFieldWidth, nil, nil).
 			AddButton("Save", func() {
 				AddNewNetwork(getAndClearTextFromInputField(newNetworkDialog, "CIDR"))
 				pages.SwitchToPage(mainPage)
@@ -336,7 +337,7 @@ func setupApp() {
 			app.SetFocus(navigationPanel)
 		}
 		splitNetworkDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
-			AddInputField("New Prefix Length", "", 42, nil, nil).
+			AddInputField("New Prefix Length", "", formFieldWidth, nil, nil).
 			AddButton("Save", func() {
 				newPrefix := getAndClearTextFromInputField(splitNetworkDialog, "New Prefix Length")
 				newPrefix = strings.TrimLeft(newPrefix, "/")
@@ -424,9 +425,9 @@ func setupApp() {
 			app.SetFocus(navigationPanel)
 		}
 		allocateNetworkSubnetsModeDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
-			AddInputField("Name", "", 42, nil, nil).
-			AddTextArea("Description", "", 50, 3, 0, nil).
-			AddInputField("Child Prefix Len", "", 42, nil, nil).
+			AddInputField("Name", "", formFieldWidth, nil, nil).
+			AddTextArea("Description", "", formFieldWidth, 3, 0, nil).
+			AddInputField("Child Prefix Len", "", formFieldWidth, nil, nil).
 			AddButton("Save", func() {
 				displayName := getAndClearTextFromInputField(allocateNetworkSubnetsModeDialog, "Name")
 				description := getAndClearTextFromTextArea(allocateNetworkSubnetsModeDialog, "Description")
@@ -460,8 +461,8 @@ func setupApp() {
 			app.SetFocus(navigationPanel)
 		}
 		allocateNetworkHostsModeDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
-			AddInputField("Name", "", 42, nil, nil).
-			AddTextArea("Description", "", 50, 3, 0, nil).
+			AddInputField("Name", "", formFieldWidth, nil, nil).
+			AddTextArea("Description", "", formFieldWidth, 3, 0, nil).
 			AddButton("Save", func() {
 				displayName := getAndClearTextFromInputField(allocateNetworkHostsModeDialog, "Name")
 				description := getAndClearTextFromTextArea(allocateNetworkHostsModeDialog, "Description")
@@ -488,8 +489,8 @@ func setupApp() {
 			app.SetFocus(navigationPanel)
 		}
 		updateNetworkAllocationDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
-			AddInputField("Name", "", 42, nil, nil).
-			AddTextArea("Description", "", 50, 3, 0, nil).
+			AddInputField("Name", "", formFieldWidth, nil, nil).
+			AddTextArea("Description", "", formFieldWidth, 3, 0, nil).
 			AddButton("Save", func() {
 				displayName := getAndClearTextFromInputField(updateNetworkAllocationDialog, "Name")
 				description := getAndClearTextFromTextArea(updateNetworkAllocationDialog, "Description")
@@ -516,9 +517,9 @@ func setupApp() {
 			app.SetFocus(navigationPanel)
 		}
 		reserveIPDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
-			AddInputField("IP Address", "", 42, nil, nil).
-			AddInputField("Name", "", 42, nil, nil).
-			AddInputField("Description", "", 42, nil, nil).
+			AddInputField("IP Address", "", formFieldWidth, nil, nil).
+			AddInputField("Name", "", formFieldWidth, nil, nil).
+			AddInputField("Description", "", formFieldWidth, nil, nil).
 			AddButton("Save", func() {
 				address := getAndClearTextFromInputField(reserveIPDialog, "IP Address")
 				displayName := getAndClearTextFromInputField(reserveIPDialog, "Name")
@@ -545,8 +546,8 @@ func setupApp() {
 			app.SetFocus(navigationPanel)
 		}
 		updateIPReservationDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
-			AddInputField("Name", "", 42, nil, nil).
-			AddInputField("Description", "", 42, nil, nil).
+			AddInputField("Name", "", formFieldWidth, nil, nil).
+			AddInputField("Description", "", formFieldWidth, nil, nil).
 			AddButton("Save", func() {
 				displayName := getAndClearTextFromInputField(updateIPReservationDialog, "Name")
 				description := getAndClearTextFromInputField(updateIPReservationDialog, "Description")
