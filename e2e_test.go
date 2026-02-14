@@ -864,6 +864,43 @@ func TestDemoState(t *testing.T) {
 	h.PressEnter()
 	reserveIPFromCurrentNetwork(h, "192.168.2.1", "gateway", "Default gateway")
 	reserveIPFromCurrentNetwork(h, "192.168.2.20", "camera-nvr", "NVR")
+	h.PressBackspace()
+
+	navigateToNetworksRoot(t, h)
+	addNetworkViaDialog(h, "fd42::/56")
+	moveFocusToID(t, h, "fd42::/56")
+	allocateSubnetsFocused(h, "Home IPv6", "Home IPv6 supernet", "", "57")
+	h.PressEnter()
+
+	activeV6CIDR := "fd42::/57"
+	for prefix := 58; prefix <= 63; prefix++ {
+		moveFocusToID(t, h, activeV6CIDR)
+		splitFocusedNetwork(h, fmt.Sprintf("%d", prefix))
+		childCIDRs, err := splitNetwork(activeV6CIDR, prefix)
+		if err != nil {
+			t.Fatalf("split %s into /%d: %v", activeV6CIDR, prefix, err)
+		}
+		activeV6CIDR = childCIDRs[0]
+	}
+	moveFocusToID(t, h, activeV6CIDR)
+	splitFocusedNetwork(h, "64")
+
+	homeV6CIDRs, err := splitNetwork(activeV6CIDR, 64)
+	if err != nil || len(homeV6CIDRs) < 2 {
+		t.Fatalf("split home IPv6 into /64 failed: %v", err)
+	}
+	moveFocusToID(t, h, homeV6CIDRs[0])
+	allocateHostsFocused(h, "Home Infra v6", "Routers and servers v6", "")
+	h.PressEnter()
+	base0 := strings.Split(homeV6CIDRs[0], "/")[0]
+	reserveIPFromCurrentNetwork(h, strings.Replace(base0, "::", "::1", 1), "gateway-v6", "Default gateway IPv6")
+	reserveIPFromCurrentNetwork(h, strings.Replace(base0, "::", "::53", 1), "dns-v6", "Resolver IPv6")
+	h.PressBackspace()
+	moveFocusToID(t, h, homeV6CIDRs[1])
+	allocateHostsFocused(h, "Home Users v6", "Laptops and phones v6", "")
+	h.PressEnter()
+	base1 := strings.Split(homeV6CIDRs[1], "/")[0]
+	reserveIPFromCurrentNetwork(h, strings.Replace(base1, "::", "::1", 1), "gateway-v6", "Default gateway IPv6")
 	navigateToNetworksRoot(t, h)
 
 	h.PressCtrl('s')

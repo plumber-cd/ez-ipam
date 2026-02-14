@@ -1,0 +1,5 @@
+allocation_mode: 1
+description: Home IPv6 supernet
+display_name: Home IPv6
+id: fd42::/56
+parent: Networks

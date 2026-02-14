@@ -1,0 +1,4 @@
+description: Default gateway IPv6
+display_name: gateway-v6
+id: fd42:0:0:1::1
+parent: Networks -> fd42::/56 -> fd42:0:0:1::/64

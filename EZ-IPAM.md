@@ -119,22 +119,35 @@
 | `│ │ └── 10.40.0.0/13` [link](#network-0a280000_13) | - | Unallocated | - | - |
 | `│ └── 10.48.0.0/12` [link](#network-0a300000_12) | - | Unallocated | - | - |
 | `192.168.0.0/16` [link](#network-c0a80000_16) | Home | Subnet Container | - | Home supernet with VLAN segments |
-| `  ├── 192.168.0.0/24` [link](#network-c0a80000_24) | Home Infra | Host Pool | 10 (Home-Infra) | Routers and servers |
-| `  │ ├── 192.168.0.1` | gateway | Reserved IP | 10 (Home-Infra) | Default gateway |
-| `  │ └── 192.168.0.10` | nas | Reserved IP | 10 (Home-Infra) | NAS |
-| `  ├── 192.168.1.0/24` [link](#network-c0a80100_24) | Home Users | Host Pool | 20 (Home-Users) | Laptops and phones |
-| `  │ ├── 192.168.1.1` | gateway | Reserved IP | 20 (Home-Users) | Default gateway |
-| `  │ └── 192.168.1.50` | printer | Reserved IP | 20 (Home-Users) | Office printer |
-| `  ├── 192.168.2.0/24` [link](#network-c0a80200_24) | Home IoT | Host Pool | 30 (Home-IoT) | Cameras and sensors |
-| `  │ ├── 192.168.2.1` | gateway | Reserved IP | 30 (Home-IoT) | Default gateway |
-| `  │ └── 192.168.2.20` | camera-nvr | Reserved IP | 30 (Home-IoT) | NVR |
-| `  ├── 192.168.3.0/24` [link](#network-c0a80300_24) | - | Unallocated | - | - |
-| `  ├── 192.168.4.0/22` [link](#network-c0a80400_22) | - | Unallocated | - | - |
-| `  ├── 192.168.8.0/21` [link](#network-c0a80800_21) | - | Unallocated | - | - |
-| `  ├── 192.168.16.0/20` [link](#network-c0a81000_20) | - | Unallocated | - | - |
-| `  ├── 192.168.32.0/19` [link](#network-c0a82000_19) | - | Unallocated | - | - |
-| `  ├── 192.168.64.0/18` [link](#network-c0a84000_18) | - | Unallocated | - | - |
-| `  └── 192.168.128.0/17` [link](#network-c0a88000_17) | - | Unallocated | - | - |
+| `│ ├── 192.168.0.0/24` [link](#network-c0a80000_24) | Home Infra | Host Pool | 10 (Home-Infra) | Routers and servers |
+| `│ │ ├── 192.168.0.1` | gateway | Reserved IP | 10 (Home-Infra) | Default gateway |
+| `│ │ └── 192.168.0.10` | nas | Reserved IP | 10 (Home-Infra) | NAS |
+| `│ ├── 192.168.1.0/24` [link](#network-c0a80100_24) | Home Users | Host Pool | 20 (Home-Users) | Laptops and phones |
+| `│ │ ├── 192.168.1.1` | gateway | Reserved IP | 20 (Home-Users) | Default gateway |
+| `│ │ └── 192.168.1.50` | printer | Reserved IP | 20 (Home-Users) | Office printer |
+| `│ ├── 192.168.2.0/24` [link](#network-c0a80200_24) | Home IoT | Host Pool | 30 (Home-IoT) | Cameras and sensors |
+| `│ │ ├── 192.168.2.1` | gateway | Reserved IP | 30 (Home-IoT) | Default gateway |
+| `│ │ └── 192.168.2.20` | camera-nvr | Reserved IP | 30 (Home-IoT) | NVR |
+| `│ ├── 192.168.3.0/24` [link](#network-c0a80300_24) | - | Unallocated | - | - |
+| `│ ├── 192.168.4.0/22` [link](#network-c0a80400_22) | - | Unallocated | - | - |
+| `│ ├── 192.168.8.0/21` [link](#network-c0a80800_21) | - | Unallocated | - | - |
+| `│ ├── 192.168.16.0/20` [link](#network-c0a81000_20) | - | Unallocated | - | - |
+| `│ ├── 192.168.32.0/19` [link](#network-c0a82000_19) | - | Unallocated | - | - |
+| `│ ├── 192.168.64.0/18` [link](#network-c0a84000_18) | - | Unallocated | - | - |
+| `│ └── 192.168.128.0/17` [link](#network-c0a88000_17) | - | Unallocated | - | - |
+| `fd42::/56` [link](#network-fd420000000000000000000000000000_56) | Home IPv6 | Subnet Container | - | Home IPv6 supernet |
+| `  ├── fd42::/64` [link](#network-fd420000000000000000000000000000_64) | Home Infra v6 | Host Pool | - | Routers and servers v6 |
+| `  │ ├── fd42::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
+| `  │ └── fd42::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
+| `  ├── fd42:0:0:1::/64` [link](#network-fd420000000000010000000000000000_64) | Home Users v6 | Host Pool | - | Laptops and phones v6 |
+| `  │ └── fd42:0:0:1::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
+| `  ├── fd42:0:0:2::/63` [link](#network-fd420000000000020000000000000000_63) | - | Unallocated | - | - |
+| `  ├── fd42:0:0:4::/62` [link](#network-fd420000000000040000000000000000_62) | - | Unallocated | - | - |
+| `  ├── fd42:0:0:8::/61` [link](#network-fd420000000000080000000000000000_61) | - | Unallocated | - | - |
+| `  ├── fd42:0:0:10::/60` [link](#network-fd420000000000100000000000000000_60) | - | Unallocated | - | - |
+| `  ├── fd42:0:0:20::/59` [link](#network-fd420000000000200000000000000000_59) | - | Unallocated | - | - |
+| `  ├── fd42:0:0:40::/58` [link](#network-fd420000000000400000000000000000_58) | - | Unallocated | - | - |
+| `  └── fd42:0:0:80::/57` [link](#network-fd420000000000800000000000000000_57) | - | Unallocated | - | - |
 
 ## VLANs
 
@@ -2378,6 +2391,185 @@
 | **Total Hosts** | `32,768` |
 | **Usable Range** | `192.168.128.1 - 192.168.255.254` |
 | **Usable Hosts** | `32,766` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-fd420000000000000000000000000000_56"></a>
+### `fd42::/56` -- Home IPv6
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `fd42::/56` |
+| **Network Address** | `fd42::` |
+| **Mask Bits** | `56` |
+| **Subnet Mask** | `ffff:ffff:ffff:ff00::` |
+| **Range** | `fd42:: - fd42::ff:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `256` |
+| **Allocation Mode** | `Subnet Container` |
+| **Mode Meaning** | `Branch node: contains child networks.` |
+
+> Home IPv6 supernet
+
+---
+
+<a id="network-fd420000000000000000000000000000_64"></a>
+#### `fd42::/64` -- Home Infra v6
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `fd42::/64` |
+| **Network Address** | `fd42::` |
+| **Mask Bits** | `64` |
+| **Subnet Mask** | `ffff:ffff:ffff:ffff::` |
+| **Range** | `fd42:: - fd42::ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `1` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+
+> Routers and servers v6
+
+#### Reserved IPs
+
+| IP | Name | Description |
+|----|------|-------------|
+| `fd42::1` | `gateway-v6` | Default gateway IPv6 |
+| `fd42::53` | `dns-v6` | Resolver IPv6 |
+
+---
+
+<a id="network-fd420000000000010000000000000000_64"></a>
+#### `fd42:0:0:1::/64` -- Home Users v6
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `fd42:0:0:1::/64` |
+| **Network Address** | `fd42:0:0:1::` |
+| **Mask Bits** | `64` |
+| **Subnet Mask** | `ffff:ffff:ffff:ffff::` |
+| **Range** | `fd42:0:0:1:: - fd42::1:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `1` |
+| **Allocation Mode** | `Host Pool` |
+| **Mode Meaning** | `Leaf node: reserve concrete IP addresses here.` |
+
+> Laptops and phones v6
+
+#### Reserved IPs
+
+| IP | Name | Description |
+|----|------|-------------|
+| `fd42:0:0:1::1` | `gateway-v6` | Default gateway IPv6 |
+
+---
+
+<a id="network-fd420000000000020000000000000000_63"></a>
+#### `fd42:0:0:2::/63` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `fd42:0:0:2::/63` |
+| **Network Address** | `fd42:0:0:2::` |
+| **Mask Bits** | `63` |
+| **Subnet Mask** | `ffff:ffff:ffff:fffe::` |
+| **Range** | `fd42:0:0:2:: - fd42::3:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `2` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-fd420000000000040000000000000000_62"></a>
+#### `fd42:0:0:4::/62` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `fd42:0:0:4::/62` |
+| **Network Address** | `fd42:0:0:4::` |
+| **Mask Bits** | `62` |
+| **Subnet Mask** | `ffff:ffff:ffff:fffc::` |
+| **Range** | `fd42:0:0:4:: - fd42::7:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `4` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-fd420000000000080000000000000000_61"></a>
+#### `fd42:0:0:8::/61` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `fd42:0:0:8::/61` |
+| **Network Address** | `fd42:0:0:8::` |
+| **Mask Bits** | `61` |
+| **Subnet Mask** | `ffff:ffff:ffff:fff8::` |
+| **Range** | `fd42:0:0:8:: - fd42::f:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `8` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-fd420000000000100000000000000000_60"></a>
+#### `fd42:0:0:10::/60` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `fd42:0:0:10::/60` |
+| **Network Address** | `fd42:0:0:10::` |
+| **Mask Bits** | `60` |
+| **Subnet Mask** | `ffff:ffff:ffff:fff0::` |
+| **Range** | `fd42:0:0:10:: - fd42::1f:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `16` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-fd420000000000200000000000000000_59"></a>
+#### `fd42:0:0:20::/59` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `fd42:0:0:20::/59` |
+| **Network Address** | `fd42:0:0:20::` |
+| **Mask Bits** | `59` |
+| **Subnet Mask** | `ffff:ffff:ffff:ffe0::` |
+| **Range** | `fd42:0:0:20:: - fd42::3f:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `32` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-fd420000000000400000000000000000_58"></a>
+#### `fd42:0:0:40::/58` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `fd42:0:0:40::/58` |
+| **Network Address** | `fd42:0:0:40::` |
+| **Mask Bits** | `58` |
+| **Subnet Mask** | `ffff:ffff:ffff:ffc0::` |
+| **Range** | `fd42:0:0:40:: - fd42::7f:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `64` |
+| **Allocation Mode** | `Unallocated` |
+| **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
+
+---
+
+<a id="network-fd420000000000800000000000000000_57"></a>
+#### `fd42:0:0:80::/57` _(Unallocated)_
+
+| Property | Value |
+|----------|-------|
+| **CIDR** | `fd42:0:0:80::/57` |
+| **Network Address** | `fd42:0:0:80::` |
+| **Mask Bits** | `57` |
+| **Subnet Mask** | `ffff:ffff:ffff:ff80::` |
+| **Range** | `fd42:0:0:80:: - fd42::ff:ffff:ffff:ffff:ffff` |
+| **Total /64 Networks** | `128` |
 | **Allocation Mode** | `Unallocated` |
 | **Mode Meaning** | `Can be split or assigned as Subnet Container / Host Pool.` |
 
