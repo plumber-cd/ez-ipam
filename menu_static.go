@@ -60,6 +60,10 @@ func (m *MenuStatic) OnSelectedFunc() {
 		currentMenuItemKeys = []string{
 			"<v> New VLAN",
 		}
+	case "WiFi SSIDs":
+		currentMenuItemKeys = []string{
+			"<w> New WiFi SSID",
+		}
 	default:
 		currentMenuItemKeys = []string{}
 	}
@@ -92,6 +96,17 @@ func (m *MenuStatic) CurrentMenuInputCapture(event *tcell.EventKey) *tcell.Event
 				addVLANDialog.SetFocus(0)
 				pages.ShowPage(addVLANPage)
 				app.SetFocus(addVLANDialog)
+				return nil
+			}
+		}
+	case "WiFi SSIDs":
+		switch event.Key() {
+		case tcell.KeyRune:
+			switch event.Rune() {
+			case 'w':
+				addSSIDDialog.SetFocus(0)
+				pages.ShowPage(addSSIDPage)
+				app.SetFocus(addSSIDDialog)
 				return nil
 			}
 		}

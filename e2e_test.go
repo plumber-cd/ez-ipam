@@ -139,6 +139,14 @@ func navigateToVLANs(t *testing.T, h *TestHarness) {
 	h.AssertScreenContains("│VLANs")
 }
 
+func navigateToSSIDs(t *testing.T, h *TestHarness) {
+	t.Helper()
+	h.PressBackspace()
+	moveFocusToID(t, h, "WiFi SSIDs")
+	h.PressEnter()
+	h.AssertScreenContains("│WiFi SSIDs")
+}
+
 func navigateToNetworksRoot(t *testing.T, h *TestHarness) {
 	t.Helper()
 	for i := 0; i < 16; i++ {
@@ -155,6 +163,16 @@ func addVLANViaDialog(h *TestHarness, id, name, description string) {
 	h.TypeText(id)
 	h.PressTab()
 	h.TypeText(name)
+	h.PressTab()
+	h.TypeText(description)
+	h.PressTab()
+	h.PressEnter()
+}
+
+func addSSIDViaDialog(h *TestHarness, id, description string) {
+	h.PressRune('w')
+	h.AssertScreenContains("Add WiFi SSID")
+	h.TypeText(id)
 	h.PressTab()
 	h.TypeText(description)
 	h.PressTab()
@@ -181,6 +199,7 @@ func TestInitialStateAndGolden(t *testing.T) {
 	h := NewTestHarness(t)
 	h.AssertScreenContains("Home")
 	h.AssertScreenContains("Networks")
+	h.AssertScreenContains("WiFi SSIDs")
 	h.AssertGoldenSnapshot("g01_s01_initial_state")
 }
 
@@ -515,6 +534,44 @@ func TestUpdateAndDeleteVLAN(t *testing.T) {
 	h.AssertStatusContains("Deleted VLAN")
 }
 
+func TestAddSSIDBranches(t *testing.T) {
+	h := NewTestHarness(t)
+	navigateToSSIDs(t, h)
+
+	addSSIDViaDialog(h, "Home-Infra-5G", "Infrastructure devices")
+	h.AssertStatusContains("Added WiFi SSID")
+
+	addSSIDViaDialog(h, "", "bad")
+	h.AssertStatusContains("Error adding WiFi SSID")
+	addSSIDViaDialog(h, "Home-Infra-5G", "dup")
+	h.AssertStatusContains("Error adding WiFi SSID")
+}
+
+func TestUpdateAndDeleteSSID(t *testing.T) {
+	h := NewTestHarness(t)
+	navigateToSSIDs(t, h)
+	addSSIDViaDialog(h, "Home-IoT", "IoT devices")
+	moveFocusToID(t, h, "Home-IoT")
+
+	h.PressRune('u')
+	h.AssertScreenContains("Update WiFi SSID")
+	h.TypeText(" updated")
+	h.PressTab()
+	h.PressEnter()
+	h.AssertStatusContains("Updated WiFi SSID")
+	h.AssertScreenContains("IoT devices updated")
+
+	h.PressRune('D')
+	h.AssertScreenContains("Delete WiFi SSID Home-IoT?")
+	h.CancelModal()
+	h.AssertScreenContains("Home-IoT")
+
+	h.PressRune('D')
+	h.AssertScreenContains("Delete WiFi SSID Home-IoT?")
+	h.ConfirmModal()
+	h.AssertStatusContains("Deleted WiFi SSID")
+}
+
 func TestNetworkVLANAssignment(t *testing.T) {
 	h := NewTestHarness(t)
 	navigateToVLANs(t, h)
@@ -710,6 +767,10 @@ func TestDemoState(t *testing.T) {
 	addVLANViaDialog(h, "10", "Home-Infra", "Home infrastructure")
 	addVLANViaDialog(h, "20", "Home-Users", "User devices")
 	addVLANViaDialog(h, "30", "Home-IoT", "IoT devices")
+	navigateToSSIDs(t, h)
+	addSSIDViaDialog(h, "Home-Infra-5G", "Infrastructure devices wireless")
+	addSSIDViaDialog(h, "Home-Users", "User laptops and phones")
+	addSSIDViaDialog(h, "Home-IoT", "IoT and smart home devices")
 	navigateToNetworksRoot(t, h)
 
 	addNetworkViaDialog(h, "10.0.0.0/10")

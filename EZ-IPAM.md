@@ -157,6 +157,13 @@
 | `  ├── fd42:0:0:20::/59` [link](#network-fd420000000000200000000000000000_59) | - | Unallocated | - | - |
 | `  ├── fd42:0:0:40::/58` [link](#network-fd420000000000400000000000000000_58) | - | Unallocated | - | - |
 | `  └── fd42:0:0:80::/57` [link](#network-fd420000000000800000000000000000_57) | - | Unallocated | - | - |
+## WiFi SSIDs
+
+| SSID | Description |
+|------|-------------|
+| `Home-Infra-5G` | Infrastructure devices wireless |
+| `Home-IoT` | IoT and smart home devices |
+| `Home-Users` | User laptops and phones |
 
 ## Detailed Networks
 

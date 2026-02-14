@@ -31,12 +31,16 @@ const (
 	addVLANPage                    = "*add_vlan*"
 	updateVLANPage                 = "*update_vlan*"
 	deleteVLANPage                 = "*delete_vlan*"
+	addSSIDPage                    = "*add_ssid*"
+	updateSSIDPage                 = "*update_ssid*"
+	deleteSSIDPage                 = "*delete_ssid*"
 	quitPage                       = "*quit*"
 
 	dataDirName      = ".ez-ipam"
 	networksDirName  = "networks"
 	ipsDirName       = "ips"
 	vlansDirName     = "vlans"
+	ssidsDirName     = "ssids"
 	markdownFileName = "EZ-IPAM.md"
 	formFieldWidth   = 42
 )
@@ -69,6 +73,9 @@ var (
 	addVLANDialog                    *tview.Form
 	updateVLANDialog                 *tview.Form
 	deleteVLANDialog                 *tview.Modal
+	addSSIDDialog                    *tview.Form
+	updateSSIDDialog                 *tview.Form
+	deleteSSIDDialog                 *tview.Modal
 	quitDialog                       *tview.Modal
 
 	summarizeCandidates []*Network
@@ -655,6 +662,57 @@ func setupApp() {
 	}
 
 	{
+		height := 9
+		width := 62
+		cancelDialog := func() {
+			getAndClearTextFromInputField(addSSIDDialog, "SSID")
+			getAndClearTextFromInputField(addSSIDDialog, "Description")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		addSSIDDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("SSID", "", formFieldWidth, nil, nil).
+			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddButton("Save", func() {
+				ssidID := getAndClearTextFromInputField(addSSIDDialog, "SSID")
+				description := getAndClearTextFromInputField(addSSIDDialog, "Description")
+				AddSSID(ssidID, description)
+
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		addSSIDDialog.SetBorder(true).SetTitle("Add WiFi SSID")
+		wireDialogFormKeys(addSSIDDialog, cancelDialog)
+		addSSIDFlex := createDialogPage(addSSIDDialog, width, height)
+		pages.AddPage(addSSIDPage, addSSIDFlex, true, false)
+	}
+
+	{
+		height := 9
+		width := 62
+		cancelDialog := func() {
+			getAndClearTextFromInputField(updateSSIDDialog, "Description")
+			pages.SwitchToPage(mainPage)
+			app.SetFocus(navigationPanel)
+		}
+		updateSSIDDialog = tview.NewForm().SetButtonsAlign(tview.AlignCenter).
+			AddInputField("Description", "", formFieldWidth, nil, nil).
+			AddButton("Save", func() {
+				description := getAndClearTextFromInputField(updateSSIDDialog, "Description")
+				UpdateSSID(description)
+
+				pages.SwitchToPage(mainPage)
+				app.SetFocus(navigationPanel)
+			}).
+			AddButton("Cancel", cancelDialog)
+		updateSSIDDialog.SetBorder(true).SetTitle("Update WiFi SSID")
+		wireDialogFormKeys(updateSSIDDialog, cancelDialog)
+		updateSSIDFlex := createDialogPage(updateSSIDDialog, width, height)
+		pages.AddPage(updateSSIDPage, updateSSIDFlex, true, false)
+	}
+
+	{
 		unreserveIPDialog = tview.NewModal().
 			SetText("Unreserve this IP address?").
 			AddButtons([]string{"Yes", "No"}).
@@ -692,6 +750,26 @@ func setupApp() {
 				}
 			})
 		pages.AddPage(deleteVLANPage, deleteVLANDialog, true, false)
+	}
+
+	{
+		deleteSSIDDialog = tview.NewModal().
+			SetText("Delete this WiFi SSID?").
+			AddButtons([]string{"Yes", "No"}).
+			SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+				switch buttonLabel {
+				case "Yes":
+					DeleteSSID()
+					fallthrough
+				case "No":
+					fallthrough
+				default:
+					deleteSSIDDialog.SetText("")
+					pages.SwitchToPage(mainPage)
+					app.SetFocus(navigationPanel)
+				}
+			})
+		pages.AddPage(deleteSSIDPage, deleteSSIDDialog, true, false)
 	}
 
 	{
@@ -813,6 +891,14 @@ func load() {
 		Description: "Manage VLAN IDs and their metadata here.",
 	}
 	menuItems.MustAdd(vlans)
+	ssids := &MenuStatic{
+		MenuFolder: &MenuFolder{
+			ID: "WiFi SSIDs",
+		},
+		Index:       2,
+		Description: "Manage WiFi SSIDs and their metadata here.",
+	}
+	menuItems.MustAdd(ssids)
 
 	currentDir, err := os.Getwd()
 	if err != nil {
@@ -823,6 +909,7 @@ func load() {
 	networkDir := filepath.Join(dataDir, networksDirName)
 	ipsDir := filepath.Join(dataDir, ipsDirName)
 	vlansDir := filepath.Join(dataDir, vlansDirName)
+	ssidsDir := filepath.Join(dataDir, ssidsDirName)
 
 	networkFiles, err := os.ReadDir(networkDir)
 	if err != nil {
@@ -903,6 +990,32 @@ func load() {
 
 		menuItems[vlan.GetPath()] = vlan
 	}
+	ssidFiles, err := os.ReadDir(ssidsDir)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			panic("Failed to read " + ssidsDir + " directory: " + err.Error())
+		}
+		if err := os.MkdirAll(ssidsDir, 0755); err != nil {
+			panic("Failed to create " + ssidsDir + " directory: " + err.Error())
+		}
+	}
+	for _, ssidFile := range ssidFiles {
+		if ssidFile.IsDir() {
+			continue
+		}
+
+		bytes, err := os.ReadFile(filepath.Join(ssidsDir, ssidFile.Name()))
+		if err != nil {
+			panic("Failed to read " + ssidFile.Name() + " file: " + err.Error())
+		}
+
+		ssid := &SSID{}
+		if err := yaml.Unmarshal(bytes, ssid); err != nil {
+			panic("Failed to unmarshal " + ssidFile.Name() + " file: " + err.Error())
+		}
+
+		menuItems[ssid.GetPath()] = ssid
+	}
 
 	for _, menuItem := range menuItems {
 		if err := menuItem.Validate(); err != nil {
@@ -926,6 +1039,7 @@ func save() {
 	networksTmpDir := filepath.Join(dataTmpDir, networksDirName)
 	ipsTmpDir := filepath.Join(dataTmpDir, ipsDirName)
 	vlansTmpDir := filepath.Join(dataTmpDir, vlansDirName)
+	ssidsTmpDir := filepath.Join(dataTmpDir, ssidsDirName)
 	if err := os.RemoveAll(dataTmpDir); err != nil {
 		panic("Failed to remove " + dataTmpDir + " directory: " + err.Error())
 	}
@@ -937,6 +1051,9 @@ func save() {
 	}
 	if err := os.MkdirAll(vlansTmpDir, 0755); err != nil {
 		panic("Failed to create " + vlansTmpDir + " directory: " + err.Error())
+	}
+	if err := os.MkdirAll(ssidsTmpDir, 0755); err != nil {
+		panic("Failed to create " + ssidsTmpDir + " directory: " + err.Error())
 	}
 
 	for _, menuItem := range menuItems {
@@ -973,6 +1090,15 @@ func save() {
 			}
 		case *VLAN:
 			fileName := filepath.Join(vlansTmpDir, m.ID+".yaml")
+			bytes, err := yaml.Marshal(menuItem)
+			if err != nil {
+				panic("Failed to marshal " + menuItem.GetPath() + " to yaml: " + err.Error())
+			}
+			if err := os.WriteFile(fileName, bytes, 0644); err != nil {
+				panic("Failed to write " + fileName + " file: " + err.Error())
+			}
+		case *SSID:
+			fileName := filepath.Join(ssidsTmpDir, m.ID+".yaml")
 			bytes, err := yaml.Marshal(menuItem)
 			if err != nil {
 				panic("Failed to marshal " + menuItem.GetPath() + " to yaml: " + err.Error())
@@ -1019,6 +1145,7 @@ func save() {
 	networksHasReservedIPs := map[string]bool{}
 	networksReservedIPs := map[string][]map[string]string{}
 	vlanRows := []map[string]string{}
+	ssidRows := []map[string]string{}
 	summaryRows := []map[string]string{}
 	buildTreePrefix := func(ancestorHasNext []bool, isLast bool) string {
 		stringWriter := new(strings.Builder)
@@ -1198,6 +1325,17 @@ func save() {
 			"Description": markdownInline(defaultIfEmpty(vlan.Description, "-")),
 		})
 	}
+	ssidsMenuItem := menuItems.GetByParentAndID(nil, "WiFi SSIDs")
+	for _, menuItem := range menuItems.GetChilds(ssidsMenuItem) {
+		ssid, ok := menuItem.(*SSID)
+		if !ok {
+			continue
+		}
+		ssidRows = append(ssidRows, map[string]string{
+			"ID":          markdownCode(ssid.ID),
+			"Description": markdownInline(defaultIfEmpty(ssid.Description, "-")),
+		})
+	}
 
 	template := template.Must(template.New(markdownFileName).Parse(markdownTmpl))
 	input := map[string]interface{}{
@@ -1214,7 +1352,8 @@ func save() {
 		"NetworksData":           networksData,
 		"NetworksHasReservedIPs": networksHasReservedIPs,
 		"NetworksReservedIPs":    networksReservedIPs,
-		"VLANRows":              vlanRows,
+		"VLANRows":               vlanRows,
+		"SSIDRows":               ssidRows,
 		"SummaryRows":            summaryRows,
 	}
 
