@@ -5,6 +5,13 @@
 ## Overview
 
 > Legend: `Subnet Container` holds child networks, `Host Pool` holds reservable IPs, and `Reserved IP` is a concrete host reservation.
+## VLANs
+
+| VLAN ID | Name | Description |
+|---------|------|-------------|
+| `10` | `Home-Infra` | Home infrastructure |
+| `20` | `Home-Users` | User devices |
+| `30` | `Home-IoT` | IoT devices |
 
 | Network | Name | Allocation | VLAN | Description |
 |---------|------|------------|------|-------------|
@@ -148,14 +155,6 @@
 | `  ├── fd42:0:0:20::/59` [link](#network-fd420000000000200000000000000000_59) | - | Unallocated | - | - |
 | `  ├── fd42:0:0:40::/58` [link](#network-fd420000000000400000000000000000_58) | - | Unallocated | - | - |
 | `  └── fd42:0:0:80::/57` [link](#network-fd420000000000800000000000000000_57) | - | Unallocated | - | - |
-
-## VLANs
-
-| VLAN ID | Name | Description |
-|---------|------|-------------|
-| `10` | `Home-Infra` | Home infrastructure |
-| `20` | `Home-Users` | User devices |
-| `30` | `Home-IoT` | IoT devices |
 
 ## Detailed Networks
 
