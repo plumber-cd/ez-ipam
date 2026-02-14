@@ -2,4 +2,4 @@ allocation_mode: 2
 description: IPv6 regional VPC in eu-west-1
 display_name: GCP eu-west-1 VPC v6
 id: fd20:0:1000::/36
-parent: Networks -> fd20::/32
+parent: Networks

@@ -1,5 +1,0 @@
-allocation_mode: 1
-description: Azure cloud supernet
-display_name: Azure
-id: 10.32.0.0/12
-parent: Networks

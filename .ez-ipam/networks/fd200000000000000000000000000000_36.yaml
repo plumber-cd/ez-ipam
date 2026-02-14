@@ -2,4 +2,4 @@ allocation_mode: 2
 description: IPv6 regional VPC in us-east-1
 display_name: GCP us-east-1 VPC v6
 id: fd20::/36
-parent: Networks -> fd20::/32
+parent: Networks

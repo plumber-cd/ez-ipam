@@ -1,0 +1,5 @@
+allocation_mode: 2
+description: AWS shared-services VPC regional VPC
+display_name: AWS shared-services VPC
+id: 10.0.128.0/18
+parent: Networks

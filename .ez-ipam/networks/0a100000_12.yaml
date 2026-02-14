@@ -1,5 +1,0 @@
-allocation_mode: 1
-description: GCP cloud supernet
-display_name: GCP
-id: 10.16.0.0/12
-parent: Networks

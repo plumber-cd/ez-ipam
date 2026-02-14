@@ -1,0 +1,5 @@
+allocation_mode: 2
+description: GCP data VPC regional VPC
+display_name: GCP data VPC
+id: 10.16.192.0/18
+parent: Networks

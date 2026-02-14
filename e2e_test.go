@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
@@ -714,25 +715,106 @@ func TestDemoState(t *testing.T) {
 	navigateToNetworksRoot(t, h)
 
 	type cloudPlan struct {
-		cloudCIDR      string
-		cloudName      string
-		region1VPCCIDR string
-		region2VPCCIDR string
-		ipv6CloudCIDR  string
+		cloudCIDR     string
+		cloudName     string
+		ipv6CloudCIDR string
 	}
 	clouds := []cloudPlan{
-		{cloudCIDR: "10.0.0.0/12", cloudName: "AWS", region1VPCCIDR: "10.0.0.0/14", region2VPCCIDR: "10.4.0.0/14", ipv6CloudCIDR: "fd10::/32"},
-		{cloudCIDR: "10.16.0.0/12", cloudName: "GCP", region1VPCCIDR: "10.16.0.0/14", region2VPCCIDR: "10.20.0.0/14", ipv6CloudCIDR: "fd20::/32"},
-		{cloudCIDR: "10.32.0.0/12", cloudName: "Azure", region1VPCCIDR: "10.32.0.0/14", region2VPCCIDR: "10.36.0.0/14", ipv6CloudCIDR: "fd30::/32"},
+		{cloudCIDR: "10.0.0.0/12", cloudName: "AWS", ipv6CloudCIDR: "fd10::/32"},
+		{cloudCIDR: "10.16.0.0/12", cloudName: "GCP", ipv6CloudCIDR: "fd20::/32"},
+		{cloudCIDR: "10.32.0.0/12", cloudName: "Azure", ipv6CloudCIDR: "fd30::/32"},
 	}
 
-	configureVpcTiers := func(vpcCIDR, vpcName string, withInfraReservations bool) {
+	carveRequiredIPv4Subnets := func(rootCIDR string, requiredCount, targetPrefix int) []string {
+		if requiredCount < 1 {
+			return []string{}
+		}
+		initialPrefix := targetPrefix - 5
+		moveFocusToID(t, h, rootCIDR)
+		splitFocusedNetwork(h, fmt.Sprintf("%d", initialPrefix))
+		allCIDRs, err := splitNetwork(rootCIDR, initialPrefix)
+		if err != nil {
+			t.Fatalf("initial split for %s failed: %v", rootCIDR, err)
+		}
+		if len(allCIDRs) == 0 {
+			t.Fatalf("initial split produced no CIDRs for %s", rootCIDR)
+		}
+
+		countTarget := func(cidrs []string) int {
+			count := 0
+			for _, cidr := range cidrs {
+				_, ipNet, err := net.ParseCIDR(cidr)
+				if err != nil {
+					continue
+				}
+				ones, _ := ipNet.Mask.Size()
+				if ones == targetPrefix {
+					count++
+				}
+			}
+			return count
+		}
+
+		for countTarget(allCIDRs) < requiredCount {
+			splitIndex := -1
+			splitPrefix := 0
+			for i, cidr := range allCIDRs {
+				_, ipNet, err := net.ParseCIDR(cidr)
+				if err != nil {
+					continue
+				}
+				ones, _ := ipNet.Mask.Size()
+				if ones < targetPrefix {
+					splitIndex = i
+					splitPrefix = ones
+					break
+				}
+			}
+			if splitIndex < 0 {
+				t.Fatalf("unable to carve enough /%d subnets from %s", targetPrefix, rootCIDR)
+			}
+
+			toSplit := allCIDRs[splitIndex]
+			moveFocusToID(t, h, toSplit)
+			splitFocusedNetwork(h, fmt.Sprintf("%d", splitPrefix+1))
+			children, err := splitNetwork(toSplit, splitPrefix+1)
+			if err != nil || len(children) != 2 {
+				t.Fatalf("split %s into /%d failed: %v", toSplit, splitPrefix+1, err)
+			}
+
+			updated := make([]string, 0, len(allCIDRs)+1)
+			updated = append(updated, allCIDRs[:splitIndex]...)
+			updated = append(updated, children...)
+			updated = append(updated, allCIDRs[splitIndex+1:]...)
+			allCIDRs = updated
+		}
+
+		result := []string{}
+		for _, cidr := range allCIDRs {
+			_, ipNet, err := net.ParseCIDR(cidr)
+			if err != nil {
+				continue
+			}
+			ones, _ := ipNet.Mask.Size()
+			if ones == targetPrefix {
+				result = append(result, cidr)
+				if len(result) == requiredCount {
+					break
+				}
+			}
+		}
+		if len(result) != requiredCount {
+			t.Fatalf("expected %d carved /%d subnets, got %d", requiredCount, targetPrefix, len(result))
+		}
+		return result
+	}
+
+	configureCloudVPC := func(vpcCIDR, vpcName string, withInfraReservations bool) {
 		moveFocusToID(t, h, vpcCIDR)
 		allocateHostsFocused(h, vpcName, vpcName+" regional VPC", "")
 
 		if withInfraReservations {
 			h.PressEnter()
-
 			base := strings.Split(vpcCIDR, "/")[0]
 			octets := strings.Split(base, ".")
 			if len(octets) != 4 {
@@ -742,31 +824,22 @@ func TestDemoState(t *testing.T) {
 			reserveIPFromCurrentNetwork(h, fmt.Sprintf("%s.%s", prefix3, "1"), "gateway", "Default gateway")
 			reserveIPFromCurrentNetwork(h, fmt.Sprintf("%s.%s", prefix3, "2"), "dns", "Resolver")
 			reserveIPFromCurrentNetwork(h, fmt.Sprintf("%s.%s", prefix3, "10"), "nat", "NAT/egress")
-
 			h.PressBackspace()
 		}
 	}
 
 	for _, cloud := range clouds {
 		addNetworkViaDialog(h, cloud.cloudCIDR)
-		moveFocusToID(t, h, cloud.cloudCIDR)
-		allocateSubnetsFocused(h, cloud.cloudName, cloud.cloudName+" cloud supernet", "", "13")
-
-		h.PressEnter()
-		cloudHalves, err := splitNetwork(cloud.cloudCIDR, 13)
-		if err != nil || len(cloudHalves) < 1 {
-			t.Fatalf("split cloud %s into /13 failed: %v", cloud.cloudCIDR, err)
-		}
-		moveFocusToID(t, h, cloudHalves[0])
-		splitFocusedNetwork(h, "14")
-		configureVpcTiers(cloud.region1VPCCIDR, cloud.cloudName+" us-east-1 VPC", true)
-		configureVpcTiers(cloud.region2VPCCIDR, cloud.cloudName+" eu-west-1 VPC", false)
-		h.PressBackspace()
+		vpcCIDRs := carveRequiredIPv4Subnets(cloud.cloudCIDR, 5, 18)
+		configureCloudVPC(vpcCIDRs[0], cloud.cloudName+" us-east-1 VPC", true)
+		configureCloudVPC(vpcCIDRs[1], cloud.cloudName+" eu-west-1 VPC", false)
+		configureCloudVPC(vpcCIDRs[2], cloud.cloudName+" shared-services VPC", false)
+		configureCloudVPC(vpcCIDRs[3], cloud.cloudName+" data VPC", false)
+		configureCloudVPC(vpcCIDRs[4], cloud.cloudName+" sandbox VPC", false)
 
 		addNetworkViaDialog(h, cloud.ipv6CloudCIDR)
 		moveFocusToID(t, h, cloud.ipv6CloudCIDR)
-		allocateSubnetsFocused(h, cloud.cloudName+" IPv6", cloud.cloudName+" dual-stack IPv6 supernet", "", "33")
-		h.PressEnter()
+		splitFocusedNetwork(h, "33")
 
 		v6Halves, err := splitNetwork(cloud.ipv6CloudCIDR, 33)
 		if err != nil || len(v6Halves) < 1 {
@@ -804,7 +877,6 @@ func TestDemoState(t *testing.T) {
 		base1 := strings.Split(v6Regions[1], "/")[0]
 		reserveIPFromCurrentNetwork(h, base1+"1", "gateway-v6", "Default gateway IPv6")
 		reserveIPFromCurrentNetwork(h, base1+"53", "dns-v6", "Resolver IPv6")
-		h.PressBackspace()
 		h.PressBackspace()
 	}
 

@@ -2,4 +2,4 @@ allocation_mode: 2
 description: IPv6 regional VPC in us-east-1
 display_name: AWS us-east-1 VPC v6
 id: fd10::/36
-parent: Networks -> fd10::/32
+parent: Networks

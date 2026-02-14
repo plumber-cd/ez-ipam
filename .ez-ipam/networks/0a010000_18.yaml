@@ -1,0 +1,5 @@
+allocation_mode: 2
+description: AWS sandbox VPC regional VPC
+display_name: AWS sandbox VPC
+id: 10.1.0.0/18
+parent: Networks

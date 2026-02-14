@@ -1,0 +1,5 @@
+allocation_mode: 2
+description: AWS eu-west-1 VPC regional VPC
+display_name: AWS eu-west-1 VPC
+id: 10.0.64.0/18
+parent: Networks

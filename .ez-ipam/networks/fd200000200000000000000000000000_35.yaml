@@ -2,4 +2,4 @@ allocation_mode: 0
 description: ""
 display_name: ""
 id: fd20:0:2000::/35
-parent: Networks -> fd20::/32
+parent: Networks
