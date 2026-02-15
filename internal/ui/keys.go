@@ -133,10 +133,13 @@ func (a *App) networkFocusKeyPress(n *domain.Network, event *tcell.EventKey) *tc
 					return
 				}
 				subnetsPrefix := strings.TrimLeft(vals.ChildPrefixLen, "/")
-				subnetsPrefixInt, err := strconv.Atoi(subnetsPrefix)
-				if err != nil {
-					a.setStatus("Invalid subnet prefix length: " + err.Error())
-					return
+				subnetsPrefixInt := 0
+				if subnetsPrefix != "" {
+					subnetsPrefixInt, err = strconv.Atoi(subnetsPrefix)
+					if err != nil {
+						a.setStatus("Invalid subnet prefix length: " + err.Error())
+						return
+					}
 				}
 				a.AllocateNetworkInSubnetsMode(vals.Name, vals.Description, subnetsPrefixInt, vlanID)
 			},

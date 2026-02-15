@@ -216,12 +216,16 @@ func (a *App) setupLayout() {
 			AddButton("Save", func() {
 				newPrefix := getAndClearTextFromInputField(form, "New Prefix Length")
 				newPrefix = strings.TrimLeft(newPrefix, "/")
-				newPrefixInt, err := strconv.Atoi(newPrefix)
-				if err != nil {
-					a.setStatus("Invalid prefix length. Enter a number larger than the current prefix: " + err.Error())
-					return
+				if newPrefix == "" {
+					a.SplitNetwork(0)
+				} else {
+					newPrefixInt, err := strconv.Atoi(newPrefix)
+					if err != nil {
+						a.setStatus("Invalid prefix length. Enter a number larger than the current prefix: " + err.Error())
+						return
+					}
+					a.SplitNetwork(newPrefixInt)
 				}
-				a.SplitNetwork(newPrefixInt)
 				a.Pages.SwitchToPage(mainPageName)
 				a.TviewApp.SetFocus(a.NavPanel)
 			}).
@@ -905,29 +909,21 @@ func (a *App) showSummarizeDialog(candidates []*domain.Network, fromIndex, toInd
 	for _, c := range candidates {
 		options = append(options, c.DisplayID())
 	}
-	indexByOption := make(map[string]int, len(options))
-	for i, option := range options {
-		if _, exists := indexByOption[option]; !exists {
-			indexByOption[option] = i
-		}
-	}
 
 	fromIdx := fromIndex
 	toIdx := toIndex
 
 	form := tview.NewForm().SetButtonsAlign(tview.AlignCenter)
-	fromCurrent := options[fromIdx]
-	toCurrent := options[toIdx]
-	form.AddFormItem(newSearchableDropdown("From", options, fromCurrent, false, func(option string, _ int) {
-		if idx, ok := indexByOption[option]; ok {
+	form.AddDropDown("From", options, fromIdx, func(_ string, idx int) {
+		if idx >= 0 && idx < len(options) {
 			fromIdx = idx
 		}
-	}))
-	form.AddFormItem(newSearchableDropdown("To", options, toCurrent, false, func(option string, _ int) {
-		if idx, ok := indexByOption[option]; ok {
+	})
+	form.AddDropDown("To", options, toIdx, func(_ string, idx int) {
+		if idx >= 0 && idx < len(options) {
 			toIdx = idx
 		}
-	}))
+	})
 	form.AddButton("Summarize", func() {
 		a.SummarizeNetworkSelection(candidates, fromIdx, toIdx)
 		a.dismissDialog(pageName)
