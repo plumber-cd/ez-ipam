@@ -22,4 +22,4 @@
 ║                        ║┌───────────────────────Status───────────────────────┐
 ║                        ║│Error adding VLAN: VLAN ID already exists           │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <v> New VLAN | <u> Update VLAN | <D> Delete VLAN    
+ <q> Quit | <ctrl+s> Save | <v> New VLAN | <u> Update VLAN | <?> Help           

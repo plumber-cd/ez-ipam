@@ -22,4 +22,4 @@
 ║                        ║┌───────────────────────Status───────────────────────┐
 ║                        ║│Added Zone: Zones -> Trusted                        │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <z> New Zone | <u> Update Zone | <D> Delete Zone    
+ <q> Quit | <ctrl+s> Save | <z> New Zone | <u> Update Zone | <?> Help           

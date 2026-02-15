@@ -22,4 +22,4 @@
 ║                        ║┌───────────────────────Status───────────────────────┐
 ║                        ║│Updated WiFi SSID: WiFi SSIDs -> Home-IoT           │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <w> New SSID | <u> Update WiFi SSID | <D> Delete    
+ <q> Quit | <ctrl+s> Save | <w> New SSID | <u> Update WiFi SSID | <?> Help      

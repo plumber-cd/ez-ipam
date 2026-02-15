@@ -22,4 +22,4 @@
 ║                        ║│Error adding Zone: display name must be set for     │
 ║                        ║│Zone=Zones ->                                       │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <e> New Equipment                                   
+ <q> Quit | <ctrl+s> Save | <e> New Equipment | <?> Help                        

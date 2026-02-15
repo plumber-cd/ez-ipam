@@ -22,4 +22,4 @@
 ║                        ║┌───────────────────────Status───────────────────────┐
 ║                        ║│Allocated network: Networks -> 10.0.0.0/24          │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <n> New Network | <u> Update Metadata | <d>         
+ <q> Quit | <ctrl+s> Save | <n> New Network | <u> Update Metadata | <?> Help    

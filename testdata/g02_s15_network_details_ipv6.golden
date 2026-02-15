@@ -22,4 +22,4 @@
 ║                        ║┌───────────────────────Status───────────────────────┐
 ║                        ║│Reserved IP: Networks -> 10.0.0.0/24 -> 10.0.0.1    │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <n> New Network | <a> Allocate Subnet Container |   
+ <q> Quit | <ctrl+s> Save | <n> New Network | <?> Help                          

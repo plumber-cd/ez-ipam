@@ -22,4 +22,4 @@
 ║                        ║┌───────────────────────Status───────────────────────┐
 ║                        ║│Saved to .ez-ipam/ and EZ-IPAM.md                   │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <v> New VLAN | <u> Update VLAN | <D> Delete VLAN    
+ <q> Quit | <ctrl+s> Save | <v> New VLAN | <u> Update VLAN | <?> Help           

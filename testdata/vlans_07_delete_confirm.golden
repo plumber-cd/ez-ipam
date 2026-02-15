@@ -22,4 +22,4 @@
 │                        │┌───────────────────────Status───────────────────────┐
 │                        ││Updated VLAN: VLANs -> 200                          │
 └────────────────────────┘└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <v> New VLAN | <u> Update VLAN | <D> Delete VLAN    
+ <q> Quit | <ctrl+s> Save | <v> New VLAN | <u> Update VLAN | <?> Help           

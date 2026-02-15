@@ -22,4 +22,4 @@
 ║                        ║│Error adding Equipment: model must be set for       │
 ║                        ║│equipment NoModel                                   │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <e> New Equipment | <u> Update Equipment | <D>      
+ <q> Quit | <ctrl+s> Save | <e> New Equipment | <u> Update Equipment | <?> Help 

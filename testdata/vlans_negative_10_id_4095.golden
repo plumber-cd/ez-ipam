@@ -22,4 +22,4 @@
 ║                        ║│Error adding VLAN: invalid VLAN ID 4095: must be in │
 ║                        ║│range 1-4094                                        │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <v> New VLAN | <u> Update VLAN | <D> Delete VLAN    
+ <q> Quit | <ctrl+s> Save | <v> New VLAN | <u> Update VLAN | <?> Help           

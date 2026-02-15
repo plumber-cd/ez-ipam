@@ -22,4 +22,4 @@
 ║                        ║┌───────────────────────Status───────────────────────┐
 ║                        ║│Split network Networks -> 10.0.0.0/24 into 2 subnets│
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <n> New Network | <a> Allocate Subnet Container |   
+ <q> Quit | <ctrl+s> Save | <n> New Network | <?> Help                          

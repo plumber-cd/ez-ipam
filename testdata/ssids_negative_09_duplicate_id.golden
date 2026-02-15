@@ -22,4 +22,4 @@
 ║                        ║┌───────────────────────Status───────────────────────┐
 ║                        ║│Error adding WiFi SSID: duplicate WiFi SSID         │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <w> New SSID | <u> Update WiFi SSID | <D> Delete    
+ <q> Quit | <ctrl+s> Save | <w> New SSID | <u> Update WiFi SSID | <?> Help      

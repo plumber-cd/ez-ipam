@@ -149,6 +149,9 @@ func (a *App) setupLayout() {
 				a.quitDialog.SetFocus(1)
 				a.TviewApp.SetFocus(a.quitDialog)
 				return nil
+			case '?':
+				a.showHelpPopup()
+				return nil
 			}
 		}
 
@@ -380,6 +383,7 @@ func (a *App) setupLayout() {
 	a.TviewApp.EnableMouse(true)
 	a.TviewApp.SetBeforeDrawFunc(func(screen tcell.Screen) bool {
 		a.resizeStatusLine()
+		a.UpdateKeysLine()
 		return false
 	})
 	a.TviewApp.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {

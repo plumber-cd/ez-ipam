@@ -18,6 +18,7 @@ import (
 const (
 	mainPageName = "*main*"
 	quitPageName = "*quit*"
+	helpPageName = "*help*"
 
 	FormFieldWidth          = 42
 	descriptionHint         = "Ctrl+E: edit in $EDITOR"
@@ -234,8 +235,86 @@ func (a *App) ReloadMenu(focusedItem domain.Item) {
 
 // UpdateKeysLine refreshes the keyboard shortcuts help line.
 func (a *App) UpdateKeysLine() {
-	a.KeysLine.Clear()
-	a.KeysLine.SetText(" " + strings.Join(append(append(GlobalKeys, a.CurrentMenuItemKeys...), a.CurrentFocusKeys...), " | "))
+	if a.KeysLine == nil {
+		return
+	}
+
+	mandatoryHelpKey := "<?> Help"
+	keys := append(append(append([]string{}, GlobalKeys...), a.CurrentMenuItemKeys...), a.CurrentFocusKeys...)
+	visibleKeys := append(append([]string{}, keys...), mandatoryHelpKey)
+	text := " " + strings.Join(visibleKeys, " | ")
+
+	_, _, innerWidth, _ := a.KeysLine.GetInnerRect()
+	if innerWidth > 0 {
+		for len(visibleKeys) > 1 && len(text) > innerWidth {
+			visibleKeys = visibleKeys[:len(visibleKeys)-2]
+			visibleKeys = append(visibleKeys, mandatoryHelpKey)
+			text = " " + strings.Join(visibleKeys, " | ")
+		}
+		if len(visibleKeys) == 1 {
+			text = " " + mandatoryHelpKey
+		}
+	}
+
+	a.KeysLine.SetText(text)
+}
+
+func (a *App) showHelpPopup() {
+	var content strings.Builder
+	content.WriteString("Full keyboard shortcuts\n\n")
+	content.WriteString("Navigation\n")
+	content.WriteString("- h / Left Arrow: Back\n")
+	content.WriteString("- j / Down Arrow: Move down\n")
+	content.WriteString("- k / Up Arrow: Move up\n")
+	content.WriteString("- l / Right Arrow / Enter: Open or select\n")
+	content.WriteString("- Backspace: Go up one level\n")
+	content.WriteString("- Ctrl+U: Page up\n")
+	content.WriteString("- Ctrl+D: Page down\n\n")
+	content.WriteString("Global\n")
+	content.WriteString("- q: Quit (with confirmation)\n")
+	content.WriteString("- Ctrl+S: Save\n")
+	content.WriteString("- Ctrl+Q: Force quit\n")
+	content.WriteString("- ?: Show this help\n\n")
+	content.WriteString("Current context\n")
+	for _, key := range a.CurrentMenuItemKeys {
+		content.WriteString("- ")
+		content.WriteString(key)
+		content.WriteString("\n")
+	}
+	for _, key := range a.CurrentFocusKeys {
+		content.WriteString("- ")
+		content.WriteString(key)
+		content.WriteString("\n")
+	}
+
+	helpText := tview.NewTextView().
+		SetText(content.String()).
+		SetScrollable(true).
+		SetWrap(true).
+		SetWordWrap(true)
+	helpText.SetBorder(true).SetTitle("Keyboard Shortcuts")
+	helpText.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyEscape, tcell.KeyEnter, tcell.KeyBS, tcell.KeyBackspace2:
+			a.dismissHelpPopup()
+			return nil
+		}
+		return event
+	})
+
+	dialogWidth := 58
+	dialogHeight := 20
+
+	a.Pages.RemovePage(helpPageName)
+	a.Pages.AddPage(helpPageName, a.createDialogPage(helpText, dialogWidth, dialogHeight), true, true)
+	a.Pages.ShowPage(helpPageName)
+	a.TviewApp.SetFocus(helpText)
+}
+
+func (a *App) dismissHelpPopup() {
+	a.Pages.RemovePage(helpPageName)
+	a.Pages.SwitchToPage(mainPageName)
+	a.TviewApp.SetFocus(a.NavPanel)
 }
 
 // resizeStatusLine adjusts the status panel height to fit its text content.
