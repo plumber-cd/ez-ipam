@@ -71,11 +71,17 @@ func updateAllocationFocused(h *TestHarness, nameSuffix, descriptionSuffix, vlan
 }
 
 func reserveIPFromCurrentNetwork(h *TestHarness, ip, name, description string) {
+	reserveIPFromCurrentNetworkWithMAC(h, ip, name, "", description)
+}
+
+func reserveIPFromCurrentNetworkWithMAC(h *TestHarness, ip, name, mac, description string) {
 	h.PressRune('r')
 	h.AssertScreenContains("Reserve IP")
 	h.TypeText(ip)
 	h.PressTab()
 	h.TypeText(name)
+	h.PressTab()
+	h.TypeText(mac)
 	h.PressTab()
 	h.TypeText(description)
 	h.PressTab()
@@ -152,6 +158,16 @@ func navigateToEquipmentRoot(t *testing.T, h *TestHarness) {
 	h.MoveFocusToID(t, "Equipment")
 	h.PressEnter()
 	h.AssertScreenContains("│Equipment")
+}
+
+func navigateToDNSRoot(t *testing.T, h *TestHarness) {
+	t.Helper()
+	for range 16 {
+		h.PressBackspace()
+	}
+	h.MoveFocusToID(t, "DNS")
+	h.PressEnter()
+	h.AssertScreenContains("│DNS")
 }
 
 func addZoneViaDialog(h *TestHarness, name, description, vlanIDs string) {
@@ -257,13 +273,53 @@ func addPortViaDialog(h *TestHarness, number string, enabled bool, name, portTyp
 }
 
 func updateFocusedIPReservation(h *TestHarness, nameSuffix, descriptionSuffix string) {
+	updateFocusedIPReservationWithMAC(h, nameSuffix, "", descriptionSuffix)
+}
+
+func updateFocusedIPReservationWithMAC(h *TestHarness, nameSuffix, mac, descriptionSuffix string) {
 	h.PressRune('u')
 	h.AssertScreenContains("Update Reservation")
 	h.TypeText(nameSuffix)
 	h.PressTab()
+	h.TypeText(mac)
+	h.PressTab()
 	h.TypeText(descriptionSuffix)
 	h.PressTab()
 	h.PressEnter()
+}
+
+func addDNSRecordViaDialog(h *TestHarness, fqdn, recordType, recordValue, description string) {
+	h.PressRune('r')
+	h.AssertScreenContains("Add DNS Record")
+	h.TypeText(fqdn)
+	h.PressTab() // Mode dropdown, default Record
+	h.PressTab() // Record Type
+	h.TypeText(recordType)
+	h.PressTab() // Record Value
+	h.TypeText(recordValue)
+	h.PressTab() // Description
+	h.TypeText(description)
+	h.PressTab() // Save button
+	h.PressEnter()
+}
+
+func addDNSAliasViaDialog(h *TestHarness, fqdn, targetContains, description string) {
+	h.PressRune('r')
+	h.AssertScreenContains("Add DNS Record")
+	h.TypeText(fqdn)
+	h.SelectDropdownOption("Mode", "Alias")
+	h.SelectDropdownOption("Reserved IP", targetContains)
+	h.PressTab() // Mode
+	h.PressTab() // Reserved IP
+	h.PressTab() // Description
+	h.TypeText(description)
+	for range 6 {
+		h.PressTab()
+		h.PressEnter()
+		if !strings.Contains(h.GetScreenText(), "Add DNS Record") {
+			return
+		}
+	}
 }
 
 func assertPrimaryCancelVisible(t *testing.T, h *TestHarness, primary string) {
@@ -544,8 +600,10 @@ func TestReserveUpdateUnreserveIPBranches(t *testing.T) {
 	allocateHostsFocused(h, "Office", "LAN", "")
 	h.PressEnter()
 
-	reserveIPFromCurrentNetwork(h, "192.168.1.1", "gateway", "gw")
+	reserveIPFromCurrentNetworkWithMAC(h, "192.168.1.1", "gateway.home", "0011.2233.4455", "gw")
 	h.AssertStatusContains("Reserved IP")
+	h.MoveFocusToID(t, "192.168.1.1 (gateway.home")
+	h.AssertScreenContains("MAC Address          : 00:11:22:33:44:55")
 
 	reserveIPFromCurrentNetwork(h, "not-an-ip", "a", "b")
 	h.AssertStatusContains("Error reserving IP")
@@ -558,22 +616,95 @@ func TestReserveUpdateUnreserveIPBranches(t *testing.T) {
 	reserveIPFromCurrentNetwork(h, "fd00::1", "x", "y")
 	h.AssertStatusContains("Error reserving IP")
 
-	h.MoveFocusToID(t, "192.168.1.1 (gateway)")
+	h.MoveFocusToID(t, "192.168.1.1 (gateway.home")
 	updateFocusedIPReservation(h, "-1", " updated")
 	h.AssertStatusContains("Updated IP reservation")
-	h.AssertScreenContains("192.168.1.1 (gateway-1)")
+	h.AssertScreenContains("gateway.home-1")
+	h.AssertScreenContains("MAC Address          : 00:11:22:33:44:55")
 
 	h.PressRune('R')
 	h.AssertScreenContains("Unreserve 192.168.1.1")
-	h.AssertScreenContains("(gateway-1)?")
+	h.AssertScreenContains("(gateway.home-1")
 	h.CancelModal()
-	h.AssertScreenContains("192.168.1.1 (gateway-1)")
+	h.AssertScreenContains("gateway.home-1")
 
 	h.PressRune('R')
 	h.AssertScreenContains("Unreserve 192.168.1.1")
-	h.AssertScreenContains("(gateway-1)?")
+	h.AssertScreenContains("(gateway.home-1")
 	h.ConfirmModal()
 	h.AssertStatusContains("Unreserved IP")
+}
+
+func TestDNSAliasLifecycleAndCascadeOnUnreserve(t *testing.T) {
+	h := NewTestHarness(t)
+	h.NavigateToNetworks()
+	addNetworkViaDialog(h, "10.77.0.0/24")
+	h.MoveFocusToID(t, "10.77.0.0/24")
+	allocateHostsFocused(h, "lab.home", "Lab network", "")
+	h.PressEnter()
+
+	reserveIPFromCurrentNetworkWithMAC(h, "10.77.0.1", "gw.home", "00-11-22-33-44-55", "Gateway")
+	h.AssertStatusContains("Reserved IP")
+	reserveIPFromCurrentNetworkWithMAC(h, "10.77.0.2", "dns.home", "AABB.CCDD.EEFF", "DNS node")
+	h.AssertStatusContains("Reserved IP")
+
+	navigateToDNSRoot(t, h)
+	addDNSRecordViaDialog(h, "mail.home", "MX", "10 mail.provider.home", "Mail route")
+	h.AssertStatusContains("Added DNS record")
+	addDNSAliasViaDialog(h, "gateway.home", "10.77.0.2", "Gateway alias")
+	h.AssertStatusContains("Added DNS record")
+	h.MoveFocusToID(t, "gateway.home")
+	h.AssertScreenContains("Type                 : Alias")
+	h.AssertScreenContains("10.77.0.2 (dns.home")
+	h.AssertScreenContains("aa:bb:cc:dd:ee:ff")
+
+	navigateToNetworksRoot(t, h)
+	h.MoveFocusToID(t, "10.77.0.0/24")
+	h.PressEnter()
+	h.MoveFocusToID(t, "10.77.0.2 (dns.home")
+	h.PressRune('R')
+	h.AssertScreenContains("will also be deleted")
+	h.AssertScreenContains("- gateway.home")
+	h.ConfirmModal()
+	h.AssertStatusContains("Unreserved IP")
+
+	navigateToDNSRoot(t, h)
+	h.AssertScreenNotContains("gateway.home")
+	h.AssertScreenContains("mail.home")
+}
+
+func TestDNSModeSwitchDoesNotResetFocusToFQDN(t *testing.T) {
+	h := NewTestHarness(t)
+	h.NavigateToNetworks()
+	addNetworkViaDialog(h, "10.88.0.0/24")
+	h.MoveFocusToID(t, "10.88.0.0/24")
+	allocateHostsFocused(h, "focus.home", "Focus test network", "")
+	h.PressEnter()
+	reserveIPFromCurrentNetworkWithMAC(h, "10.88.0.2", "focus-target.home", "00:11:22:33:44:55", "Focus target")
+	h.AssertStatusContains("Reserved IP")
+
+	navigateToDNSRoot(t, h)
+	h.PressRune('r')
+	h.AssertScreenContains("Add DNS Record")
+	h.TypeText("focus-alias.home")
+	h.SelectDropdownOption("Mode", "Alias")
+	// If mode switch incorrectly resets focus to FQDN, this text mutates FQDN.
+	h.TypeText("should-not-touch-fqdn")
+	h.SelectDropdownOption("Mode", "Alias")
+	h.SelectDropdownOption("Reserved IP", "10.88.0.2")
+	h.PressTab()
+	h.PressTab()
+	h.TypeText("focus-check-description")
+	for range 6 {
+		h.PressTab()
+		h.PressEnter()
+		if !strings.Contains(h.GetScreenText(), "Add DNS Record") {
+			break
+		}
+	}
+	h.AssertStatusContains("Added DNS record")
+	h.MoveFocusToID(t, "focus-alias.home")
+	h.AssertScreenContains("FQDN                 : focus-alias.home")
 }
 
 func TestAddVLANBranches(t *testing.T) {
@@ -1012,6 +1143,11 @@ func TestHomeNavigation(t *testing.T) {
 	h.PressEnter()
 	stepSnapshot(h, "home", &step, "equipment_folder")
 	h.PressBackspace()
+
+	h.MoveFocusToID(t, "DNS")
+	h.PressEnter()
+	stepSnapshot(h, "home", &step, "dns_folder")
+	h.PressBackspace()
 }
 
 func TestNetworksLifecycle(t *testing.T) {
@@ -1351,6 +1487,13 @@ func TestGoldenDialogsAndScreens(t *testing.T) {
 	h.CancelModal()
 
 	h.PressBackspace()
+	navigateToDNSRoot(t, h)
+	h.PressRune('r')
+	assertPrimaryCancelVisible(t, h, "Save")
+	h.AssertGoldenSnapshot("g02_s14b_dns_add_record_dialog")
+	h.PressEscape()
+
+	navigateToNetworksRoot(t, h)
 	h.MoveFocusToID(t, "fd00::/64")
 	h.AssertGoldenSnapshot("g02_s15_network_details_ipv6")
 
@@ -1514,7 +1657,7 @@ func TestDemoState(t *testing.T) {
 					t.Fatalf("expected IPv4 subnet for AZ-a, got %s", azs[0])
 				}
 				prefix3 := strings.Join(octets[:3], ".")
-				reserveIPFromCurrentNetwork(h, prefix3+".1", "gateway", "Default gateway")
+				reserveIPFromCurrentNetworkWithMAC(h, prefix3+".1", "gateway.az-a.demo", "00-11-22-33-44-55", "Default gateway")
 				h.PressBackspace()
 				h.MoveFocusToID(t, azs[1])
 				allocateHostsFocused(h, "AZ-b", "Availability zone B", "")
@@ -1552,20 +1695,20 @@ func TestDemoState(t *testing.T) {
 	h.MoveFocusToID(t, homeCIDRs[0])
 	allocateHostsFocused(h, "Home Infra", "Routers and servers", fmt.Sprintf("%d", vlanA))
 	h.PressEnter()
-	reserveIPFromCurrentNetwork(h, "192.168.0.1", "gateway", "Default gateway")
-	reserveIPFromCurrentNetwork(h, "192.168.0.10", "nas", "NAS")
+	reserveIPFromCurrentNetworkWithMAC(h, "192.168.0.1", "gateway.home", "00-11-22-33-44-55", "Default gateway")
+	reserveIPFromCurrentNetworkWithMAC(h, "192.168.0.10", "nas.home", "0011.2233.4456", "NAS")
 	h.PressBackspace()
 	h.MoveFocusToID(t, homeCIDRs[1])
 	allocateHostsFocused(h, "Home Users", "Laptops and phones", fmt.Sprintf("%d", vlanB))
 	h.PressEnter()
-	reserveIPFromCurrentNetwork(h, "192.168.1.1", "gateway", "Default gateway")
-	reserveIPFromCurrentNetwork(h, "192.168.1.50", "printer", "Office printer")
+	reserveIPFromCurrentNetworkWithMAC(h, "192.168.1.1", "gateway.users.home", "00:11:22:33:44:66", "Default gateway")
+	reserveIPFromCurrentNetworkWithMAC(h, "192.168.1.50", "printer.home", "", "Office printer")
 	h.PressBackspace()
 	h.MoveFocusToID(t, homeCIDRs[2])
 	allocateHostsFocused(h, "Home IoT", "Cameras and sensors", fmt.Sprintf("%d", vlanC))
 	h.PressEnter()
-	reserveIPFromCurrentNetwork(h, "192.168.2.1", "gateway", "Default gateway")
-	reserveIPFromCurrentNetwork(h, "192.168.2.20", "camera-nvr", "NVR")
+	reserveIPFromCurrentNetworkWithMAC(h, "192.168.2.1", "gateway.iot.home", "00:11:22:33:44:77", "Default gateway")
+	reserveIPFromCurrentNetworkWithMAC(h, "192.168.2.20", "camera-nvr.home", "", "NVR")
 	h.PressBackspace()
 
 	navigateToNetworksRoot(t, h)
@@ -1595,14 +1738,22 @@ func TestDemoState(t *testing.T) {
 	allocateHostsFocused(h, "Home Infra v6", "Routers and servers v6", "")
 	h.PressEnter()
 	base0 := strings.Split(homeV6CIDRs[0], "/")[0]
-	reserveIPFromCurrentNetwork(h, strings.Replace(base0, "::", "::1", 1), "gateway-v6", "Default gateway IPv6")
-	reserveIPFromCurrentNetwork(h, strings.Replace(base0, "::", "::53", 1), "dns-v6", "Resolver IPv6")
+	reserveIPFromCurrentNetworkWithMAC(h, strings.Replace(base0, "::", "::1", 1), "gateway-v6.home", "00:11:22:33:44:88", "Default gateway IPv6")
+	reserveIPFromCurrentNetworkWithMAC(h, strings.Replace(base0, "::", "::53", 1), "dns-v6.home", "", "Resolver IPv6")
 	h.PressBackspace()
 	h.MoveFocusToID(t, homeV6CIDRs[1])
 	allocateHostsFocused(h, "Home Users v6", "Laptops and phones v6", "")
 	h.PressEnter()
 	base1 := strings.Split(homeV6CIDRs[1], "/")[0]
-	reserveIPFromCurrentNetwork(h, strings.Replace(base1, "::", "::1", 1), "gateway-v6", "Default gateway IPv6")
+	reserveIPFromCurrentNetworkWithMAC(h, strings.Replace(base1, "::", "::1", 1), "gateway-users-v6.home", "", "Default gateway IPv6")
+	navigateToNetworksRoot(t, h)
+
+	navigateToDNSRoot(t, h)
+	addDNSRecordViaDialog(h, "mail.home", "MX", "10 mail.provider.home", "Primary mail route")
+	addDNSRecordViaDialog(h, "txt.home", "TXT", "v=spf1 include:provider.home -all", "SPF policy")
+	addDNSAliasViaDialog(h, "gateway.home", "192.168.0.1", "Primary IPv4 gateway alias")
+	addDNSAliasViaDialog(h, "nas.home", "192.168.0.10", "NAS alias")
+	addDNSAliasViaDialog(h, "gateway-v6.home", "fd42::1", "Primary IPv6 gateway alias")
 	navigateToNetworksRoot(t, h)
 
 	h.PressCtrl('s')

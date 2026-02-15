@@ -1,5 +1,6 @@
 description: Default gateway
-display_name: gateway
+display_name: gateway.az-a.demo
 id: 10.0.128.1
+mac_address: "00:11:22:33:44:55"
 parent: Networks -> 10.0.0.0/10 -> 10.0.0.0/12 -> 10.0.0.0/14 -> 10.0.0.0/16 -> 10.0.128.0/18
   -> 10.0.128.0/19

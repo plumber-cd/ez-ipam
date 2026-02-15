@@ -89,6 +89,32 @@ func ParseTaggedMode(text string) TaggedVLANMode {
 	}
 }
 
+// ValidateHostname validates a relaxed hostname/FQDN.
+func ValidateHostname(value string) error {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return fmt.Errorf("hostname must be set")
+	}
+	for _, r := range value {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '.' {
+			continue
+		}
+		return fmt.Errorf("hostname %q contains unsupported character %q", value, string(r))
+	}
+	labels := strings.Split(value, ".")
+	for _, label := range labels {
+		if label == "" {
+			return fmt.Errorf("hostname %q contains an empty label", value)
+		}
+		first := rune(label[0])
+		last := rune(label[len(label)-1])
+		if !isAlphaNumericRune(first) || !isAlphaNumericRune(last) {
+			return fmt.Errorf("hostname label %q must start and end with an alphanumeric character", label)
+		}
+	}
+	return nil
+}
+
 // ---------- Sorting ----------
 
 // CompareNaturalNumberOrder compares two strings using natural number ordering.
@@ -146,6 +172,10 @@ func trimLeadingZeroes(value string) string {
 
 func isDigitRune(r rune) bool {
 	return r >= '0' && r <= '9'
+}
+
+func isAlphaNumericRune(r rune) bool {
+	return (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || isDigitRune(r)
 }
 
 // ---------- Identifiers ----------

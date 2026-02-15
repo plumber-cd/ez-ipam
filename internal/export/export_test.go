@@ -14,6 +14,7 @@ func TestRenderMarkdownEmpty(t *testing.T) {
 	c.Put(&domain.StaticFolder{Base: domain.Base{ID: "VLANs"}, Index: 2})
 	c.Put(&domain.StaticFolder{Base: domain.Base{ID: "WiFi SSIDs"}, Index: 3})
 	c.Put(&domain.StaticFolder{Base: domain.Base{ID: "Equipment"}, Index: 4})
+	c.Put(&domain.StaticFolder{Base: domain.Base{ID: "DNS"}, Index: 5})
 
 	md, err := RenderMarkdown(c)
 	if err != nil {
@@ -33,7 +34,7 @@ func TestRenderMarkdownEmpty(t *testing.T) {
 	}
 
 	// Conditional sections should NOT appear when empty.
-	for _, section := range []string{"## VLANs", "## WiFi SSIDs", "## Zones", "## Equipment"} {
+	for _, section := range []string{"## VLANs", "## DNS Records", "## WiFi SSIDs", "## Zones", "## Equipment"} {
 		if strings.Contains(md, section) {
 			t.Errorf("empty catalog should not contain %q", section)
 		}
@@ -47,6 +48,7 @@ func TestRenderMarkdownWithData(t *testing.T) {
 	c.Put(&domain.StaticFolder{Base: domain.Base{ID: "VLANs"}, Index: 2})
 	c.Put(&domain.StaticFolder{Base: domain.Base{ID: "WiFi SSIDs"}, Index: 3})
 	c.Put(&domain.StaticFolder{Base: domain.Base{ID: "Equipment"}, Index: 4})
+	c.Put(&domain.StaticFolder{Base: domain.Base{ID: "DNS"}, Index: 5})
 
 	// Add a VLAN.
 	c.Put(&domain.VLAN{
@@ -69,7 +71,15 @@ func TestRenderMarkdownWithData(t *testing.T) {
 	c.Put(&domain.IP{
 		Base:        domain.Base{ID: "10.0.0.1", ParentPath: net.GetPath()},
 		DisplayName: "Gateway",
+		MACAddress:  "00:11:22:33:44:55",
 		Description: "Default gateway",
+	})
+
+	// Add DNS alias record.
+	c.Put(&domain.DNSRecord{
+		Base:           domain.Base{ID: "gateway.example.com", ParentPath: "DNS"},
+		ReservedIPPath: net.GetPath() + " -> 10.0.0.1",
+		Description:    "Gateway alias",
 	})
 
 	// Add equipment with port.
@@ -112,6 +122,9 @@ func TestRenderMarkdownWithData(t *testing.T) {
 		"Office LAN",
 		"10.0.0.1",
 		"Gateway",
+		"DNS Records",
+		"gateway.example.com",
+		"`10.0.0.1` (Gateway `00:11:22:33:44:55`)",
 		"100",
 		"Office",
 		"Switch-1",
@@ -133,6 +146,7 @@ func TestRenderMarkdownNetworkHierarchy(t *testing.T) {
 	c.Put(&domain.StaticFolder{Base: domain.Base{ID: "VLANs"}, Index: 2})
 	c.Put(&domain.StaticFolder{Base: domain.Base{ID: "WiFi SSIDs"}, Index: 3})
 	c.Put(&domain.StaticFolder{Base: domain.Base{ID: "Equipment"}, Index: 4})
+	c.Put(&domain.StaticFolder{Base: domain.Base{ID: "DNS"}, Index: 5})
 
 	// Parent network allocated as subnets.
 	parent := &domain.Network{

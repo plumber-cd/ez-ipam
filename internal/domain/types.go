@@ -35,6 +35,7 @@ const (
 	FolderVLANs     = "VLANs"
 	FolderSSIDs     = "WiFi SSIDs"
 	FolderEquipment = "Equipment"
+	FolderDNS       = "DNS"
 )
 
 // Item is the interface implemented by every catalog entity.
@@ -146,9 +147,13 @@ type IP struct {
 	Base
 	DisplayName string `json:"display_name"`
 	Description string `json:"description"`
+	MACAddress  string `json:"mac_address,omitempty"`
 }
 
 func (i *IP) DisplayID() string {
+	if strings.TrimSpace(i.MACAddress) != "" {
+		return fmt.Sprintf("%s (%s %s)", i.ID, i.DisplayName, i.MACAddress)
+	}
 	return fmt.Sprintf("%s (%s)", i.ID, i.DisplayName)
 }
 
@@ -322,4 +327,40 @@ func (p *Port) Compare(other Item) int {
 		return cmp.Compare(p.DisplayID(), other.DisplayID())
 	}
 	return cmp.Compare(p.Number(), otherPort.Number())
+}
+
+// ---------- DNSRecord ----------
+
+// DNSRecord represents a DNS record or an alias to a reserved IP.
+type DNSRecord struct {
+	Base
+	RecordType     string `json:"record_type,omitempty"`
+	RecordValue    string `json:"record_value,omitempty"`
+	ReservedIPPath string `json:"reserved_ip,omitempty"`
+	Description    string `json:"description"`
+}
+
+func (d *DNSRecord) DisplayID() string {
+	if strings.TrimSpace(d.ReservedIPPath) != "" {
+		target := d.ReservedIPPath
+		if parts := strings.Split(target, " -> "); len(parts) > 0 {
+			target = parts[len(parts)-1]
+		}
+		return fmt.Sprintf("%s (alias -> %s)", d.ID, target)
+	}
+	if strings.TrimSpace(d.RecordType) != "" || strings.TrimSpace(d.RecordValue) != "" {
+		return fmt.Sprintf("%s (%s -> %s)", d.ID, d.RecordType, d.RecordValue)
+	}
+	return d.ID
+}
+
+func (d *DNSRecord) Compare(other Item) int {
+	if other == nil {
+		return 1
+	}
+	otherDNS, ok := other.(*DNSRecord)
+	if !ok {
+		return cmp.Compare(d.DisplayID(), other.DisplayID())
+	}
+	return CompareNaturalNumberOrder(d.ID, otherDNS.ID)
 }

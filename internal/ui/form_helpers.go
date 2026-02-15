@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"slices"
 	"strconv"
 	"strings"
@@ -481,4 +482,53 @@ func buildVLANIDsCSV(selected map[int]bool) string {
 		strs = append(strs, strconv.Itoa(id))
 	}
 	return strings.Join(strs, ",")
+}
+
+func formatReservedIPDisplayOption(ip *domain.IP) string {
+	if ip == nil {
+		return ""
+	}
+	base := fmt.Sprintf("%s (%s)", ip.ID, ip.DisplayName)
+	if strings.TrimSpace(ip.MACAddress) != "" {
+		return fmt.Sprintf("%s (%s %s)", ip.ID, ip.DisplayName, ip.MACAddress)
+	}
+	return base
+}
+
+// getReservedIPDropdownOptions returns all reserved IP choices and their paths.
+func (a *App) getReservedIPDropdownOptions() (options []string, paths []string) {
+	type optionRow struct {
+		option string
+		path   string
+	}
+	rows := []optionRow{}
+	for _, item := range a.Catalog.All() {
+		ip, ok := item.(*domain.IP)
+		if !ok {
+			continue
+		}
+		rows = append(rows, optionRow{
+			option: formatReservedIPDisplayOption(ip),
+			path:   ip.GetPath(),
+		})
+	}
+	slices.SortFunc(rows, func(a, b optionRow) int {
+		return strings.Compare(strings.ToLower(a.option), strings.ToLower(b.option))
+	})
+	options = make([]string, 0, len(rows))
+	paths = make([]string, 0, len(rows))
+	for _, row := range rows {
+		options = append(options, row.option)
+		paths = append(paths, row.path)
+	}
+	return options, paths
+}
+
+func findReservedIPDropdownOption(options, paths []string, reservedIPPath string) string {
+	for i, path := range paths {
+		if path == strings.TrimSpace(reservedIPPath) && i < len(options) {
+			return options[i]
+		}
+	}
+	return ""
 }

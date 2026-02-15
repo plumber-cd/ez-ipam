@@ -1,0 +1,5 @@
+description: Primary mail route
+id: mail.home
+parent: DNS
+record_type: MX
+record_value: 10 mail.provider.home

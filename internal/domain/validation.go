@@ -60,11 +60,62 @@ func (i *IP) Validate(c *Catalog) error {
 	if _, err := netip.ParseAddr(i.ID); err != nil {
 		return fmt.Errorf("invalid IP address %q: %w", i.ID, err)
 	}
-	if strings.TrimSpace(i.DisplayName) == "" {
-		return fmt.Errorf("display name must be set for IP %s", i.ID)
+	if err := ValidateHostname(i.DisplayName); err != nil {
+		return fmt.Errorf("invalid display name for IP %s: %w", i.ID, err)
 	}
 	if i.ParentPath == "" {
 		return fmt.Errorf("parent path must be set for IP %s", i.ID)
+	}
+	if strings.TrimSpace(i.MACAddress) != "" {
+		if _, err := net.ParseMAC(i.MACAddress); err != nil {
+			return fmt.Errorf("invalid MAC address %q for IP %s: %w", i.MACAddress, i.ID, err)
+		}
+	}
+	return nil
+}
+
+// Validate checks DNSRecord invariants.
+func (d *DNSRecord) Validate(c *Catalog) error {
+	if err := ValidateHostname(d.ID); err != nil {
+		return fmt.Errorf("invalid FQDN %q: %w", d.ID, err)
+	}
+	if d.ParentPath == "" {
+		return fmt.Errorf("parent path must be set for DNS record %s", d.ID)
+	}
+	if c != nil {
+		parent := c.Get(d.GetParentPath())
+		if parent == nil {
+			return fmt.Errorf("parent not found for DNS record %s", d.ID)
+		}
+		parentStatic, ok := parent.(*StaticFolder)
+		if !ok || parentStatic.ID != FolderDNS {
+			return fmt.Errorf("parent must be DNS for DNS record %s", d.ID)
+		}
+	}
+
+	recordType := strings.TrimSpace(d.RecordType)
+	recordValue := strings.TrimSpace(d.RecordValue)
+	reservedIPPath := strings.TrimSpace(d.ReservedIPPath)
+	hasRecord := recordType != "" || recordValue != ""
+	hasAlias := reservedIPPath != ""
+	if hasRecord == hasAlias {
+		return fmt.Errorf("DNS record %s must be either a record (type+value) or an alias", d.ID)
+	}
+	if hasRecord {
+		if recordType == "" || recordValue == "" {
+			return fmt.Errorf("DNS record %s must set both record type and value", d.ID)
+		}
+		return nil
+	}
+
+	if c != nil {
+		item := c.Get(reservedIPPath)
+		if item == nil {
+			return fmt.Errorf("reserved IP reference %q not found for DNS record %s", reservedIPPath, d.ID)
+		}
+		if _, ok := item.(*IP); !ok {
+			return fmt.Errorf("reserved IP reference %q is not an IP for DNS record %s", reservedIPPath, d.ID)
+		}
 	}
 	return nil
 }

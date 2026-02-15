@@ -34,6 +34,16 @@
 | {{ index $row "Network" }} | {{ index $row "Name" }} | {{ index $row "Allocation" }} | {{ index $row "VLAN" }} | {{ index $row "Description" }} |
 {{- end }}
 
+{{- if .DNSRows }}
+## DNS Records
+
+| FQDN | Type | Value | Description |
+|------|------|-------|-------------|
+{{- range $row := .DNSRows }}
+| {{ index $row "FQDN" }} | {{ index $row "Type" }} | {{ index $row "Value" }} | {{ index $row "Description" }} |
+{{- end }}
+{{- end }}
+
 {{- if .SSIDRows }}
 ## WiFi SSIDs
 
@@ -93,10 +103,10 @@
 
 {{ index $.NetworksHeading $path }} Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
 {{- range $ip := index $.NetworksReservedIPs $path }}
-| `{{ index $ip "Address" }}` | {{ if ne (index $ip "DisplayName") "" }}`{{ index $ip "DisplayName" }}`{{ else }}-{{ end }} | {{ if ne (index $ip "Description") "" }}{{ index $ip "Description" }}{{ else }}-{{ end }} |
+| `{{ index $ip "Address" }}` | {{ if ne (index $ip "DisplayName") "" }}`{{ index $ip "DisplayName" }}`{{ else }}-{{ end }} | {{ if ne (index $ip "MACAddress") "" }}`{{ index $ip "MACAddress" }}`{{ else }}-{{ end }} | {{ if ne (index $ip "Description") "" }}{{ index $ip "Description" }}{{ else }}-{{ end }} |
 {{- end }}
 {{- end }}
 

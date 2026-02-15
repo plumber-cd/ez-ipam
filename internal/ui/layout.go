@@ -238,18 +238,21 @@ func (a *App) setupLayout() {
 	makeFormDialog("*reserve_ip*", "Reserve IP", func(form *tview.Form) {
 		form.AddInputField("IP Address", "", FormFieldWidth, nil, nil).
 			AddInputField("Name", "", FormFieldWidth, nil, nil).
+			AddInputField("MAC Address", "", FormFieldWidth, nil, nil).
 			AddFormItem(newHintedTextArea("Description", "", FormFieldWidth, 3, descriptionHint)).
 			AddButton("Save", func() {
 				address := getAndClearTextFromInputField(form, "IP Address")
 				displayName := getAndClearTextFromInputField(form, "Name")
+				macAddress := getAndClearTextFromInputField(form, "MAC Address")
 				description := getAndClearTextFromTextArea(form, "Description")
-				a.ReserveIP(address, displayName, description)
+				a.ReserveIP(address, displayName, macAddress, description)
 				a.Pages.SwitchToPage(mainPageName)
 				a.TviewApp.SetFocus(a.NavPanel)
 			}).
 			AddButton("Cancel", func() {
 				getAndClearTextFromInputField(form, "IP Address")
 				getAndClearTextFromInputField(form, "Name")
+				getAndClearTextFromInputField(form, "MAC Address")
 				getAndClearTextFromTextArea(form, "Description")
 				a.Pages.SwitchToPage(mainPageName)
 				a.TviewApp.SetFocus(a.NavPanel)
@@ -259,16 +262,19 @@ func (a *App) setupLayout() {
 	// Update IP Reservation dialog.
 	makeFormDialog("*update_ip_reservation*", "Update IP Reservation", func(form *tview.Form) {
 		form.AddInputField("Name", "", FormFieldWidth, nil, nil).
+			AddInputField("MAC Address", "", FormFieldWidth, nil, nil).
 			AddFormItem(newHintedTextArea("Description", "", FormFieldWidth, 3, descriptionHint)).
 			AddButton("Save", func() {
 				displayName := getAndClearTextFromInputField(form, "Name")
+				macAddress := getAndClearTextFromInputField(form, "MAC Address")
 				description := getAndClearTextFromTextArea(form, "Description")
-				a.UpdateIPReservation(displayName, description)
+				a.UpdateIPReservation(displayName, macAddress, description)
 				a.Pages.SwitchToPage(mainPageName)
 				a.TviewApp.SetFocus(a.NavPanel)
 			}).
 			AddButton("Cancel", func() {
 				getAndClearTextFromInputField(form, "Name")
+				getAndClearTextFromInputField(form, "MAC Address")
 				getAndClearTextFromTextArea(form, "Description")
 				a.Pages.SwitchToPage(mainPageName)
 				a.TviewApp.SetFocus(a.NavPanel)
@@ -443,6 +449,7 @@ func (a *App) setupModals() {
 	makeModal("*delete_port*", "Delete this port?", func() { a.DeletePort() })
 	makeModal("*deallocate_network*", "Deallocate this network and remove its subnets?", func() { a.DeallocateNetwork() })
 	makeModal("*delete_network*", "Delete this top-level network and all of its subnets?", func() { a.DeleteNetwork() })
+	makeModal("*delete_dns_record*", "Delete this DNS record?", func() { a.DeleteDNSRecord() })
 }
 
 // mouseBlocker returns a box that absorbs mouse events (prevents clicking through dialog overlays).
@@ -789,6 +796,103 @@ func (a *App) showNetworkAllocDialog(pageName, title string, vals networkAllocDi
 	a.Pages.AddPage(pageName, a.createDialogPage(form, computeFormDialogWidth(form), computeFormDialogHeight(form)), true, false)
 	a.Pages.ShowPage(pageName)
 	form.SetFocus(0)
+	a.TviewApp.SetFocus(form)
+}
+
+// showDNSRecordDialog creates a fresh DNS add/update dialog.
+// focusLabel preserves focus across dialog rebuilds.
+func (a *App) showDNSRecordDialog(pageName, title string, vals dnsRecordDialogValues, allowFQDNEdit bool, focusLabel string, onSave func(dnsRecordDialogValues)) {
+	a.Pages.RemovePage(pageName)
+
+	form := tview.NewForm().SetButtonsAlign(tview.AlignCenter)
+	if vals.Mode == "" {
+		vals.Mode = DNSModeRecord
+	}
+
+	form.AddInputField("FQDN", vals.FQDN, FormFieldWidth, nil, nil)
+
+	modeIndex := slices.Index(DNSModeOptions, vals.Mode)
+	if modeIndex < 0 {
+		modeIndex = 0
+	}
+	form.AddDropDown("Mode", DNSModeOptions, modeIndex, nil)
+	modeItem := getFormItemByLabel(form, "Mode")
+	modeDropdown := modeItem.(*tview.DropDown)
+
+	if vals.Mode == DNSModeAlias {
+		options, paths := a.getReservedIPDropdownOptions()
+		current := findReservedIPDropdownOption(options, paths, vals.ReservedIPPath)
+		form.AddFormItem(newSearchableDropdown("Reserved IP", options, current, false, nil))
+	} else {
+		form.AddInputField("Record Type", vals.RecordType, FormFieldWidth, nil, nil)
+		form.AddInputField("Record Value", vals.RecordValue, FormFieldWidth, nil, nil)
+	}
+	form.AddFormItem(newHintedTextArea("Description", vals.Description, FormFieldWidth, 3, descriptionHint))
+
+	cancel := func() { a.dismissDialog(pageName) }
+	form.AddButton("Save", func() {
+		result := dnsRecordDialogValues{
+			FQDN:        strings.TrimSpace(getTextFromInputFieldIfPresent(form, "FQDN")),
+			Mode:        vals.Mode,
+			RecordType:  strings.TrimSpace(getTextFromInputFieldIfPresent(form, "Record Type")),
+			RecordValue: strings.TrimSpace(getTextFromInputFieldIfPresent(form, "Record Value")),
+			Description: getTextFromTextAreaIfPresent(form, "Description"),
+		}
+		if result.Mode == DNSModeAlias {
+			options, paths := a.getReservedIPDropdownOptions()
+			selected := getSearchableDropdownValue(form, "Reserved IP", "")
+			for i, option := range options {
+				if option == selected && i < len(paths) {
+					result.ReservedIPPath = paths[i]
+					break
+				}
+			}
+			result.RecordType = ""
+			result.RecordValue = ""
+		} else {
+			result.ReservedIPPath = ""
+		}
+		if !allowFQDNEdit {
+			result.FQDN = vals.FQDN
+		}
+		onSave(result)
+		a.dismissDialog(pageName)
+	})
+	form.AddButton("Cancel", cancel)
+
+	// Register mode callback after form construction. This avoids firing on initial
+	// SetCurrentOption and accidentally rebuilding to focus index 0.
+	modeDropdown.SetSelectedFunc(func(option string, _ int) {
+		newVals := vals
+		newVals.FQDN = getTextFromInputFieldIfPresent(form, "FQDN")
+		newVals.Mode = option
+		newVals.RecordType = getTextFromInputFieldIfPresent(form, "Record Type")
+		newVals.RecordValue = getTextFromInputFieldIfPresent(form, "Record Value")
+		newVals.Description = getTextFromTextAreaIfPresent(form, "Description")
+		if option == DNSModeAlias {
+			options, paths := a.getReservedIPDropdownOptions()
+			selected := getSearchableDropdownValue(form, "Reserved IP", "")
+			for i := range options {
+				if options[i] == selected && i < len(paths) {
+					newVals.ReservedIPPath = paths[i]
+					break
+				}
+			}
+		}
+		a.showDNSRecordDialog(pageName, title, newVals, allowFQDNEdit, "Mode", onSave)
+	})
+
+	form.SetBorder(true).SetTitle(title)
+	a.wireDialogFormKeys(form, cancel)
+	a.Pages.AddPage(pageName, a.createDialogPage(form, computeFormDialogWidth(form), computeFormDialogHeight(form)), true, false)
+	a.Pages.ShowPage(pageName)
+	focusIndex := 0
+	if focusLabel != "" {
+		if idx := form.GetFormItemIndex(focusLabel); idx >= 0 {
+			focusIndex = idx
+		}
+	}
+	form.SetFocus(focusIndex)
 	a.TviewApp.SetFocus(form)
 }
 

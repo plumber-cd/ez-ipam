@@ -1,0 +1,4 @@
+description: ""
+id: gateway-v6.home
+parent: DNS
+reserved_ip: Networks -> fd42::/56 -> fd42::/64 -> fd42::1

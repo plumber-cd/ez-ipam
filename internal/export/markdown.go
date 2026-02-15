@@ -26,6 +26,7 @@ func RenderMarkdown(catalog *domain.Catalog) (string, error) {
 	networksHasReservedIPs := map[string]bool{}
 	networksReservedIPs := map[string][]map[string]string{}
 	summaryRows := []map[string]string{}
+	dnsRows := []map[string]string{}
 
 	buildTreePrefix := func(ancestorHasNext []bool, isLast bool) string {
 		sb := new(strings.Builder)
@@ -118,6 +119,7 @@ func RenderMarkdown(catalog *domain.Catalog) (string, error) {
 				reserved = append(reserved, map[string]string{
 					"Address":     ip.ID,
 					"DisplayName": ip.DisplayName,
+					"MACAddress":  ip.MACAddress,
 					"Description": ip.Description,
 				})
 			}
@@ -187,6 +189,29 @@ func RenderMarkdown(catalog *domain.Catalog) (string, error) {
 	}
 
 	ssidRows := []map[string]string{}
+	dnsMenuItem := catalog.GetByParentAndDisplayID(nil, domain.FolderDNS)
+	for _, item := range catalog.GetChildren(dnsMenuItem) {
+		record, ok := item.(*domain.DNSRecord)
+		if !ok {
+			continue
+		}
+		recordType := record.RecordType
+		recordValue := record.RecordValue
+		if strings.TrimSpace(record.ReservedIPPath) != "" {
+			recordType = "Alias"
+			recordValue = "<missing>"
+			if ip, ok := catalog.Get(record.ReservedIPPath).(*domain.IP); ok {
+				recordValue = formatDNSAliasValue(ip)
+			}
+		}
+		dnsRows = append(dnsRows, map[string]string{
+			"FQDN":        markdownCode(record.ID),
+			"Type":        markdownInline(defaultIfEmpty(recordType, "-")),
+			"Value":       markdownTableCell(defaultIfEmpty(recordValue, "-")),
+			"Description": markdownTableCell(defaultIfEmpty(record.Description, "-")),
+		})
+	}
+
 	ssidsMenuItem := catalog.GetByParentAndDisplayID(nil, domain.FolderSSIDs)
 	for _, item := range catalog.GetChildren(ssidsMenuItem) {
 		ssid, ok := item.(*domain.SSID)
@@ -307,6 +332,7 @@ func RenderMarkdown(catalog *domain.Catalog) (string, error) {
 		"NetworksHasReservedIPs": networksHasReservedIPs,
 		"NetworksReservedIPs":    networksReservedIPs,
 		"VLANRows":               vlanRows,
+		"DNSRows":                dnsRows,
 		"SSIDRows":               ssidRows,
 		"ZoneRows":               zoneRows,
 		"EquipmentRows":          equipmentRows,
@@ -369,4 +395,14 @@ func defaultIfEmpty(value, fallback string) string { //nolint:unparam // fallbac
 		return fallback
 	}
 	return value
+}
+
+func formatDNSAliasValue(ip *domain.IP) string {
+	if ip == nil {
+		return "<missing>"
+	}
+	if strings.TrimSpace(ip.MACAddress) != "" {
+		return fmt.Sprintf("`%s` (%s `%s`)", ip.ID, ip.DisplayName, ip.MACAddress)
+	}
+	return fmt.Sprintf("`%s` (%s)", ip.ID, ip.DisplayName)
 }

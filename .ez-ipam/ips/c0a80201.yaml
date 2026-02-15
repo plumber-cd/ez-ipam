@@ -1,4 +1,5 @@
 description: Default gateway
-display_name: gateway
+display_name: gateway.iot.home
 id: 192.168.2.1
+mac_address: 00:11:22:33:44:77
 parent: Networks -> 192.168.0.0/16 -> 192.168.2.0/24

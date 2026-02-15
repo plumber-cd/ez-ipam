@@ -1,4 +1,4 @@
 description: Office printer
-display_name: printer
+display_name: printer.home
 id: 192.168.1.50
 parent: Networks -> 192.168.0.0/16 -> 192.168.1.0/24

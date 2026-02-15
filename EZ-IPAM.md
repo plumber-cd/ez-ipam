@@ -29,15 +29,15 @@
 | `│ │ │ ├── 10.0.0.0/16` [link](#network-0a000000_16) | Primary VPC | Subnet Container | - | Regional primary VPC |
 | `│ │ │ │ ├── 10.0.0.0/18` [link](#network-0a000000_18) | Public | Subnet Container | - | Public subnet type |
 | `│ │ │ │ │ ├── 10.0.0.0/19` [link](#network-0a000000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.0.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.0.0.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.0.32.0/19` [link](#network-0a002000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ ├── 10.0.64.0/18` [link](#network-0a004000_18) | Private | Subnet Container | - | Private subnet type |
 | `│ │ │ │ │ ├── 10.0.64.0/19` [link](#network-0a004000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.0.64.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.0.64.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.0.96.0/19` [link](#network-0a006000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ ├── 10.0.128.0/18` [link](#network-0a008000_18) | Backend | Subnet Container | - | Backend subnet type |
 | `│ │ │ │ │ ├── 10.0.128.0/19` [link](#network-0a008000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.0.128.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.0.128.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.0.160.0/19` [link](#network-0a00a000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ └── 10.0.192.0/18` [link](#network-0a00c000_18) | - | Unallocated | - | - |
 | `│ │ │ ├── 10.1.0.0/16` [link](#network-0a010000_16) | - | Unallocated | - | - |
@@ -46,15 +46,15 @@
 | `│ │ │ ├── 10.4.0.0/16` [link](#network-0a040000_16) | Primary VPC | Subnet Container | - | Regional primary VPC |
 | `│ │ │ │ ├── 10.4.0.0/18` [link](#network-0a040000_18) | Public | Subnet Container | - | Public subnet type |
 | `│ │ │ │ │ ├── 10.4.0.0/19` [link](#network-0a040000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.4.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.4.0.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.4.32.0/19` [link](#network-0a042000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ ├── 10.4.64.0/18` [link](#network-0a044000_18) | Private | Subnet Container | - | Private subnet type |
 | `│ │ │ │ │ ├── 10.4.64.0/19` [link](#network-0a044000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.4.64.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.4.64.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.4.96.0/19` [link](#network-0a046000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ ├── 10.4.128.0/18` [link](#network-0a048000_18) | Backend | Subnet Container | - | Backend subnet type |
 | `│ │ │ │ │ ├── 10.4.128.0/19` [link](#network-0a048000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.4.128.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.4.128.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.4.160.0/19` [link](#network-0a04a000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ └── 10.4.192.0/18` [link](#network-0a04c000_18) | - | Unallocated | - | - |
 | `│ │ │ ├── 10.5.0.0/16` [link](#network-0a050000_16) | - | Unallocated | - | - |
@@ -65,15 +65,15 @@
 | `│ │ │ ├── 10.16.0.0/16` [link](#network-0a100000_16) | Primary VPC | Subnet Container | - | Regional primary VPC |
 | `│ │ │ │ ├── 10.16.0.0/18` [link](#network-0a100000_18) | Public | Subnet Container | - | Public subnet type |
 | `│ │ │ │ │ ├── 10.16.0.0/19` [link](#network-0a100000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.16.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.16.0.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.16.32.0/19` [link](#network-0a102000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ ├── 10.16.64.0/18` [link](#network-0a104000_18) | Private | Subnet Container | - | Private subnet type |
 | `│ │ │ │ │ ├── 10.16.64.0/19` [link](#network-0a104000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.16.64.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.16.64.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.16.96.0/19` [link](#network-0a106000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ ├── 10.16.128.0/18` [link](#network-0a108000_18) | Backend | Subnet Container | - | Backend subnet type |
 | `│ │ │ │ │ ├── 10.16.128.0/19` [link](#network-0a108000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.16.128.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.16.128.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.16.160.0/19` [link](#network-0a10a000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ └── 10.16.192.0/18` [link](#network-0a10c000_18) | - | Unallocated | - | - |
 | `│ │ │ ├── 10.17.0.0/16` [link](#network-0a110000_16) | - | Unallocated | - | - |
@@ -82,15 +82,15 @@
 | `│ │ │ ├── 10.20.0.0/16` [link](#network-0a140000_16) | Primary VPC | Subnet Container | - | Regional primary VPC |
 | `│ │ │ │ ├── 10.20.0.0/18` [link](#network-0a140000_18) | Public | Subnet Container | - | Public subnet type |
 | `│ │ │ │ │ ├── 10.20.0.0/19` [link](#network-0a140000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.20.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.20.0.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.20.32.0/19` [link](#network-0a142000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ ├── 10.20.64.0/18` [link](#network-0a144000_18) | Private | Subnet Container | - | Private subnet type |
 | `│ │ │ │ │ ├── 10.20.64.0/19` [link](#network-0a144000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.20.64.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.20.64.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.20.96.0/19` [link](#network-0a146000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ ├── 10.20.128.0/18` [link](#network-0a148000_18) | Backend | Subnet Container | - | Backend subnet type |
 | `│ │ │ │ │ ├── 10.20.128.0/19` [link](#network-0a148000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.20.128.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.20.128.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.20.160.0/19` [link](#network-0a14a000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ └── 10.20.192.0/18` [link](#network-0a14c000_18) | - | Unallocated | - | - |
 | `│ │ │ ├── 10.21.0.0/16` [link](#network-0a150000_16) | - | Unallocated | - | - |
@@ -101,15 +101,15 @@
 | `│ │ │ ├── 10.32.0.0/16` [link](#network-0a200000_16) | Primary VPC | Subnet Container | - | Regional primary VPC |
 | `│ │ │ │ ├── 10.32.0.0/18` [link](#network-0a200000_18) | Public | Subnet Container | - | Public subnet type |
 | `│ │ │ │ │ ├── 10.32.0.0/19` [link](#network-0a200000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.32.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.32.0.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.32.32.0/19` [link](#network-0a202000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ ├── 10.32.64.0/18` [link](#network-0a204000_18) | Private | Subnet Container | - | Private subnet type |
 | `│ │ │ │ │ ├── 10.32.64.0/19` [link](#network-0a204000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.32.64.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.32.64.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.32.96.0/19` [link](#network-0a206000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ ├── 10.32.128.0/18` [link](#network-0a208000_18) | Backend | Subnet Container | - | Backend subnet type |
 | `│ │ │ │ │ ├── 10.32.128.0/19` [link](#network-0a208000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.32.128.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.32.128.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.32.160.0/19` [link](#network-0a20a000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ └── 10.32.192.0/18` [link](#network-0a20c000_18) | - | Unallocated | - | - |
 | `│ │ │ ├── 10.33.0.0/16` [link](#network-0a210000_16) | - | Unallocated | - | - |
@@ -118,15 +118,15 @@
 | `│ │ │ ├── 10.36.0.0/16` [link](#network-0a240000_16) | Primary VPC | Subnet Container | - | Regional primary VPC |
 | `│ │ │ │ ├── 10.36.0.0/18` [link](#network-0a240000_18) | Public | Subnet Container | - | Public subnet type |
 | `│ │ │ │ │ ├── 10.36.0.0/19` [link](#network-0a240000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.36.0.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.36.0.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.36.32.0/19` [link](#network-0a242000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ ├── 10.36.64.0/18` [link](#network-0a244000_18) | Private | Subnet Container | - | Private subnet type |
 | `│ │ │ │ │ ├── 10.36.64.0/19` [link](#network-0a244000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.36.64.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.36.64.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.36.96.0/19` [link](#network-0a246000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ ├── 10.36.128.0/18` [link](#network-0a248000_18) | Backend | Subnet Container | - | Backend subnet type |
 | `│ │ │ │ │ ├── 10.36.128.0/19` [link](#network-0a248000_19) | AZ-a | Host Pool | - | Availability zone A |
-| `│ │ │ │ │ │ └── 10.36.128.1` | gateway | Reserved IP | - | Default gateway |
+| `│ │ │ │ │ │ └── 10.36.128.1` | gateway.az-a.demo | Reserved IP | - | Default gateway |
 | `│ │ │ │ │ └── 10.36.160.0/19` [link](#network-0a24a000_19) | AZ-b | Host Pool | - | Availability zone B |
 | `│ │ │ │ └── 10.36.192.0/18` [link](#network-0a24c000_18) | - | Unallocated | - | - |
 | `│ │ │ ├── 10.37.0.0/16` [link](#network-0a250000_16) | - | Unallocated | - | - |
@@ -135,14 +135,14 @@
 | `│ └── 10.48.0.0/12` [link](#network-0a300000_12) | - | Unallocated | - | - |
 | `192.168.0.0/16` [link](#network-c0a80000_16) | Home | Subnet Container | - | Home supernet with VLAN segments |
 | `│ ├── 192.168.0.0/24` [link](#network-c0a80000_24) | Home Infra | Host Pool | 147 (Segment-Alpha) | Routers and servers |
-| `│ │ ├── 192.168.0.1` | gateway | Reserved IP | 147 (Segment-Alpha) | Default gateway |
-| `│ │ └── 192.168.0.10` | nas | Reserved IP | 147 (Segment-Alpha) | NAS |
+| `│ │ ├── 192.168.0.1` | gateway.home | Reserved IP | 147 (Segment-Alpha) | Default gateway |
+| `│ │ └── 192.168.0.10` | nas.home | Reserved IP | 147 (Segment-Alpha) | NAS |
 | `│ ├── 192.168.1.0/24` [link](#network-c0a80100_24) | Home Users | Host Pool | 233 (Segment-Beta) | Laptops and phones |
-| `│ │ ├── 192.168.1.1` | gateway | Reserved IP | 233 (Segment-Beta) | Default gateway |
-| `│ │ └── 192.168.1.50` | printer | Reserved IP | 233 (Segment-Beta) | Office printer |
+| `│ │ ├── 192.168.1.1` | gateway.users.home | Reserved IP | 233 (Segment-Beta) | Default gateway |
+| `│ │ └── 192.168.1.50` | printer.home | Reserved IP | 233 (Segment-Beta) | Office printer |
 | `│ ├── 192.168.2.0/24` [link](#network-c0a80200_24) | Home IoT | Host Pool | 318 (Segment-Gamma) | Cameras and sensors |
-| `│ │ ├── 192.168.2.1` | gateway | Reserved IP | 318 (Segment-Gamma) | Default gateway |
-| `│ │ └── 192.168.2.20` | camera-nvr | Reserved IP | 318 (Segment-Gamma) | NVR |
+| `│ │ ├── 192.168.2.1` | gateway.iot.home | Reserved IP | 318 (Segment-Gamma) | Default gateway |
+| `│ │ └── 192.168.2.20` | camera-nvr.home | Reserved IP | 318 (Segment-Gamma) | NVR |
 | `│ ├── 192.168.3.0/24` [link](#network-c0a80300_24) | - | Unallocated | - | - |
 | `│ ├── 192.168.4.0/22` [link](#network-c0a80400_22) | - | Unallocated | - | - |
 | `│ ├── 192.168.8.0/21` [link](#network-c0a80800_21) | - | Unallocated | - | - |
@@ -152,10 +152,10 @@
 | `│ └── 192.168.128.0/17` [link](#network-c0a88000_17) | - | Unallocated | - | - |
 | `fd42::/56` [link](#network-fd420000000000000000000000000000_56) | Home IPv6 | Subnet Container | - | Home IPv6 supernet |
 | `  ├── fd42::/64` [link](#network-fd420000000000000000000000000000_64) | Home Infra v6 | Host Pool | - | Routers and servers v6 |
-| `  │ ├── fd42::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
-| `  │ └── fd42::53` | dns-v6 | Reserved IP | - | Resolver IPv6 |
+| `  │ ├── fd42::1` | gateway-v6.home | Reserved IP | - | Default gateway IPv6 |
+| `  │ └── fd42::53` | dns-v6.home | Reserved IP | - | Resolver IPv6 |
 | `  ├── fd42:0:0:1::/64` [link](#network-fd420000000000010000000000000000_64) | Home Users v6 | Host Pool | - | Laptops and phones v6 |
-| `  │ └── fd42:0:0:1::1` | gateway-v6 | Reserved IP | - | Default gateway IPv6 |
+| `  │ └── fd42:0:0:1::1` | gateway-users-v6.home | Reserved IP | - | Default gateway IPv6 |
 | `  ├── fd42:0:0:2::/63` [link](#network-fd420000000000020000000000000000_63) | - | Unallocated | - | - |
 | `  ├── fd42:0:0:4::/62` [link](#network-fd420000000000040000000000000000_62) | - | Unallocated | - | - |
 | `  ├── fd42:0:0:8::/61` [link](#network-fd420000000000080000000000000000_61) | - | Unallocated | - | - |
@@ -163,6 +163,15 @@
 | `  ├── fd42:0:0:20::/59` [link](#network-fd420000000000200000000000000000_59) | - | Unallocated | - | - |
 | `  ├── fd42:0:0:40::/58` [link](#network-fd420000000000400000000000000000_58) | - | Unallocated | - | - |
 | `  └── fd42:0:0:80::/57` [link](#network-fd420000000000800000000000000000_57) | - | Unallocated | - | - |
+## DNS Records
+
+| FQDN | Type | Value | Description |
+|------|------|-------|-------------|
+| `gateway-v6.home` | Alias | `fd42::1` (gateway-v6.home `00:11:22:33:44:88`) | - |
+| `gateway.home` | Alias | `192.168.0.1` (gateway.home `00:11:22:33:44:55`) | - |
+| `mail.home` | MX | 10 mail.provider.home | Primary mail route |
+| `nas.home` | Alias | `192.168.0.10` (nas.home `00:11:22:33:44:56`) | - |
+| `txt.home` | TXT | v=spf1 include:provider.home -all | SPF policy |
 ## WiFi SSIDs
 
 | SSID | Description |
@@ -320,9 +329,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.0.0.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.0.0.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -389,9 +398,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.0.64.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.0.64.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -458,9 +467,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.0.128.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.0.128.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -626,9 +635,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.4.0.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.4.0.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -695,9 +704,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.4.64.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.4.64.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -764,9 +773,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.4.128.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.4.128.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -972,9 +981,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.16.0.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.16.0.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -1041,9 +1050,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.16.64.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.16.64.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -1110,9 +1119,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.16.128.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.16.128.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -1278,9 +1287,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.20.0.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.20.0.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -1347,9 +1356,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.20.64.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.20.64.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -1416,9 +1425,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.20.128.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.20.128.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -1624,9 +1633,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.32.0.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.32.0.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -1693,9 +1702,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.32.64.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.32.64.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -1762,9 +1771,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.32.128.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.32.128.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -1930,9 +1939,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.36.0.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.36.0.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -1999,9 +2008,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.36.64.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.36.64.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -2068,9 +2077,9 @@
 
 ###### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `10.36.128.1` | `gateway` | Default gateway |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `10.36.128.1` | `gateway.az-a.demo` | `00:11:22:33:44:55` | Default gateway |
 
 ---
 
@@ -2233,10 +2242,10 @@
 
 #### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `192.168.0.1` | `gateway` | Default gateway |
-| `192.168.0.10` | `nas` | NAS |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `192.168.0.1` | `gateway.home` | `00:11:22:33:44:55` | Default gateway |
+| `192.168.0.10` | `nas.home` | `00:11:22:33:44:56` | NAS |
 
 ---
 
@@ -2262,10 +2271,10 @@
 
 #### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `192.168.1.1` | `gateway` | Default gateway |
-| `192.168.1.50` | `printer` | Office printer |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `192.168.1.1` | `gateway.users.home` | `00:11:22:33:44:66` | Default gateway |
+| `192.168.1.50` | `printer.home` | - | Office printer |
 
 ---
 
@@ -2291,10 +2300,10 @@
 
 #### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `192.168.2.1` | `gateway` | Default gateway |
-| `192.168.2.20` | `camera-nvr` | NVR |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `192.168.2.1` | `gateway.iot.home` | `00:11:22:33:44:77` | Default gateway |
+| `192.168.2.20` | `camera-nvr.home` | - | NVR |
 
 ---
 
@@ -2467,10 +2476,10 @@
 
 #### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `fd42::1` | `gateway-v6` | Default gateway IPv6 |
-| `fd42::53` | `dns-v6` | Resolver IPv6 |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `fd42::1` | `gateway-v6.home` | `00:11:22:33:44:88` | Default gateway IPv6 |
+| `fd42::53` | `dns-v6.home` | - | Resolver IPv6 |
 
 ---
 
@@ -2492,9 +2501,9 @@
 
 #### Reserved IPs
 
-| IP | Name | Description |
-|----|------|-------------|
-| `fd42:0:0:1::1` | `gateway-v6` | Default gateway IPv6 |
+| IP | Name | MAC | Description |
+|----|------|-----|-------------|
+| `fd42:0:0:1::1` | `gateway-users-v6.home` | - | Default gateway IPv6 |
 
 ---
 

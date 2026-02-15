@@ -4,9 +4,9 @@
 ╔══════════Menu══════════╗┌───────────────────────Details──────────────────────┐
 ║                        ║│IP Address           : 10.0.0.1                     │
 ║                        ║│Display Name         : gw-x                         │
+║                        ║│MAC Address          : <none>                       │
 ║                        ║│Description          : gateway updated              │
 ║                        ║│Parent Network       : Networks -> 10.0.0.0/24      │
-║                        ║│                                                    │
 ║                        ║│                                                    │
 ║                        ║│                                                    │
 ║                        ║│                                                    │

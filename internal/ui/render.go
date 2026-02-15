@@ -27,6 +27,8 @@ func (a *App) onItemChanged(item domain.Item) {
 		a.renderEquipment(v)
 	case *domain.Port:
 		a.renderPort(v)
+	case *domain.DNSRecord:
+		a.renderDNSRecord(v)
 	default:
 		a.DetailsPanel.Clear()
 		a.CurrentFocusKeys = nil
@@ -74,6 +76,8 @@ func (a *App) staticFolderMenuKeys(sf *domain.StaticFolder) []string {
 		return []string{"<z> New Zone"}
 	case domain.FolderEquipment:
 		return []string{"<e> New Equipment"}
+	case domain.FolderDNS:
+		return []string{"<r> New Record"}
 	default:
 		return nil
 	}
@@ -124,15 +128,45 @@ func (a *App) renderIP(ip *domain.IP) {
 		description = "<none>"
 	}
 	a.DetailsPanel.SetText(fmt.Sprintf(
-		"IP Address           : %s\nDisplay Name         : %s\nDescription          : %s\nParent Network       : %s\n",
+		"IP Address           : %s\nDisplay Name         : %s\nMAC Address          : %s\nDescription          : %s\nParent Network       : %s\n",
 		ip.ID,
 		ip.DisplayName,
+		renderedOrNone(strings.TrimSpace(ip.MACAddress)),
 		description,
 		ip.GetParentPath(),
 	))
 	a.CurrentFocusKeys = []string{
 		"<u> Update Reservation",
 		"<R> Unreserve",
+	}
+}
+
+func (a *App) renderDNSRecord(record *domain.DNSRecord) {
+	details := new(strings.Builder)
+	fmt.Fprintf(details, "FQDN                 : %s\n", record.ID)
+	if strings.TrimSpace(record.ReservedIPPath) != "" {
+		aliasValue := "<missing>"
+		item := a.Catalog.Get(record.ReservedIPPath)
+		if ip, ok := item.(*domain.IP); ok {
+			if strings.TrimSpace(ip.MACAddress) != "" {
+				aliasValue = fmt.Sprintf("%s (%s %s)", ip.ID, ip.DisplayName, ip.MACAddress)
+			} else {
+				aliasValue = fmt.Sprintf("%s (%s)", ip.ID, ip.DisplayName)
+			}
+		}
+		fmt.Fprintf(details, "Type                 : Alias\n")
+		fmt.Fprintf(details, "Value                : %s\n", aliasValue)
+	} else {
+		fmt.Fprintf(details, "Type                 : %s\n", renderedOrNone(strings.TrimSpace(record.RecordType)))
+		fmt.Fprintf(details, "Value                : %s\n", renderedOrNone(strings.TrimSpace(record.RecordValue)))
+	}
+	fmt.Fprintf(details, "Description          : %s\n", renderedOrNone(strings.TrimSpace(record.Description)))
+
+	a.DetailsPanel.Clear()
+	a.DetailsPanel.SetText(details.String())
+	a.CurrentFocusKeys = []string{
+		"<u> Update Record",
+		"<D> Delete Record",
 	}
 }
 
@@ -397,4 +431,11 @@ func (a *App) getUnallocatedSiblingNetworks(network *domain.Network) []*domain.N
 		}
 	}
 	return unallocated
+}
+
+func renderedOrNone(value string) string {
+	if strings.TrimSpace(value) == "" {
+		return "<none>"
+	}
+	return value
 }

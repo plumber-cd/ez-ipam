@@ -41,6 +41,8 @@ func (a *App) onFocusKeyPress(focusItem domain.Item, event *tcell.EventKey) *tce
 		return a.equipmentFocusKeyPress(v, event)
 	case *domain.Port:
 		return a.portFocusKeyPress(v, event)
+	case *domain.DNSRecord:
+		return a.dnsRecordFocusKeyPress(v, event)
 	}
 	return event
 }
@@ -79,6 +81,15 @@ func (a *App) staticFolderMenuKeyPress(sf *domain.StaticFolder, event *tcell.Eve
 	case domain.FolderEquipment:
 		if event.Rune() == 'e' {
 			a.showDialogByName("*add_equipment*")
+			return nil
+		}
+	case domain.FolderDNS:
+		if event.Rune() == 'r' {
+			a.showDNSRecordDialog("*add_dns_record*", "Add DNS Record", dnsRecordDialogValues{
+				Mode: DNSModeRecord,
+			}, true, "", func(vals dnsRecordDialogValues) {
+				a.AddDNSRecord(vals.FQDN, vals.RecordType, vals.RecordValue, vals.ReservedIPPath, vals.Description)
+			})
 			return nil
 		}
 	}
@@ -243,10 +254,22 @@ func (a *App) ipFocusKeyPress(ip *domain.IP, event *tcell.EventKey) *tcell.Event
 	case 'u':
 		a.showDialogByNameWithTitle("*update_ip_reservation*", fmt.Sprintf("Update Reservation for %s", ip.ID))
 		setTextFromInputField(a.getDialogForm("*update_ip_reservation*"), "Name", ip.DisplayName)
+		setTextFromInputField(a.getDialogForm("*update_ip_reservation*"), "MAC Address", ip.MACAddress)
 		setTextFromTextArea(a.getDialogForm("*update_ip_reservation*"), "Description", ip.Description)
 		return nil
 	case 'R':
-		a.showModalByNameWithText("*unreserve_ip*", fmt.Sprintf("Unreserve %s?", ip.DisplayID()))
+		records := a.findDNSRecordsByReservedIPPath(ip.GetPath())
+		a.pendingDNSDeletesOnUnreserve = nil
+		confirmText := fmt.Sprintf("Unreserve %s?", ip.DisplayID())
+		if len(records) > 0 {
+			lines := make([]string, 0, len(records))
+			for _, record := range records {
+				a.pendingDNSDeletesOnUnreserve = append(a.pendingDNSDeletesOnUnreserve, record.GetPath())
+				lines = append(lines, "- "+record.ID)
+			}
+			confirmText = fmt.Sprintf("Unreserve %s?\n\nThe following DNS records will also be deleted:\n%s", ip.DisplayID(), strings.Join(lines, "\n"))
+		}
+		a.showModalByNameWithText("*unreserve_ip*", confirmText)
 		return nil
 	}
 	return event
@@ -531,6 +554,34 @@ func (a *App) portFocusKeyPress(p *domain.Port, event *tcell.EventKey) *tcell.Ev
 		return nil
 	case 'D':
 		a.showModalByNameWithText("*delete_port*", fmt.Sprintf("Delete port %s?", p.DisplayID()))
+		return nil
+	}
+	return event
+}
+
+func (a *App) dnsRecordFocusKeyPress(record *domain.DNSRecord, event *tcell.EventKey) *tcell.EventKey {
+	if event.Key() != tcell.KeyRune {
+		return event
+	}
+	switch event.Rune() {
+	case 'u':
+		mode := DNSModeRecord
+		if strings.TrimSpace(record.ReservedIPPath) != "" {
+			mode = DNSModeAlias
+		}
+		a.showDNSRecordDialog("*update_dns_record*", fmt.Sprintf("Update DNS Record %s", record.ID), dnsRecordDialogValues{
+			FQDN:           record.ID,
+			Mode:           mode,
+			RecordType:     record.RecordType,
+			RecordValue:    record.RecordValue,
+			ReservedIPPath: record.ReservedIPPath,
+			Description:    record.Description,
+		}, false, "", func(vals dnsRecordDialogValues) {
+			a.UpdateDNSRecord(vals.RecordType, vals.RecordValue, vals.ReservedIPPath, vals.Description)
+		})
+		return nil
+	case 'D':
+		a.showModalByNameWithText("*delete_dns_record*", fmt.Sprintf("Delete DNS record %s?", record.ID))
 		return nil
 	}
 	return event

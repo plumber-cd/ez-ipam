@@ -1,13 +1,13 @@
 ┌──────────────────────────────────Navigation──────────────────────────────────┐
-│Home                                                                          │
+│DNS                                                                           │
 └──────────────────────────────────────────────────────────────────────────────┘
 ╔══════════Menu══════════╗┌───────────────────────Details──────────────────────┐
-║Networks                ║│Manage your address space here.                     │
-║Zones                   ║│                                                    │
-║VLANs                   ║│Use Enter or double-click to open items.            │
-║WiFi SSIDs              ║│Use Backspace to go up one level.                   │
-║Equipment               ║│                                                    │
-║DNS                     ║│                                                    │
+║                        ║│Manage DNS records and IP aliases here.             │
+║                        ║│                                                    │
+║                        ║│                                                    │
+║                        ║│                                                    │
+║                        ║│                                                    │
+║                        ║│                                                    │
 ║                        ║│                                                    │
 ║                        ║│                                                    │
 ║                        ║│                                                    │
@@ -22,4 +22,4 @@
 ║                        ║┌───────────────────────Status───────────────────────┐
 ║                        ║│                                                    │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <?> Help                                            
+ <q> Quit | <ctrl+s> Save | <r> New Record | <?> Help                           

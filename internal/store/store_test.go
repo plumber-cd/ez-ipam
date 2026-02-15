@@ -42,6 +42,7 @@ func TestSaveAndLoad(t *testing.T) {
 	catalog.Put(&domain.StaticFolder{Base: domain.Base{ID: "VLANs"}, Index: 2})
 	catalog.Put(&domain.StaticFolder{Base: domain.Base{ID: "WiFi SSIDs"}, Index: 3})
 	catalog.Put(&domain.StaticFolder{Base: domain.Base{ID: "Equipment"}, Index: 4})
+	catalog.Put(&domain.StaticFolder{Base: domain.Base{ID: "DNS"}, Index: 5})
 
 	// Add a network.
 	n := &domain.Network{
@@ -195,15 +196,15 @@ func TestLoadEmptyDir(t *testing.T) {
 		t.Fatalf("Load() error: %v", err)
 	}
 
-	// Should have 5 static folders.
+	// Should have 6 static folders.
 	topLevel := catalog.GetChildren(nil)
-	if len(topLevel) != 5 {
-		t.Fatalf("expected 5 static folders, got %d", len(topLevel))
+	if len(topLevel) != 6 {
+		t.Fatalf("expected 6 static folders, got %d", len(topLevel))
 	}
 
 	// Verify directories were created.
 	dataDir := filepath.Join(dir, DataDirName)
-	for _, subDir := range []string{networksDirName, ipsDirName, vlansDirName, ssidsDirName, zonesDirName, equipmentDirName, portsDirName} {
+	for _, subDir := range []string{networksDirName, ipsDirName, vlansDirName, ssidsDirName, zonesDirName, equipmentDirName, portsDirName, dnsDirName} {
 		if _, err := os.Stat(filepath.Join(dataDir, subDir)); err != nil {
 			t.Errorf("expected %s directory to be created: %v", subDir, err)
 		}
@@ -220,6 +221,7 @@ func TestSaveAtomicRollback(t *testing.T) {
 	catalog.Put(&domain.StaticFolder{Base: domain.Base{ID: "VLANs"}, Index: 2})
 	catalog.Put(&domain.StaticFolder{Base: domain.Base{ID: "WiFi SSIDs"}, Index: 3})
 	catalog.Put(&domain.StaticFolder{Base: domain.Base{ID: "Equipment"}, Index: 4})
+	catalog.Put(&domain.StaticFolder{Base: domain.Base{ID: "DNS"}, Index: 5})
 
 	if err := Save(dir, catalog); err != nil {
 		t.Fatalf("Save() error: %v", err)

@@ -21,6 +21,7 @@ const (
 	zonesDirName     = "zones"
 	equipmentDirName = "equipment"
 	portsDirName     = "ports"
+	dnsDirName       = "dns"
 )
 
 // Load reads all YAML files from the data directory and returns a populated Catalog.
@@ -52,6 +53,11 @@ func Load(dir string) (*domain.Catalog, error) {
 		Base:        domain.Base{ID: domain.FolderEquipment},
 		Index:       4,
 		Description: "Track network equipment, ports, VLAN profiles, and links.",
+	})
+	catalog.Put(&domain.StaticFolder{
+		Base:        domain.Base{ID: domain.FolderDNS},
+		Index:       5,
+		Description: "Manage DNS records and IP aliases here.",
 	})
 
 	dataDir := filepath.Join(dir, DataDirName)
@@ -146,6 +152,13 @@ func Load(dir string) (*domain.Catalog, error) {
 		}
 		return p, nil
 	})
+	loadDir(dnsDirName, func(bytes []byte) (domain.Item, error) {
+		r := &domain.DNSRecord{}
+		if err := yaml.Unmarshal(bytes, r); err != nil {
+			return nil, err
+		}
+		return r, nil
+	})
 
 	if loadErr != nil {
 		return nil, loadErr
@@ -177,11 +190,12 @@ func Save(dir string, catalog *domain.Catalog) error {
 	zonesTmpDir := filepath.Join(dataTmpDir, zonesDirName)
 	equipmentTmpDir := filepath.Join(dataTmpDir, equipmentDirName)
 	portsTmpDir := filepath.Join(dataTmpDir, portsDirName)
+	dnsTmpDir := filepath.Join(dataTmpDir, dnsDirName)
 
 	if err := os.RemoveAll(dataTmpDir); err != nil {
 		return fmt.Errorf("remove tmp dir: %w", err)
 	}
-	for _, d := range []string{networksTmpDir, ipsTmpDir, vlansTmpDir, ssidsTmpDir, zonesTmpDir, equipmentTmpDir, portsTmpDir} {
+	for _, d := range []string{networksTmpDir, ipsTmpDir, vlansTmpDir, ssidsTmpDir, zonesTmpDir, equipmentTmpDir, portsTmpDir, dnsTmpDir} {
 		if err := os.MkdirAll(d, 0755); err != nil {
 			return fmt.Errorf("create %s: %w", d, err)
 		}
@@ -233,6 +247,10 @@ func Save(dir string, catalog *domain.Catalog) error {
 				return fmt.Errorf("port parent is not equipment for %s", m.GetPath())
 			}
 			if err := writeYAML(filepath.Join(portsTmpDir, safeFileNameSegment(parentEquipment.ID)+"_"+m.ID+".yaml"), m); err != nil {
+				return err
+			}
+		case *domain.DNSRecord:
+			if err := writeYAML(filepath.Join(dnsTmpDir, safeFileNameSegment(m.ID)+".yaml"), m); err != nil {
 				return err
 			}
 		}

@@ -4,9 +4,9 @@
 ┌──────────Menu──────────┐┌───────────────────────Details──────────────────────┐
 │10.0.0.1 (gw)           ││IP Address           : 10.0.0.1                     │
 │                        ││Display Name         : gw                           │
+│                        ││MAC Address          : <none>                       │
 │                        ││Description          : gateway                      │
 │                        ││Parent Network       : Networks -> 10.0.0.0/24      │
-│                        ││                                                    │
 │                        ╔════════════════════════════╗                        │
 │                        ║                            ║                        │
 │                        ║  Unreserve 10.0.0.1 (gw)?  ║                        │

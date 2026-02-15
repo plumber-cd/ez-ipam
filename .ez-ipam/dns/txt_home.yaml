@@ -1,0 +1,5 @@
+description: SPF policy
+id: txt.home
+parent: DNS
+record_type: TXT
+record_value: v=spf1 include:provider.home -all

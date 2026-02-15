@@ -1,0 +1,4 @@
+description: ""
+id: gateway.home
+parent: DNS
+reserved_ip: Networks -> 192.168.0.0/16 -> 192.168.0.0/24 -> 192.168.0.1

@@ -29,12 +29,15 @@ const (
 	LagGroupSelfOption    = "Self"
 	TaggedModeNoneOption  = "None"
 	NoneVLANOption        = "<none>"
+	DNSModeRecord         = "Record"
+	DNSModeAlias          = "Alias"
 )
 
 var (
 	GlobalKeys        = []string{"<q> Quit", "<ctrl+s> Save"}
 	LagModeOptions    = []string{LagModeDisabledOption, "802.3ad"}
 	TaggedModeOptions = []string{TaggedModeNoneOption, "AllowAll", "BlockAll", "Custom"}
+	DNSModeOptions    = []string{DNSModeRecord, DNSModeAlias}
 )
 
 // portDialogValues captures port form field values during dialog construction and rebuild.
@@ -76,6 +79,16 @@ type networkAllocDialogValues struct {
 	ChildPrefixLen string // only for subnets mode
 }
 
+// dnsRecordDialogValues captures DNS record form values during dialog construction.
+type dnsRecordDialogValues struct {
+	FQDN           string
+	Mode           string
+	RecordType     string
+	RecordValue    string
+	ReservedIPPath string
+	Description    string
+}
+
 // App holds all UI state for the EZ-IPAM application.
 type App struct {
 	Catalog *domain.Catalog
@@ -112,6 +125,8 @@ type App struct {
 
 	// Test synchronization: if non-nil, closed when a sentinel key is received.
 	SentinelCh chan struct{}
+
+	pendingDNSDeletesOnUnreserve []string
 }
 
 // New creates a new App, loads state from dir, and sets up the UI.

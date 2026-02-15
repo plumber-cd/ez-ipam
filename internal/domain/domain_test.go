@@ -148,6 +148,33 @@ func TestParseTaggedMode(t *testing.T) {
 	}
 }
 
+func TestValidateHostname(t *testing.T) {
+	tests := []struct {
+		name    string
+		value   string
+		wantErr bool
+	}{
+		{name: "single_label", value: "gateway"},
+		{name: "fqdn", value: "gateway.example.com"},
+		{name: "hyphen", value: "web-server.prod"},
+		{name: "empty", value: "", wantErr: true},
+		{name: "space", value: "my server", wantErr: true},
+		{name: "leading_dot", value: ".example.com", wantErr: true},
+		{name: "trailing_dot", value: "example.com.", wantErr: true},
+		{name: "double_dot", value: "example..com", wantErr: true},
+		{name: "label_starts_hyphen", value: "-bad.example", wantErr: true},
+		{name: "label_ends_hyphen", value: "bad-.example", wantErr: true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateHostname(tt.value)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("ValidateHostname(%q) error = %v, wantErr %v", tt.value, err, tt.wantErr)
+			}
+		})
+	}
+}
+
 func TestCompareNaturalNumberOrder(t *testing.T) {
 	tests := []struct {
 		a, b string
@@ -503,8 +530,12 @@ func TestIPValidate(t *testing.T) {
 		wantErr bool
 	}{
 		{"valid", &IP{Base: Base{ID: "10.0.0.1", ParentPath: "p"}, DisplayName: "Host"}, false},
+		{"valid_fqdn_name", &IP{Base: Base{ID: "10.0.0.2", ParentPath: "p"}, DisplayName: "host.example.com"}, false},
+		{"valid_mac", &IP{Base: Base{ID: "10.0.0.3", ParentPath: "p"}, DisplayName: "host", MACAddress: "00:11:22:33:44:55"}, false},
 		{"empty_id", &IP{Base: Base{ID: "", ParentPath: "p"}, DisplayName: "Host"}, true},
 		{"invalid_ip", &IP{Base: Base{ID: "garbage", ParentPath: "p"}, DisplayName: "Host"}, true},
+		{"invalid_name", &IP{Base: Base{ID: "10.0.0.4", ParentPath: "p"}, DisplayName: "bad name"}, true},
+		{"invalid_mac", &IP{Base: Base{ID: "10.0.0.5", ParentPath: "p"}, DisplayName: "host", MACAddress: "bad-mac"}, true},
 		{"no_name", &IP{Base: Base{ID: "10.0.0.1", ParentPath: "p"}}, true},
 		{"no_parent", &IP{Base: Base{ID: "10.0.0.1"}, DisplayName: "Host"}, true},
 	}
@@ -513,6 +544,74 @@ func TestIPValidate(t *testing.T) {
 			err := tt.ip.Validate(nil)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("IP.Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestDNSRecordValidate(t *testing.T) {
+	c := NewCatalog()
+	dnsFolder := &StaticFolder{Base: Base{ID: FolderDNS}, Index: 5}
+	c.Put(dnsFolder)
+
+	parent := &Network{Base: Base{ID: "10.0.0.0/24", ParentPath: FolderNetworks}, AllocationMode: AllocationModeHosts, DisplayName: "hosts"}
+	c.Put(parent)
+	ip := &IP{Base: Base{ID: "10.0.0.1", ParentPath: parent.GetPath()}, DisplayName: "gateway"}
+	c.Put(ip)
+
+	tests := []struct {
+		name    string
+		record  *DNSRecord
+		wantErr bool
+	}{
+		{
+			name: "valid_record",
+			record: &DNSRecord{
+				Base:        Base{ID: "host.example.com", ParentPath: FolderDNS},
+				RecordType:  "A",
+				RecordValue: "10.0.0.10",
+			},
+		},
+		{
+			name: "valid_alias",
+			record: &DNSRecord{
+				Base:           Base{ID: "gw.example.com", ParentPath: FolderDNS},
+				ReservedIPPath: ip.GetPath(),
+			},
+		},
+		{
+			name: "invalid_fqdn",
+			record: &DNSRecord{
+				Base:        Base{ID: "bad fqdn", ParentPath: FolderDNS},
+				RecordType:  "A",
+				RecordValue: "10.0.0.1",
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid_mode_both_set",
+			record: &DNSRecord{
+				Base:           Base{ID: "host.example.com", ParentPath: FolderDNS},
+				RecordType:     "A",
+				RecordValue:    "10.0.0.1",
+				ReservedIPPath: ip.GetPath(),
+			},
+			wantErr: true,
+		},
+		{
+			name: "invalid_alias_missing_target",
+			record: &DNSRecord{
+				Base:           Base{ID: "host2.example.com", ParentPath: FolderDNS},
+				ReservedIPPath: "missing",
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.record.Validate(c)
+			if (err != nil) != tt.wantErr {
+				t.Fatalf("DNSRecord.Validate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

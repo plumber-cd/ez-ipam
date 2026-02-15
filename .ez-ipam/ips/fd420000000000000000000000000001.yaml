@@ -1,4 +1,5 @@
 description: Default gateway IPv6
-display_name: gateway-v6
+display_name: gateway-v6.home
 id: fd42::1
+mac_address: 00:11:22:33:44:88
 parent: Networks -> fd42::/56 -> fd42::/64

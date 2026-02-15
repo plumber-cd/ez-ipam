@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net"
 	"net/netip"
@@ -308,10 +309,35 @@ func (a *App) DeleteNetwork() {
 
 // ---------- IP operations ----------
 
-func (a *App) ReserveIP(address, displayName, description string) {
+func normalizeMACAddress(input string) (string, error) {
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return "", nil
+	}
+	hwAddr, err := net.ParseMAC(input)
+	if err != nil {
+		return "", err
+	}
+	if len(hwAddr) < 6 {
+		return "", fmt.Errorf("MAC address %q is too short", input)
+	}
+	hwAddr = hwAddr[:6]
+	parts := make([]string, 0, len(hwAddr))
+	for _, b := range hwAddr {
+		parts = append(parts, hex.EncodeToString([]byte{b}))
+	}
+	return strings.ToLower(strings.Join(parts, ":")), nil
+}
+
+func (a *App) ReserveIP(address, displayName, macAddress, description string) {
 	parent, ok := a.CurrentItem.(*domain.Network)
 	if !ok {
 		a.setStatus("Error: ReserveIP requires a network as current menu item")
+		return
+	}
+	normalizedMAC, err := normalizeMACAddress(macAddress)
+	if err != nil {
+		a.setStatus("Error reserving IP: invalid MAC address: " + err.Error())
 		return
 	}
 
@@ -321,6 +347,7 @@ func (a *App) ReserveIP(address, displayName, description string) {
 			ParentPath: parent.GetPath(),
 		},
 		DisplayName: strings.TrimSpace(displayName),
+		MACAddress:  normalizedMAC,
 		Description: strings.TrimSpace(description),
 	}
 
@@ -338,19 +365,27 @@ func (a *App) ReserveIP(address, displayName, description string) {
 	a.setStatus("Reserved IP: " + reserved.GetPath())
 }
 
-func (a *App) UpdateIPReservation(displayName, description string) {
+func (a *App) UpdateIPReservation(displayName, macAddress, description string) {
 	focusedIP, ok := a.CurrentFocus.(*domain.IP)
 	if !ok {
 		a.setStatus("Error: UpdateIPReservation requires an IP to be focused")
 		return
 	}
+	normalizedMAC, err := normalizeMACAddress(macAddress)
+	if err != nil {
+		a.setStatus("Error updating IP reservation: invalid MAC address: " + err.Error())
+		return
+	}
 
 	oldDisplayName := focusedIP.DisplayName
+	oldMACAddress := focusedIP.MACAddress
 	oldDescription := focusedIP.Description
 	focusedIP.DisplayName = strings.TrimSpace(displayName)
+	focusedIP.MACAddress = normalizedMAC
 	focusedIP.Description = strings.TrimSpace(description)
 	if err := focusedIP.Validate(a.Catalog); err != nil {
 		focusedIP.DisplayName = oldDisplayName
+		focusedIP.MACAddress = oldMACAddress
 		focusedIP.Description = oldDescription
 		a.setStatus("Error updating IP reservation: " + err.Error())
 		return
@@ -367,10 +402,122 @@ func (a *App) UnreserveIP() {
 		return
 	}
 
+	recordsToDelete := []*domain.DNSRecord{}
+	if len(a.pendingDNSDeletesOnUnreserve) > 0 {
+		for _, path := range a.pendingDNSDeletesOnUnreserve {
+			record, ok := a.Catalog.Get(path).(*domain.DNSRecord)
+			if ok {
+				recordsToDelete = append(recordsToDelete, record)
+			}
+		}
+	} else {
+		recordsToDelete = a.findDNSRecordsByReservedIPPath(focusedIP.GetPath())
+	}
+	for _, record := range recordsToDelete {
+		a.Catalog.Delete(record)
+	}
+	a.pendingDNSDeletesOnUnreserve = nil
 	a.Catalog.Delete(focusedIP)
 	a.ReloadMenu(focusedIP)
 
 	a.setStatus("Unreserved IP: " + focusedIP.GetPath())
+}
+
+func (a *App) findDNSRecordsByReservedIPPath(reservedIPPath string) []*domain.DNSRecord {
+	var records []*domain.DNSRecord
+	for _, item := range a.Catalog.All() {
+		record, ok := item.(*domain.DNSRecord)
+		if !ok {
+			continue
+		}
+		if strings.TrimSpace(record.ReservedIPPath) == strings.TrimSpace(reservedIPPath) {
+			records = append(records, record)
+		}
+	}
+	return records
+}
+
+// ---------- DNS operations ----------
+
+func (a *App) AddDNSRecord(fqdn, recordType, recordValue, reservedIPPath, description string) {
+	parent := a.CurrentItem
+	sf, ok := parent.(*domain.StaticFolder)
+	if !ok || sf.ID != domain.FolderDNS {
+		a.setStatus("Error: AddDNSRecord requires DNS folder as current menu item")
+		return
+	}
+
+	dnsRecord := &domain.DNSRecord{
+		Base: domain.Base{
+			ID:         strings.TrimSpace(fqdn),
+			ParentPath: parent.GetPath(),
+		},
+		RecordType:     strings.TrimSpace(recordType),
+		RecordValue:    strings.TrimSpace(recordValue),
+		ReservedIPPath: strings.TrimSpace(reservedIPPath),
+		Description:    strings.TrimSpace(description),
+	}
+
+	if err := dnsRecord.Validate(a.Catalog); err != nil {
+		a.setStatus("Error adding DNS record: " + err.Error())
+		return
+	}
+	for _, sibling := range a.Catalog.GetChildren(parent) {
+		other, ok := sibling.(*domain.DNSRecord)
+		if !ok {
+			continue
+		}
+		if strings.EqualFold(other.ID, dnsRecord.ID) {
+			a.setStatus("Error adding DNS record: FQDN already exists")
+			return
+		}
+	}
+	if err := a.Catalog.Add(dnsRecord); err != nil {
+		a.setStatus("Error adding DNS record: " + err.Error())
+		return
+	}
+	a.ReloadMenu(dnsRecord)
+	a.setStatus("Added DNS record: " + dnsRecord.GetPath())
+}
+
+func (a *App) UpdateDNSRecord(recordType, recordValue, reservedIPPath, description string) {
+	focusedRecord, ok := a.CurrentFocus.(*domain.DNSRecord)
+	if !ok {
+		a.setStatus("Error: UpdateDNSRecord requires a DNS record to be focused")
+		return
+	}
+
+	oldRecordType := focusedRecord.RecordType
+	oldRecordValue := focusedRecord.RecordValue
+	oldReservedIPPath := focusedRecord.ReservedIPPath
+	oldDescription := focusedRecord.Description
+	focusedRecord.RecordType = strings.TrimSpace(recordType)
+	focusedRecord.RecordValue = strings.TrimSpace(recordValue)
+	focusedRecord.ReservedIPPath = strings.TrimSpace(reservedIPPath)
+	focusedRecord.Description = strings.TrimSpace(description)
+	if err := focusedRecord.Validate(a.Catalog); err != nil {
+		focusedRecord.RecordType = oldRecordType
+		focusedRecord.RecordValue = oldRecordValue
+		focusedRecord.ReservedIPPath = oldReservedIPPath
+		focusedRecord.Description = oldDescription
+		a.setStatus("Error updating DNS record: " + err.Error())
+		return
+	}
+
+	a.ReloadMenu(focusedRecord)
+	a.setStatus("Updated DNS record: " + focusedRecord.GetPath())
+}
+
+func (a *App) DeleteDNSRecord() {
+	focusedRecord, ok := a.CurrentFocus.(*domain.DNSRecord)
+	if !ok {
+		a.setStatus("Error: DeleteDNSRecord requires a DNS record to be focused")
+		return
+	}
+
+	a.Catalog.Delete(focusedRecord)
+	a.ReloadMenu(focusedRecord)
+	a.setStatus("Deleted DNS record: " + focusedRecord.GetPath())
 }
 
 // ---------- VLAN operations ----------

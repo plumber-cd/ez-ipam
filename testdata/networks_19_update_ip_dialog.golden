@@ -4,10 +4,11 @@
                                                                                 
                                                                                 
                                                                                 
-                                                                                
            ╔═════════════Update Reservation for 10.0.0.1════════════╗           
            ║                                                        ║           
            ║ Name        gw                                         ║           
+           ║                                                        ║           
+           ║ MAC Address                                            ║           
            ║                                                        ║           
            ║ Description gateway                                    ║           
            ║                                                        ║           
@@ -16,7 +17,6 @@
            ║                    Save     Cancel                     ║           
            ║                                                        ║           
            ╚════════════════════════════════════════════════════════╝           
-                                                                                
                                                                                 
                                                                                 
                                                                                 
