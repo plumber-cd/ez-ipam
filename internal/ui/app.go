@@ -308,7 +308,7 @@ func (a *App) SelectDialogDropdownOption(label, optionContains string) bool {
 		if strings.Contains(currentText, optionContains) {
 			return true
 		}
-		for idx := 0; idx < 32; idx++ {
+		for idx := range 32 {
 			dd.SetCurrentOption(idx)
 			_, optionText := dd.GetCurrentOption()
 			if strings.Contains(optionText, optionContains) {

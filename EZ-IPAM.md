@@ -188,8 +188,8 @@
 |------|------|------|----------|-------------|
 | `1` | SFP+ 1 | SFP+<br>10GbE | Native: 147 (Segment-Alpha)<br>Tagged: - | - |
 | `2` | SFP+ 2 | SFP+<br>10GbE | Native: 147 (Segment-Alpha)<br>Tagged: - | - |
-| `3` | Port 3Endpoint A | RJ45<br>2.5GbE<br>PoE+ | Native: 233 (Segment-Beta)<br>Tagged: Block All | - |
-| `4` | Port 4Endpoint B | RJ45<br>2.5GbE<br>PoE+ | Native: 233 (Segment-Beta)<br>Tagged: Block All | - |
+| `3` | Port 3 | RJ45<br>2.5GbE<br>PoE+ | Native: 233 (Segment-Beta)<br>Tagged: Block All | Endpoint A |
+| `4` | Port 4 | RJ45<br>2.5GbE<br>PoE+ | Native: 233 (Segment-Beta)<br>Tagged: Block All | Endpoint B |
 | `5` | - | RJ45<br>2.5GbE | Native: <none><br>Tagged: - | - |
 
 ## Detailed Networks

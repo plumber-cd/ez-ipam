@@ -532,7 +532,7 @@ func (a *App) dismissDialog(pageName string) {
 // showPortDialog creates a fresh port dialog. Dropdown callbacks are set after
 // all fields are added so that tview's initial SetCurrentOption does not trigger
 // a cascading rebuild.
-func (a *App) showPortDialog(pageName, title string, vals portDialogValues, onSave func(portDialogValues)) {
+func (a *App) showPortDialog(pageName, title string, vals portDialogValues, focusLabel string, onSave func(portDialogValues)) {
 	a.Pages.RemovePage(pageName)
 
 	form := tview.NewForm().SetButtonsAlign(tview.AlignCenter)
@@ -583,7 +583,7 @@ func (a *App) showPortDialog(pageName, title string, vals portDialogValues, onSa
 	lagDropdown.SetSelectedFunc(func(option string, _ int) {
 		newVals := capturePortFormValues(form)
 		newVals.LAGMode = normalizeLagModeOption(option)
-		a.showPortDialog(pageName, title, newVals, onSave)
+		a.showPortDialog(pageName, title, newVals, "LAG Mode", onSave)
 	})
 
 	tagItem := getFormItemByLabel(form, "Tagged VLAN Mode")
@@ -591,14 +591,20 @@ func (a *App) showPortDialog(pageName, title string, vals portDialogValues, onSa
 	tagDropdown.SetSelectedFunc(func(option string, _ int) {
 		newVals := capturePortFormValues(form)
 		newVals.TaggedMode = normalizeTaggedModeOption(option)
-		a.showPortDialog(pageName, title, newVals, onSave)
+		a.showPortDialog(pageName, title, newVals, "Tagged VLAN Mode", onSave)
 	})
 
 	form.SetBorder(true).SetTitle(title)
 	a.wireDialogFormKeys(form, cancel)
 	a.Pages.AddPage(pageName, a.createDialogPage(form, computeFormDialogWidth(form), computeFormDialogHeight(form)), true, false)
 	a.Pages.ShowPage(pageName)
-	form.SetFocus(0)
+	focusIndex := 0
+	if focusLabel != "" {
+		if idx := form.GetFormItemIndex(focusLabel); idx >= 0 {
+			focusIndex = idx
+		}
+	}
+	form.SetFocus(focusIndex)
 	a.TviewApp.SetFocus(form)
 }
 
@@ -622,7 +628,7 @@ func (a *App) showVLANDialog(pageName, title string, vals vlanDialogValues, show
 		result := vlanDialogValues{
 			VLANIDText:   getTextFromInputFieldIfPresent(form, "VLAN ID"),
 			Name:         getTextFromInputFieldIfPresent(form, "Name"),
-			Description:  getTextFromTextAreaIfPresent(form, "Description"),
+			Description:  getTextFromTextAreaIfPresent(form),
 			SelectedZone: parseZoneFromDropdownOption(getDropDownOptionIfPresent(form, "Zone", NoneVLANOption)),
 		}
 		onSave(result)
@@ -664,7 +670,7 @@ func (a *App) showZoneDialog(pageName, title string, vals zoneDialogValues, onSa
 	form.AddButton("Save", func() {
 		result := zoneDialogValues{
 			Name:          getTextFromInputFieldIfPresent(form, "Name"),
-			Description:   getTextFromTextAreaIfPresent(form, "Description"),
+			Description:   getTextFromTextAreaIfPresent(form),
 			SelectedVLANs: vals.SelectedVLANs,
 		}
 		onSave(result)
@@ -700,7 +706,7 @@ func (a *App) showNetworkAllocDialog(pageName, title string, vals networkAllocDi
 	form.AddButton("Save", func() {
 		result := networkAllocDialogValues{
 			Name:        getTextFromInputFieldIfPresent(form, "Name"),
-			Description: getTextFromTextAreaIfPresent(form, "Description"),
+			Description: getTextFromTextAreaIfPresent(form),
 			VLANID:      parseVLANIDFromDropdownOption(getDropDownOptionIfPresent(form, "VLAN ID", NoneVLANOption)),
 		}
 		if showChildPrefix {

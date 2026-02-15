@@ -334,6 +334,7 @@ func (a *App) equipmentMenuKeyPress(e *domain.Equipment, event *tcell.EventKey) 
 				LAGMode:    LagModeDisabledOption,
 				TaggedMode: TaggedModeNoneOption,
 			},
+			"",
 			func(vals portDialogValues) {
 				a.AddPort(vals.PortNumber, vals.Name, vals.PortType, vals.Speed, vals.PoE,
 					vals.LAGGroup, vals.LAGMode, vals.NativeVLANID, vals.TaggedMode,
@@ -395,6 +396,7 @@ func (a *App) portFocusKeyPress(p *domain.Port, event *tcell.EventKey) *tcell.Ev
 		vals.TaggedVLANIDs = strings.Join(custom, ",")
 
 		a.showPortDialog("*update_port*", fmt.Sprintf("Update Port %s", p.ID), vals,
+			"",
 			func(result portDialogValues) {
 				a.UpdatePort(result.PortNumber, result.Name, result.PortType, result.Speed, result.PoE,
 					result.LAGGroup, result.LAGMode, result.NativeVLANID, result.TaggedMode,

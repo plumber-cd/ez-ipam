@@ -124,14 +124,14 @@ func getTextFromInputFieldIfPresent(form *tview.Form, label string) string {
 	return inputField.GetText()
 }
 
-func getTextFromTextAreaIfPresent(form *tview.Form, label string) string {
-	formItem, ok := getFormItemByLabelIfPresent(form, label)
+func getTextFromTextAreaIfPresent(form *tview.Form) string {
+	formItem, ok := getFormItemByLabelIfPresent(form, "Description")
 	if !ok {
 		return ""
 	}
 	textArea, ok := formItem.(*hintedTextArea)
 	if !ok {
-		panic("Failed to cast " + label + " text area")
+		panic("Failed to cast Description text area")
 	}
 	return textArea.GetText()
 }
@@ -188,7 +188,7 @@ func capturePortFormValues(form *tview.Form) portDialogValues {
 		NativeVLANID:  parseVLANIDFromDropdownOption(getDropDownOptionIfPresent(form, "Native VLAN ID", NoneVLANOption)),
 		TaggedMode:    normalizeTaggedModeOption(getDropDownOptionIfPresent(form, "Tagged VLAN Mode", TaggedModeNoneOption)),
 		TaggedVLANIDs: collectCheckedVLANIDsFromForm(form),
-		Description:   getTextFromTextAreaIfPresent(form, "Description"),
+		Description:   getTextFromTextAreaIfPresent(form),
 	}
 }
 

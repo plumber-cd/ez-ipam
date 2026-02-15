@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -14,20 +13,6 @@ import (
 	"github.com/plumber-cd/ez-ipam/internal/domain"
 	"github.com/plumber-cd/ez-ipam/internal/store"
 )
-
-func runAppUpdate(h *TestHarness, fn func()) {
-	fn()
-	h.WaitForDraw()
-}
-
-func mustAtoi(t *testing.T, value string) int {
-	t.Helper()
-	i, err := strconv.Atoi(value)
-	if err != nil {
-		t.Fatalf("invalid integer %q: %v", value, err)
-	}
-	return i
-}
 
 func addNetworkViaDialog(h *TestHarness, cidr string) {
 	h.OpenAddNetworkDialog()
@@ -222,14 +207,10 @@ func addPortViaDialog(h *TestHarness, number, name, portType, speed, poe, lagGro
 		h.PressEnter()
 		h.PressDown() // Disabled -> 802.3ad
 		h.PressEnter()
-		// Re-opened dialog resets focus to first field; move to LAG Group and fill it.
-		for range 6 {
-			h.PressTab()
-		}
+		// Focus remains on LAG Mode after rebuild; Tab moves to LAG Group.
+		h.PressTab()
 		h.TypeText(lagGroup)
 		h.PressTab()
-	} else {
-		// Native VLAN dropdown
 	}
 	if strings.TrimSpace(nativeVLAN) != "" {
 		h.SelectDropdownOption("Native VLAN ID", nativeVLAN)
@@ -294,7 +275,7 @@ func stepSnapshot(h *TestHarness, entity string, step *int, description string) 
 	clean = strings.ReplaceAll(clean, "__", "_")
 	name := fmt.Sprintf("%s_%02d_%s", entity, *step, clean)
 	h.AssertGoldenSnapshot(name)
-	*step = *step + 1
+	*step++
 }
 
 func TestInitialStateAndGolden(t *testing.T) {
