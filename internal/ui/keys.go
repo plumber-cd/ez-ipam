@@ -404,6 +404,45 @@ func (a *App) portFocusKeyPress(p *domain.Port, event *tcell.EventKey) *tcell.Ev
 			},
 		)
 		return nil
+	case 'C':
+		parent := a.Catalog.Get(p.GetParentPath())
+		equipment, ok := parent.(*domain.Equipment)
+		if !ok {
+			a.setStatus("Error copying Port: parent equipment not found")
+			return nil
+		}
+
+		vals := portDialogValues{
+			PortNumber:  a.nextAvailablePortNumber(equipment),
+			Name:        p.Name,
+			PortType:    p.PortType,
+			Speed:       p.Speed,
+			PoE:         p.PoE,
+			LAGMode:     normalizeLagModeOption(p.LAGMode),
+			TaggedMode:  normalizeTaggedModeOption(string(p.TaggedVLANMode)),
+			Description: p.Description,
+		}
+		if p.LAGGroup > 0 {
+			vals.LAGGroup = strconv.Itoa(p.LAGGroup)
+		}
+		if p.NativeVLANID > 0 {
+			vals.NativeVLANID = strconv.Itoa(p.NativeVLANID)
+		}
+		custom := make([]string, 0, len(p.TaggedVLANIDs))
+		for _, vlanID := range p.TaggedVLANIDs {
+			custom = append(custom, strconv.Itoa(vlanID))
+		}
+		vals.TaggedVLANIDs = strings.Join(custom, ",")
+
+		a.showPortDialog("*add_port*", fmt.Sprintf("Copy Port %s in %s", p.ID, equipment.DisplayName), vals,
+			"",
+			func(result portDialogValues) {
+				a.AddPort(result.PortNumber, result.Name, result.PortType, result.Speed, result.PoE,
+					result.LAGGroup, result.LAGMode, result.NativeVLANID, result.TaggedMode,
+					result.TaggedVLANIDs, result.Description)
+			},
+		)
+		return nil
 	case 'c':
 		options := []string{}
 		paths := []string{}

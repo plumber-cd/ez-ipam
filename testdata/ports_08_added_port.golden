@@ -22,4 +22,4 @@
 ║                        ║┌───────────────────────Status───────────────────────┐
 ║                        ║│Added Port: Equipment -> Gateway -> 1               │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <q> Quit | <ctrl+s> Save | <p> New Port | <u> Update Port | <c> Connect Port | 
+ <q> Quit | <ctrl+s> Save | <p> New Port | <u> Update Port | <C> Copy Port |    

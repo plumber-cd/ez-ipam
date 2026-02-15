@@ -345,6 +345,7 @@ func (a *App) renderPort(p *domain.Port) {
 	a.DetailsPanel.SetText(details.String())
 	a.CurrentFocusKeys = []string{
 		"<u> Update Port",
+		"<C> Copy Port",
 		"<c> Connect Port",
 		"<x> Disconnect Port",
 		"<D> Delete Port",

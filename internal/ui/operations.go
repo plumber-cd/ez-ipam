@@ -889,6 +889,21 @@ func (a *App) DeleteEquipment() {
 
 // ---------- Port operations ----------
 
+// nextAvailablePortNumber returns the next port number (max + 1) for the given equipment.
+func (a *App) nextAvailablePortNumber(equipment *domain.Equipment) string {
+	maxNum := 0
+	for _, child := range a.Catalog.GetChildren(equipment) {
+		port, ok := child.(*domain.Port)
+		if !ok {
+			continue
+		}
+		if n := port.Number(); n > maxNum {
+			maxNum = n
+		}
+	}
+	return strconv.Itoa(maxNum + 1)
+}
+
 func (a *App) AddPort(portNumber, name, portType, speed, poe, lagGroup, lagMode, nativeVLAN, taggedMode, taggedVLANs, description string) {
 	parent, ok := a.CurrentItem.(*domain.Equipment)
 	if !ok {
