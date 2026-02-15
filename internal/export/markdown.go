@@ -197,17 +197,24 @@ func RenderMarkdown(catalog *domain.Catalog) (string, error) {
 		}
 		recordType := record.RecordType
 		recordValue := record.RecordValue
+		valueCell := "-"
 		if strings.TrimSpace(record.ReservedIPPath) != "" {
 			recordType = "Alias"
 			recordValue = "<missing>"
 			if ip, ok := catalog.Get(record.ReservedIPPath).(*domain.IP); ok {
 				recordValue = formatDNSAliasValue(ip)
 			}
+			valueCell = markdownTableCell(defaultIfEmpty(recordValue, "-"))
+		} else {
+			if strings.TrimSpace(recordValue) != "" {
+				// Keep normal DNS record values copy-friendly in the report.
+				valueCell = markdownCode(recordValue)
+			}
 		}
 		dnsRows = append(dnsRows, map[string]string{
 			"FQDN":        markdownCode(record.ID),
 			"Type":        markdownInline(defaultIfEmpty(recordType, "-")),
-			"Value":       markdownTableCell(defaultIfEmpty(recordValue, "-")),
+			"Value":       valueCell,
 			"Description": markdownTableCell(defaultIfEmpty(record.Description, "-")),
 		})
 	}

@@ -81,6 +81,12 @@ func TestRenderMarkdownWithData(t *testing.T) {
 		ReservedIPPath: net.GetPath() + " -> 10.0.0.1",
 		Description:    "Gateway alias",
 	})
+	c.Put(&domain.DNSRecord{
+		Base:        domain.Base{ID: "mail.example.com", ParentPath: "DNS"},
+		RecordType:  "MX",
+		RecordValue: "10 mail.provider.home",
+		Description: "Mail route",
+	})
 
 	// Add equipment with port.
 	eq := &domain.Equipment{
@@ -125,6 +131,7 @@ func TestRenderMarkdownWithData(t *testing.T) {
 		"DNS Records",
 		"gateway.example.com",
 		"`10.0.0.1` (Gateway `00:11:22:33:44:55`)",
+		"`10 mail.provider.home`",
 		"100",
 		"Office",
 		"Switch-1",

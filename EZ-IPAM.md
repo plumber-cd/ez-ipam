@@ -169,9 +169,9 @@
 |------|------|-------|-------------|
 | `gateway-v6.home` | Alias | `fd42::1` (gateway-v6.home `00:11:22:33:44:88`) | - |
 | `gateway.home` | Alias | `192.168.0.1` (gateway.home `00:11:22:33:44:55`) | - |
-| `mail.home` | MX | 10 mail.provider.home | Primary mail route |
+| `mail.home` | MX | `10 mail.provider.home` | Primary mail route |
 | `nas.home` | Alias | `192.168.0.10` (nas.home `00:11:22:33:44:56`) | - |
-| `txt.home` | TXT | v=spf1 include:provider.home -all | SPF policy |
+| `txt.home` | TXT | `v=spf1 include:provider.home -all` | SPF policy |
 ## WiFi SSIDs
 
 | SSID | Description |
