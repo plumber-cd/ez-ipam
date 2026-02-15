@@ -292,7 +292,7 @@ func (a *App) showHelpPopup() {
 		SetScrollable(true).
 		SetWrap(true).
 		SetWordWrap(true)
-	helpText.SetBorder(true).SetTitle("Keyboard Shortcuts")
+	helpText.SetBorder(true).SetTitle("Keyboard Shortcuts (scroll: Up/Down, PgUp/PgDn)")
 	helpText.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		switch event.Key() {
 		case tcell.KeyEscape, tcell.KeyEnter, tcell.KeyBS, tcell.KeyBackspace2:
