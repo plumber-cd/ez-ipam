@@ -116,3 +116,15 @@ func (c *Catalog) RenderVLANID(vlanID int) string {
 	}
 	return fmt.Sprintf("%d (%s)", vlanID, vlan.DisplayName)
 }
+
+// GetEffectivePortVLANSettings returns VLAN settings that apply to a port.
+// Non-master LAG members do not store VLAN fields and inherit display values from the master.
+func (c *Catalog) GetEffectivePortVLANSettings(port *Port) (nativeVLANID int, taggedMode TaggedVLANMode, taggedIDs []int) {
+	if port.LAGGroup > 0 && port.LAGGroup != port.Number() {
+		masterPath := port.GetParentPath() + " -> " + strconv.Itoa(port.LAGGroup)
+		if master, ok := c.Get(masterPath).(*Port); ok {
+			return master.NativeVLANID, master.TaggedVLANMode, slices.Clone(master.TaggedVLANIDs)
+		}
+	}
+	return port.NativeVLANID, port.TaggedVLANMode, slices.Clone(port.TaggedVLANIDs)
+}

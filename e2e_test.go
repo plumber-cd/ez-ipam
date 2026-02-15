@@ -189,59 +189,64 @@ func addEquipmentViaDialog(h *TestHarness, name, model, description string) {
 	h.PressEnter()
 }
 
-func addPortViaDialog(h *TestHarness, number, name, portType, speed, poe, lagGroup, lagMode, nativeVLAN, taggedMode, taggedVLANIDs, description string) {
+func addPortViaDialog(h *TestHarness, number string, enabled bool, name, portType, speed, poe, lagGroup, lagMode, nativeVLAN, taggedMode, taggedVLANIDs, destinationNotes string) {
 	h.PressRune('p')
 	h.AssertScreenContains("Add Port")
 	h.TypeText(number)
-	h.PressTab()
-	h.TypeText(name)
-	h.PressTab()
+	h.PressTab() // Enabled checkbox
+	if !enabled {
+		h.ToggleCheckbox()
+	}
+	h.PressTab() // Name (enabled) or Port Type (disabled)
+	if enabled {
+		h.TypeText(name)
+		h.PressTab()
+	}
 	h.TypeText(portType)
 	h.PressTab()
 	h.TypeText(speed)
 	h.PressTab()
 	h.TypeText(poe)
-	h.PressTab() // LAG Mode dropdown
-	if strings.TrimSpace(lagMode) != "" {
-		// LAG mode dropdown rebuilds the dialog when changed; drive it with keys.
-		h.PressEnter()
-		h.PressDown() // Disabled -> 802.3ad
-		h.PressEnter()
-		// Focus remains on LAG Mode after rebuild; Tab moves to LAG Group.
-		h.PressTab()
-		h.TypeText(lagGroup)
-		h.PressTab()
-	}
-	if strings.TrimSpace(nativeVLAN) != "" {
-		h.SelectDropdownOption("Native VLAN ID", nativeVLAN)
-	}
-	h.PressTab() // Tagged VLAN Mode dropdown
-	if strings.TrimSpace(taggedMode) != "" {
-		h.PressEnter()
-		switch strings.TrimSpace(taggedMode) {
-		case "AllowAll":
-			h.PressDown()
-		case "BlockAll":
-			h.PressDown()
-			h.PressDown()
-		case "Custom":
-			h.PressDown()
-			h.PressDown()
-			h.PressDown()
+	if enabled {
+		h.PressTab() // LAG Mode searchable dropdown
+		if strings.TrimSpace(lagMode) != "" {
+			h.SelectDropdownOption("LAG Mode", lagMode)
+			lagGroup = strings.TrimSpace(lagGroup)
+			if lagGroup == "" {
+				lagGroup = "self"
+			}
+			if strings.EqualFold(lagGroup, "self") {
+				h.SelectDropdownOption("LAG Group", "Self")
+			} else {
+				h.SelectDropdownOption("LAG Group", lagGroup)
+			}
+			// Focus remains on LAG Group after rebuild path.
+			h.PressTab()
 		}
-		h.PressEnter()
-		if strings.EqualFold(strings.TrimSpace(taggedMode), "Custom") && strings.TrimSpace(taggedVLANIDs) != "" {
-			for _, vlan := range strings.Split(taggedVLANIDs, ",") {
-				if strings.TrimSpace(vlan) == "" {
-					continue
+		isLagMember := strings.TrimSpace(lagMode) != "" && strings.TrimSpace(lagGroup) != "" && !strings.EqualFold(strings.TrimSpace(lagGroup), "self")
+		if strings.TrimSpace(nativeVLAN) != "" && !isLagMember {
+			h.SelectDropdownOption("Native VLAN ID", nativeVLAN)
+		}
+		if !isLagMember {
+			h.PressTab() // Tagged VLAN Mode searchable dropdown
+			if strings.TrimSpace(taggedMode) != "" {
+				h.SelectDropdownOption("Tagged VLAN Mode", taggedMode)
+				if strings.EqualFold(strings.TrimSpace(taggedMode), "Custom") && strings.TrimSpace(taggedVLANIDs) != "" {
+					for _, vlan := range strings.Split(taggedVLANIDs, ",") {
+						if strings.TrimSpace(vlan) == "" {
+							continue
+						}
+						h.PressTab()
+						h.ToggleCheckbox()
+					}
 				}
-				h.PressTab()
-				h.ToggleCheckbox()
 			}
 		}
+		h.PressTab() // Destination Notes textarea
+	} else {
+		h.PressTab() // Destination Notes textarea
 	}
-	h.PressTab() // Description textarea
-	h.TypeText(description)
+	h.TypeText(destinationNotes)
 	for range 10 {
 		h.PressTab()
 		h.PressEnter()
@@ -724,18 +729,18 @@ func TestEquipmentPortAndConnections(t *testing.T) {
 
 	h.MoveFocusToID(t, "Gateway (UCG-Fiber)")
 	h.PressEnter()
-	addPortViaDialog(h, "1", "WAN1", "RJ45", "2.5GbE", "", "", "", "", "", "", "uplink")
+	addPortViaDialog(h, "1", true, "WAN1", "RJ45", "2.5GbE", "", "", "", "", "", "", "uplink")
 	h.AssertStatusContains("Added Port")
-	addPortViaDialog(h, "2", "", "RJ45", "2.5GbE", "", "", "", "", "", "", "")
+	addPortViaDialog(h, "2", true, "", "RJ45", "2.5GbE", "", "", "", "", "", "", "")
 	h.AssertStatusContains("Added Port")
 
 	h.PressBackspace()
 	h.MoveFocusToID(t, "Lab (USW-Enterprise-8-PoE)")
 	h.PressEnter()
-	addPortViaDialog(h, "1", "SFP+ 1", "SFP+", "10GbE", "", "", "", "", "", "", "")
+	addPortViaDialog(h, "1", true, "SFP+ 1", "SFP+", "10GbE", "", "", "", "", "", "", "")
 	h.AssertStatusContains("Added Port")
-	addPortViaDialog(h, "4", "Port 4", "RJ45", "2.5GbE", "", "3", "802.3ad", "", "", "", "")
-	h.AssertStatusContains("Error adding Port")
+	addPortViaDialog(h, "4", true, "Port 4", "RJ45", "2.5GbE", "", "", "", "", "", "", "")
+	h.AssertStatusContains("Added Port")
 
 	h.PressBackspace()
 	h.MoveFocusToID(t, "Gateway (UCG-Fiber)")
@@ -743,6 +748,7 @@ func TestEquipmentPortAndConnections(t *testing.T) {
 	h.MoveFocusToID(t, "1: WAN1")
 	h.PressRune('c')
 	h.AssertScreenContains("Connect")
+	h.SelectDropdownOption("Target", "Lab Port 1")
 	h.PressTab()
 	h.PressEnter()
 	h.AssertStatusContains("Connected Port")
@@ -751,6 +757,126 @@ func TestEquipmentPortAndConnections(t *testing.T) {
 	h.AssertScreenContains("Disconnect")
 	h.ConfirmModal()
 	h.AssertStatusContains("Disconnected Port")
+}
+
+func TestDisabledPortsLifecycle(t *testing.T) {
+	h := NewTestHarness(t)
+	navigateToEquipmentRoot(t, h)
+	addEquipmentViaDialog(h, "Gateway", "UCG-Fiber", "edge")
+	addEquipmentViaDialog(h, "Lab", "USW-Enterprise-8-PoE", "lab switch")
+	h.AssertStatusContains("Added Equipment")
+
+	h.MoveFocusToID(t, "Gateway (UCG-Fiber)")
+	h.PressEnter()
+	addPortViaDialog(h, "1", false, "WAN1", "RJ45", "2.5GbE", "PoE+", "", "", "147", "AllowAll", "147", "disabled placeholder")
+	h.AssertStatusContains("Added Port")
+	h.MoveFocusToID(t, "1 (disabled) (RJ45 PoE+ 2.5GbE)")
+	h.AssertScreenContains("Enabled              : No")
+	h.AssertScreenContains("Destination Notes    : disabled placeholder")
+
+	h.PressRune('c')
+	h.AssertStatusContains("Cannot connect a disabled port")
+
+	addPortViaDialog(h, "2", true, "WAN2", "RJ45", "2.5GbE", "", "", "", "", "", "", "")
+	h.AssertStatusContains("Added Port")
+
+	h.PressBackspace()
+	h.MoveFocusToID(t, "Lab (USW-Enterprise-8-PoE)")
+	h.PressEnter()
+	addPortViaDialog(h, "1", true, "SFP+ 1", "SFP+", "10GbE", "", "", "", "", "", "", "")
+	h.AssertStatusContains("Added Port")
+
+	h.PressBackspace()
+	h.MoveFocusToID(t, "Gateway (UCG-Fiber)")
+	h.PressEnter()
+	h.MoveFocusToID(t, "2: WAN2 (RJ45 2.5GbE)")
+	h.PressRune('c')
+	h.AssertScreenContains("Connect")
+	h.SelectDropdownOption("Target", "Lab Port 1")
+	h.PressTab()
+	h.PressEnter()
+	h.AssertStatusContains("Connected Port")
+
+	h.PressRune('u')
+	h.AssertScreenContains("Update Port 2")
+	h.PressTab() // Enabled checkbox
+	h.ToggleCheckbox()
+	for range 10 {
+		h.PressTab()
+		h.PressEnter()
+		if !strings.Contains(h.GetScreenText(), "Update Port 2") {
+			break
+		}
+	}
+	h.AssertStatusContains("connected_to must be empty")
+
+	h.PressRune('x')
+	h.AssertScreenContains("Disconnect")
+	h.ConfirmModal()
+	h.AssertStatusContains("Disconnected Port")
+
+	h.PressRune('u')
+	h.AssertScreenContains("Update Port 2")
+	h.PressTab() // Enabled checkbox
+	h.ToggleCheckbox()
+	for range 10 {
+		h.PressTab()
+		h.PressEnter()
+		if !strings.Contains(h.GetScreenText(), "Update Port 2") {
+			break
+		}
+	}
+	h.AssertStatusContains("Updated Port")
+	h.MoveFocusToID(t, "2 (disabled) (RJ45 2.5GbE)")
+
+	h.PressRune('u')
+	h.AssertScreenContains("Update Port 2")
+	h.PressTab() // Enabled checkbox
+	h.ToggleCheckbox()
+	h.PressTab() // Name field
+	h.TypeText("WAN2-R")
+	for range 10 {
+		h.PressTab()
+		h.PressEnter()
+		if !strings.Contains(h.GetScreenText(), "Update Port 2") {
+			break
+		}
+	}
+	h.AssertStatusContains("Updated Port")
+	h.MoveFocusToID(t, "2: WAN2-R (RJ45 2.5GbE)")
+}
+
+func TestLAGMasterMemberVisibilityAndValidation(t *testing.T) {
+	h := NewTestHarness(t)
+	navigateToVLANs(t, h)
+	addVLANViaDialog(h, "233", "Endpoint", "endpoint vlan", "")
+
+	navigateToEquipmentRoot(t, h)
+	addEquipmentViaDialog(h, "Switch", "USW-Pro", "lag validation")
+	h.MoveFocusToID(t, "Switch (USW-Pro)")
+	h.PressEnter()
+	addPortViaDialog(h, "3", true, "Port 3", "RJ45", "2.5GbE", "PoE+", "self", "802.3ad", "233", "BlockAll", "", "master")
+	h.AssertStatusContains("Added Port")
+	addPortViaDialog(h, "4", true, "Port 4", "RJ45", "2.5GbE", "PoE+", "3", "802.3ad", "", "", "", "member")
+	h.AssertStatusContains("Added Port")
+
+	h.MoveFocusToID(t, "4: Port 4")
+	h.AssertScreenContains("Native VLAN          : 233 (Endpoint)")
+	h.AssertScreenContains("[via LAG")
+	h.AssertScreenContains("Tagged VLANs         : Block All")
+
+	h.MoveFocusToID(t, "3: Port 3")
+	h.PressRune('u')
+	h.AssertScreenContains("Update Port 3")
+	h.SelectDropdownOption("LAG Mode", "Disabled")
+	for range 10 {
+		h.PressTab()
+		h.PressEnter()
+		if !strings.Contains(h.GetScreenText(), "Update Port 3") {
+			break
+		}
+	}
+	h.AssertStatusContains("cannot disable LAG")
 }
 
 func TestMarkdownIncludesZonesAndEquipment(t *testing.T) {
@@ -765,7 +891,9 @@ func TestMarkdownIncludesZonesAndEquipment(t *testing.T) {
 	addEquipmentViaDialog(h, "Servers", "USW-Aggregation", "agg switch")
 	h.MoveFocusToID(t, "Servers (USW-Aggregation)")
 	h.PressEnter()
-	addPortViaDialog(h, "1", "SFP+ 1", "SFP+", "10GbE", "", "", "", "104", "BlockAll", "", "proxmox uplink")
+	addPortViaDialog(h, "1", true, "SFP+ 1", "SFP+", "10GbE", "", "", "", "104", "BlockAll", "", "proxmox uplink")
+	addPortViaDialog(h, "3", true, "Port 3", "RJ45", "2.5GbE", "PoE+", "self", "802.3ad", "104", "BlockAll", "", "LAG master")
+	addPortViaDialog(h, "4", true, "Port 4", "RJ45", "2.5GbE", "PoE+", "3", "802.3ad", "", "", "", "LAG member")
 
 	h.PressCtrl('s')
 	h.AssertStatusContains("Saved to .ez-ipam/ and EZ-IPAM.md")
@@ -786,6 +914,9 @@ func TestMarkdownIncludesZonesAndEquipment(t *testing.T) {
 	}
 	if !strings.Contains(md, "SFP+ 1") {
 		t.Fatalf("markdown missing port row")
+	}
+	if !strings.Contains(md, "`4`") || !strings.Contains(md, "Native: 104 (Servers)") {
+		t.Fatalf("markdown missing propagated LAG member VLAN values")
 	}
 }
 
@@ -1087,9 +1218,9 @@ func TestZonesEquipmentPortsLifecycleAndNegative(t *testing.T) {
 	addEquipmentViaDialog(h, "Switch", "USW", "agg")
 	h.MoveFocusToID(t, "Gateway (UCG)")
 	h.PressEnter()
-	addPortViaDialog(h, "1", "WAN1", "RJ45", "2.5GbE", "", "", "", "", "", "", "uplink")
+	addPortViaDialog(h, "1", true, "WAN1", "RJ45", "2.5GbE", "", "", "", "", "", "", "uplink")
 	stepSnapshot(h, "ports", &step, "added_port")
-	addPortViaDialog(h, "1", "WAN1-dup", "RJ45", "2.5GbE", "", "", "", "", "", "", "dup")
+	addPortViaDialog(h, "1", true, "WAN1-dup", "RJ45", "2.5GbE", "", "", "", "", "", "", "dup")
 	stepSnapshot(h, "ports_negative", &step, "duplicate_port_number")
 }
 
@@ -1267,18 +1398,18 @@ func TestDemoState(t *testing.T) {
 
 	h.MoveFocusToID(t, routerName)
 	h.PressEnter()
-	addPortViaDialog(h, "1", "WAN", "RJ45", "2.5GbE", "", "", "", "", "BlockAll", "", "Uplink")
-	addPortViaDialog(h, "2", "LAN-A", "RJ45", "2.5GbE", "", "", "", fmt.Sprintf("%d", vlanA), "AllowAll", "", "Clients")
-	addPortViaDialog(h, "3", "", "RJ45", "2.5GbE", "", "", "", "", "", "", "")
+	addPortViaDialog(h, "1", true, "WAN", "RJ45", "2.5GbE", "", "", "", "", "BlockAll", "", "Uplink")
+	addPortViaDialog(h, "2", true, "LAN-A", "RJ45", "2.5GbE", "", "", "", fmt.Sprintf("%d", vlanA), "AllowAll", "", "Clients")
+	addPortViaDialog(h, "3", true, "", "RJ45", "2.5GbE", "", "", "", "", "", "", "")
 	h.PressBackspace()
 
 	h.MoveFocusToID(t, switchName)
 	h.PressEnter()
-	addPortViaDialog(h, "1", "SFP+ 1", "SFP+", "10GbE", "", "", "", "", "AllowAll", "", "Trunk uplink")
-	addPortViaDialog(h, "2", "SFP+ 2", "SFP+", "10GbE", "", "", "", "", "AllowAll", "", "Trunk peer")
-	addPortViaDialog(h, "3", "Port 3", "RJ45", "2.5GbE", "PoE+", "3", "802.3ad", fmt.Sprintf("%d", vlanB), "BlockAll", "", "Endpoint A")
-	addPortViaDialog(h, "4", "Port 4", "RJ45", "2.5GbE", "PoE+", "3", "802.3ad", fmt.Sprintf("%d", vlanB), "BlockAll", "", "Endpoint B")
-	addPortViaDialog(h, "5", "", "RJ45", "2.5GbE", "", "", "", "", "", "", "")
+	addPortViaDialog(h, "1", true, "SFP+ 1", "SFP+", "10GbE", "", "", "", "", "AllowAll", "", "Trunk uplink")
+	addPortViaDialog(h, "2", true, "SFP+ 2", "SFP+", "10GbE", "", "", "", "", "AllowAll", "", "Trunk peer")
+	addPortViaDialog(h, "3", true, "Port 3", "RJ45", "2.5GbE", "PoE+", "self", "802.3ad", fmt.Sprintf("%d", vlanB), "BlockAll", "", "Endpoint A")
+	addPortViaDialog(h, "4", true, "Port 4", "RJ45", "2.5GbE", "PoE+", "3", "802.3ad", "", "", "", "Endpoint B")
+	addPortViaDialog(h, "5", true, "", "RJ45", "2.5GbE", "", "", "", "", "", "", "")
 	h.PressBackspace()
 
 	navigateToNetworksRoot(t, h)

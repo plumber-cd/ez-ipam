@@ -177,8 +177,8 @@
 
 | Port | Name | Type | Networks | Destination |
 |------|------|------|----------|-------------|
-| `1` | WAN | RJ45<br>2.5GbE | Native: 233 (Segment-Beta)<br>Tagged: - | - |
-| `2` | LAN-A | RJ45<br>2.5GbE | Native: 233 (Segment-Beta)<br>Tagged: - | - |
+| `1` | WAN | RJ45<br>2.5GbE | Native: <none><br>Tagged: Block All | Uplink |
+| `2` | LAN-A | RJ45<br>2.5GbE | Native: 147 (Segment-Alpha)<br>Tagged: Allow All | Clients |
 | `3` | - | RJ45<br>2.5GbE | Native: <none><br>Tagged: - | - |
 ### Switch-Cobalt (Model-X)
 
@@ -186,10 +186,10 @@
 
 | Port | Name | Type | Networks | Destination |
 |------|------|------|----------|-------------|
-| `1` | SFP+ 1 | SFP+<br>10GbE | Native: 147 (Segment-Alpha)<br>Tagged: - | - |
-| `2` | SFP+ 2 | SFP+<br>10GbE | Native: 147 (Segment-Alpha)<br>Tagged: - | - |
+| `1` | SFP+ 1 | SFP+<br>10GbE | Native: <none><br>Tagged: Allow All | Trunk uplink |
+| `2` | SFP+ 2 | SFP+<br>10GbE | Native: <none><br>Tagged: Allow All | Trunk peer |
 | `3` | Port 3 | RJ45<br>2.5GbE<br>PoE+ | Native: 233 (Segment-Beta)<br>Tagged: Block All | Endpoint A |
-| `4` | Port 4 | RJ45<br>2.5GbE<br>PoE+ | Native: 233 (Segment-Beta)<br>Tagged: Block All | Endpoint B |
+| `4` | Port 4 | RJ45<br>2.5GbE<br>PoE+ | Native: 233 (Segment-Beta)<br>Tagged: Block All | - |
 | `5` | - | RJ45<br>2.5GbE | Native: <none><br>Tagged: - | - |
 
 ## Detailed Networks

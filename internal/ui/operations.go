@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"net/netip"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -904,7 +903,7 @@ func (a *App) nextAvailablePortNumber(equipment *domain.Equipment) string {
 	return strconv.Itoa(maxNum + 1)
 }
 
-func (a *App) AddPort(portNumber, name, portType, speed, poe, lagGroup, lagMode, nativeVLAN, taggedMode, taggedVLANs, description string) {
+func (a *App) AddPort(portNumber string, enabled bool, name, portType, speed, poe, lagGroup, lagMode, nativeVLAN, taggedMode, taggedVLANs, destinationNotes string) {
 	parent, ok := a.CurrentItem.(*domain.Equipment)
 	if !ok {
 		a.setStatus("Error: AddPort requires equipment as current menu item")
@@ -925,6 +924,10 @@ func (a *App) AddPort(portNumber, name, portType, speed, poe, lagGroup, lagMode,
 		a.setStatus("Error adding Port: invalid port number")
 		return
 	}
+	lagGroup = strings.TrimSpace(lagGroup)
+	if strings.EqualFold(lagGroup, "self") {
+		lagGroup = strconv.Itoa(number)
+	}
 	lagGroupValue, err := domain.ParseOptionalIntField(lagGroup)
 	if err != nil || lagGroupValue < 0 {
 		a.setStatus("Error adding Port: invalid LAG group")
@@ -941,22 +944,37 @@ func (a *App) AddPort(portNumber, name, portType, speed, poe, lagGroup, lagMode,
 		a.setStatus("Error adding Port: " + err.Error())
 		return
 	}
+	if lagGroupValue > 0 && lagGroupValue != number {
+		// LAG member ports inherit VLAN display from master and do not store VLAN state.
+		nativeVLANID = 0
+		mode = domain.TaggedVLANModeNone
+		tagged = nil
+	}
+	if !enabled {
+		name = ""
+		lagGroupValue = 0
+		lagMode = ""
+		nativeVLANID = 0
+		mode = domain.TaggedVLANModeNone
+		tagged = nil
+	}
 
 	port := &domain.Port{
 		Base: domain.Base{
 			ID:         strconv.Itoa(number),
 			ParentPath: parent.GetPath(),
 		},
-		Name:           strings.TrimSpace(name),
-		PortType:       strings.TrimSpace(portType),
-		Speed:          strings.TrimSpace(speed),
-		PoE:            strings.TrimSpace(poe),
-		LAGGroup:       lagGroupValue,
-		LAGMode:        strings.TrimSpace(lagMode),
-		NativeVLANID:   nativeVLANID,
-		TaggedVLANMode: mode,
-		TaggedVLANIDs:  tagged,
-		Description:    strings.TrimSpace(description),
+		Disabled:         !enabled,
+		Name:             strings.TrimSpace(name),
+		PortType:         strings.TrimSpace(portType),
+		Speed:            strings.TrimSpace(speed),
+		PoE:              strings.TrimSpace(poe),
+		LAGGroup:         lagGroupValue,
+		LAGMode:          strings.TrimSpace(lagMode),
+		NativeVLANID:     nativeVLANID,
+		TaggedVLANMode:   mode,
+		TaggedVLANIDs:    tagged,
+		DestinationNotes: strings.TrimSpace(destinationNotes),
 	}
 
 	if err := a.validateNewPort(port, parent); err != nil {
@@ -972,7 +990,7 @@ func (a *App) AddPort(portNumber, name, portType, speed, poe, lagGroup, lagMode,
 	a.setStatus("Added Port: " + port.GetPath())
 }
 
-func (a *App) UpdatePort(portNumber, name, portType, speed, poe, lagGroup, lagMode, nativeVLAN, taggedMode, taggedVLANs, description string) {
+func (a *App) UpdatePort(portNumber string, enabled bool, name, portType, speed, poe, lagGroup, lagMode, nativeVLAN, taggedMode, taggedVLANs, destinationNotes string) {
 	focusedPort, ok := a.CurrentFocus.(*domain.Port)
 	if !ok {
 		a.setStatus("Error: UpdatePort requires a port to be focused")
@@ -998,6 +1016,10 @@ func (a *App) UpdatePort(portNumber, name, portType, speed, poe, lagGroup, lagMo
 		return
 	}
 
+	lagGroup = strings.TrimSpace(lagGroup)
+	if strings.EqualFold(lagGroup, "self") {
+		lagGroup = strconv.Itoa(number)
+	}
 	lagGroupValue, err := domain.ParseOptionalIntField(lagGroup)
 	if err != nil || lagGroupValue < 0 {
 		a.setStatus("Error updating Port: invalid LAG group")
@@ -1014,8 +1036,23 @@ func (a *App) UpdatePort(portNumber, name, portType, speed, poe, lagGroup, lagMo
 		a.setStatus("Error updating Port: " + err.Error())
 		return
 	}
+	if lagGroupValue > 0 && lagGroupValue != number {
+		// LAG member ports inherit VLAN display from master and do not store VLAN state.
+		nativeVLANID = 0
+		mode = domain.TaggedVLANModeNone
+		tagged = nil
+	}
+	if !enabled {
+		name = ""
+		lagGroupValue = 0
+		lagMode = ""
+		nativeVLANID = 0
+		mode = domain.TaggedVLANModeNone
+		tagged = nil
+	}
 
 	backup := *focusedPort
+	focusedPort.Disabled = !enabled
 	focusedPort.Name = strings.TrimSpace(name)
 	focusedPort.PortType = strings.TrimSpace(portType)
 	focusedPort.Speed = strings.TrimSpace(speed)
@@ -1025,7 +1062,7 @@ func (a *App) UpdatePort(portNumber, name, portType, speed, poe, lagGroup, lagMo
 	focusedPort.NativeVLANID = nativeVLANID
 	focusedPort.TaggedVLANMode = mode
 	focusedPort.TaggedVLANIDs = tagged
-	focusedPort.Description = strings.TrimSpace(description)
+	focusedPort.DestinationNotes = strings.TrimSpace(destinationNotes)
 	if err := a.validateExistingPort(focusedPort); err != nil {
 		*focusedPort = backup
 		a.setStatus("Error updating Port: " + err.Error())
@@ -1116,6 +1153,24 @@ func (a *App) DeletePort() {
 		if targetPort, ok := targetItem.(*domain.Port); ok {
 			if targetPort.ConnectedTo == focusedPort.GetPath() {
 				targetPort.ConnectedTo = ""
+			}
+		}
+	}
+	if focusedPort.LAGGroup > 0 && focusedPort.LAGGroup == focusedPort.Number() {
+		parentItem := a.Catalog.Get(focusedPort.GetParentPath())
+		parent, ok := parentItem.(*domain.Equipment)
+		if !ok {
+			a.setStatus("Error deleting Port: parent equipment not found")
+			return
+		}
+		for _, sibling := range a.Catalog.GetChildren(parent) {
+			member, ok := sibling.(*domain.Port)
+			if !ok || member.GetPath() == focusedPort.GetPath() {
+				continue
+			}
+			if member.LAGGroup == focusedPort.Number() {
+				a.setStatus(fmt.Sprintf("Error deleting Port: cannot delete LAG master while member port %s is attached", member.ID))
+				return
 			}
 		}
 	}
@@ -1357,34 +1412,35 @@ func (a *App) validatePort(port *domain.Port, parent *domain.Equipment, checkCon
 	}
 
 	if port.LAGGroup > 0 {
-		members := []*domain.Port{port}
+		if port.LAGGroup != port.Number() {
+			if port.NativeVLANID != 0 || port.TaggedVLANMode != domain.TaggedVLANModeNone || len(port.TaggedVLANIDs) > 0 {
+				return fmt.Errorf("LAG member ports cannot store VLAN settings for Port=%s", port.GetPath())
+			}
+			masterPath := parent.GetPath() + " -> " + strconv.Itoa(port.LAGGroup)
+			masterItem := a.Catalog.Get(masterPath)
+			masterPort, ok := masterItem.(*domain.Port)
+			if !ok {
+				return fmt.Errorf("LAG master port %d not found for Port=%s", port.LAGGroup, port.GetPath())
+			}
+			if masterPort.LAGGroup != masterPort.Number() {
+				return fmt.Errorf("LAG master port %s must reference itself as LAG group", masterPort.ID)
+			}
+			if strings.TrimSpace(masterPort.LAGMode) == "" {
+				return fmt.Errorf("LAG master port %s must have LAG mode enabled", masterPort.ID)
+			}
+			if masterPort.LAGMode != port.LAGMode {
+				return fmt.Errorf("LAG member and master must share LAG mode for Port=%s", port.GetPath())
+			}
+		}
+	}
+	if port.LAGGroup != port.Number() || strings.TrimSpace(port.LAGMode) == "" {
 		for _, sibling := range a.Catalog.GetChildren(parent) {
-			other, ok := sibling.(*domain.Port)
-			if !ok || other.GetPath() == port.GetPath() {
+			member, ok := sibling.(*domain.Port)
+			if !ok || member.GetPath() == port.GetPath() {
 				continue
 			}
-			if other.LAGGroup == port.LAGGroup {
-				members = append(members, other)
-			}
-		}
-		minNumber := port.Number()
-		for _, member := range members {
-			if member.Number() < minNumber {
-				minNumber = member.Number()
-			}
-		}
-		if minNumber != port.LAGGroup {
-			return fmt.Errorf("LAG group must be lowest member port number (%d) for Port=%s", minNumber, port.GetPath())
-		}
-		for _, member := range members {
-			if member.GetPath() == port.GetPath() {
-				continue
-			}
-			if member.NativeVLANID != port.NativeVLANID ||
-				member.TaggedVLANMode != port.TaggedVLANMode ||
-				!slices.Equal(member.TaggedVLANIDs, port.TaggedVLANIDs) ||
-				member.LAGMode != port.LAGMode {
-				return fmt.Errorf("LAG members must share VLAN and LAG mode settings for Port=%s", port.GetPath())
+			if member.LAGGroup == port.Number() {
+				return fmt.Errorf("cannot disable LAG: port %d is still referenced as LAG master by other ports", port.Number())
 			}
 		}
 	}

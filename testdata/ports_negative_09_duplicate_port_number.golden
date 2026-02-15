@@ -3,6 +3,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 ╔══════════Menu══════════╗┌───────────────────────Details──────────────────────┐
 ║1: WAN1-dup (RJ45 2.5GbE║│Port Number          : 1                            │
+║                        ║│Enabled              : Yes                          │
 ║                        ║│Name                 : WAN1-dup                     │
 ║                        ║│Type                 : RJ45                         │
 ║                        ║│Speed                : 2.5GbE                       │
@@ -12,8 +13,7 @@
 ║                        ║│Native VLAN          : <none>                       │
 ║                        ║│Tagged VLANs         : <none>                       │
 ║                        ║│Connected To         : <none>                       │
-║                        ║│Description          : <none>                       │
-║                        ║│                                                    │
+║                        ║│Destination Notes    : <none>                       │
 ║                        ║│                                                    │
 ║                        ║│                                                    │
 ║                        ║│                                                    │

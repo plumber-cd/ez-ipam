@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/gdamore/tcell/v2"
@@ -25,6 +26,7 @@ const (
 	maxDialogViewportHeight = 23
 
 	LagModeDisabledOption = "Disabled"
+	LagGroupSelfOption    = "Self"
 	TaggedModeNoneOption  = "None"
 	NoneVLANOption        = "<none>"
 )
@@ -37,17 +39,18 @@ var (
 
 // portDialogValues captures port form field values during dialog construction and rebuild.
 type portDialogValues struct {
-	PortNumber    string
-	Name          string
-	PortType      string
-	Speed         string
-	PoE           string
-	LAGMode       string
-	LAGGroup      string
-	NativeVLANID  string
-	TaggedMode    string
-	TaggedVLANIDs string
-	Description   string
+	PortNumber       string
+	Enabled          bool
+	Name             string
+	PortType         string
+	Speed            string
+	PoE              string
+	LAGMode          string
+	LAGGroup         string
+	NativeVLANID     string
+	TaggedMode       string
+	TaggedVLANIDs    string
+	DestinationNotes string
 }
 
 // vlanDialogValues captures VLAN form field values during dialog construction.
@@ -376,25 +379,46 @@ func (a *App) SelectDialogDropdownOption(label, optionContains string) bool {
 	for i := range form.GetFormItemCount() {
 		item := form.GetFormItem(i)
 		dd, ok := item.(*tview.DropDown)
+		if ok {
+			itemLabel := strings.TrimSpace(dd.GetLabel())
+			if itemLabel != label && !strings.HasPrefix(itemLabel, label) {
+				continue
+			}
+			currentIdx, currentText := dd.GetCurrentOption()
+			if strings.Contains(currentText, optionContains) {
+				return true
+			}
+			for idx := range 32 {
+				dd.SetCurrentOption(idx)
+				_, optionText := dd.GetCurrentOption()
+				if strings.Contains(optionText, optionContains) {
+					return true
+				}
+			}
+			dd.SetCurrentOption(currentIdx)
+			return false
+		}
+
+		sd, ok := item.(*searchableDropdown)
 		if !ok {
 			continue
 		}
-		itemLabel := strings.TrimSpace(dd.GetLabel())
+		itemLabel := strings.TrimSpace(sd.GetLabel())
 		if itemLabel != label && !strings.HasPrefix(itemLabel, label) {
 			continue
 		}
-		currentIdx, currentText := dd.GetCurrentOption()
-		if strings.Contains(currentText, optionContains) {
+		for idx, option := range sd.options {
+			if !strings.Contains(option, optionContains) {
+				continue
+			}
+			sd.SetText(option)
+			sd.lastValid = option
+			sd.isOpen = false
+			if sd.onSelected != nil {
+				sd.onSelected(option, idx)
+			}
 			return true
 		}
-		for idx := range 32 {
-			dd.SetCurrentOption(idx)
-			_, optionText := dd.GetCurrentOption()
-			if strings.Contains(optionText, optionContains) {
-				return true
-			}
-		}
-		dd.SetCurrentOption(currentIdx)
 		return false
 	}
 	return false
@@ -407,7 +431,101 @@ type hintedTextArea struct {
 	labelWidth int
 }
 
-func newHintedTextArea(label, text string, fieldWidth, fieldHeight int, hint string) *hintedTextArea { //nolint:unparam // label is always "Description" today but the function is general-purpose
+// searchableDropdown is an InputField with autocomplete-backed option selection.
+type searchableDropdown struct {
+	*tview.InputField
+	options            []string
+	lastValid          string
+	allowEmpty         bool
+	isOpen             bool
+	autocompleteActive bool
+	onSelected         func(text string, index int)
+}
+
+func newSearchableDropdown(label string, options []string, currentValue string, allowEmpty bool, onSelected func(string, int)) *searchableDropdown {
+	input := tview.NewInputField().SetLabel(label).SetFieldWidth(FormFieldWidth)
+	if allowEmpty {
+		input.SetPlaceholder(NoneVLANOption)
+	}
+	input.SetText(currentValue)
+	sd := &searchableDropdown{
+		InputField: input,
+		options:    append([]string(nil), options...),
+		lastValid:  currentValue,
+		allowEmpty: allowEmpty,
+		onSelected: onSelected,
+	}
+	sd.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyDown, tcell.KeyUp, tcell.KeyPgDn, tcell.KeyPgUp, tcell.KeyRune, tcell.KeyBackspace, tcell.KeyBackspace2, tcell.KeyDelete:
+			sd.autocompleteActive = true
+		case tcell.KeyEscape:
+			sd.autocompleteActive = false
+			sd.isOpen = false
+		}
+		return event
+	})
+
+	sd.SetAutocompleteFunc(func(currentText string) []string {
+		if !sd.autocompleteActive {
+			sd.isOpen = false
+			return nil
+		}
+		query := strings.TrimSpace(currentText)
+		if query == "" {
+			sd.isOpen = len(sd.options) > 0
+			return append([]string(nil), sd.options...)
+		}
+		q := strings.ToLower(query)
+		filtered := make([]string, 0, len(sd.options))
+		for _, option := range sd.options {
+			if strings.Contains(strings.ToLower(option), q) {
+				filtered = append(filtered, option)
+			}
+		}
+		sd.isOpen = len(filtered) > 0
+		return filtered
+	})
+	sd.SetAutocompletedFunc(func(text string, index int, source int) bool {
+		switch source {
+		case tview.AutocompletedNavigate:
+			return false
+		default:
+			sd.SetText(text)
+			sd.lastValid = text
+			sd.isOpen = false
+			sd.autocompleteActive = false
+			if sd.onSelected != nil {
+				sd.onSelected(text, index)
+			}
+			return true
+		}
+	})
+	return sd
+}
+
+func (sd *searchableDropdown) SetFinishedFunc(handler func(key tcell.Key)) tview.FormItem {
+	sd.InputField.SetFinishedFunc(func(key tcell.Key) {
+		text := strings.TrimSpace(sd.GetText())
+		switch {
+		case sd.allowEmpty && text == "":
+			sd.SetText("")
+			sd.lastValid = ""
+		case !slices.Contains(sd.options, text):
+			sd.SetText(sd.lastValid)
+		default:
+			sd.lastValid = text
+		}
+		sd.isOpen = false
+		sd.autocompleteActive = false
+		if handler != nil {
+			handler(key)
+		}
+	})
+	return sd
+}
+
+func newHintedTextArea(label, text string, fieldWidth, fieldHeight int, hint string) *hintedTextArea { //nolint:unparam // fieldWidth currently passed as FormFieldWidth in all call sites; keep signature general for future dialogs
 	textArea := tview.NewTextArea().SetLabel(label).SetSize(fieldHeight, fieldWidth)
 	textArea.SetText(text, false)
 	return &hintedTextArea{

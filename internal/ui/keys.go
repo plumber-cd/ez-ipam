@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -331,14 +332,16 @@ func (a *App) equipmentMenuKeyPress(e *domain.Equipment, event *tcell.EventKey) 
 	if event.Rune() == 'p' {
 		a.showPortDialog("*add_port*", fmt.Sprintf("Add Port in %s", e.DisplayName),
 			portDialogValues{
+				Enabled:    true,
 				LAGMode:    LagModeDisabledOption,
 				TaggedMode: TaggedModeNoneOption,
 			},
+			e,
 			"",
 			func(vals portDialogValues) {
-				a.AddPort(vals.PortNumber, vals.Name, vals.PortType, vals.Speed, vals.PoE,
+				a.AddPort(vals.PortNumber, vals.Enabled, vals.Name, vals.PortType, vals.Speed, vals.PoE,
 					vals.LAGGroup, vals.LAGMode, vals.NativeVLANID, vals.TaggedMode,
-					vals.TaggedVLANIDs, vals.Description)
+					vals.TaggedVLANIDs, vals.DestinationNotes)
 			},
 		)
 		return nil
@@ -374,14 +377,15 @@ func (a *App) portFocusKeyPress(p *domain.Port, event *tcell.EventKey) *tcell.Ev
 	switch event.Rune() {
 	case 'u':
 		vals := portDialogValues{
-			PortNumber:  p.ID,
-			Name:        p.Name,
-			PortType:    p.PortType,
-			Speed:       p.Speed,
-			PoE:         p.PoE,
-			LAGMode:     normalizeLagModeOption(p.LAGMode),
-			TaggedMode:  normalizeTaggedModeOption(string(p.TaggedVLANMode)),
-			Description: p.Description,
+			PortNumber:       p.ID,
+			Enabled:          !p.Disabled,
+			Name:             p.Name,
+			PortType:         p.PortType,
+			Speed:            p.Speed,
+			PoE:              p.PoE,
+			LAGMode:          normalizeLagModeOption(p.LAGMode),
+			TaggedMode:       normalizeTaggedModeOption(string(p.TaggedVLANMode)),
+			DestinationNotes: p.DestinationNotes,
 		}
 		if p.LAGGroup > 0 {
 			vals.LAGGroup = strconv.Itoa(p.LAGGroup)
@@ -394,13 +398,23 @@ func (a *App) portFocusKeyPress(p *domain.Port, event *tcell.EventKey) *tcell.Ev
 			custom = append(custom, strconv.Itoa(vlanID))
 		}
 		vals.TaggedVLANIDs = strings.Join(custom, ",")
+		parent := a.Catalog.Get(p.GetParentPath())
+		equipment, ok := parent.(*domain.Equipment)
+		if !ok {
+			a.setStatus("Error updating Port: parent equipment not found")
+			return nil
+		}
+		if p.LAGGroup > 0 && p.LAGGroup == p.Number() {
+			vals.LAGGroup = "self"
+		}
 
 		a.showPortDialog("*update_port*", fmt.Sprintf("Update Port %s", p.ID), vals,
+			equipment,
 			"",
 			func(result portDialogValues) {
-				a.UpdatePort(result.PortNumber, result.Name, result.PortType, result.Speed, result.PoE,
+				a.UpdatePort(result.PortNumber, result.Enabled, result.Name, result.PortType, result.Speed, result.PoE,
 					result.LAGGroup, result.LAGMode, result.NativeVLANID, result.TaggedMode,
-					result.TaggedVLANIDs, result.Description)
+					result.TaggedVLANIDs, result.DestinationNotes)
 			},
 		)
 		return nil
@@ -413,14 +427,15 @@ func (a *App) portFocusKeyPress(p *domain.Port, event *tcell.EventKey) *tcell.Ev
 		}
 
 		vals := portDialogValues{
-			PortNumber:  a.nextAvailablePortNumber(equipment),
-			Name:        p.Name,
-			PortType:    p.PortType,
-			Speed:       p.Speed,
-			PoE:         p.PoE,
-			LAGMode:     normalizeLagModeOption(p.LAGMode),
-			TaggedMode:  normalizeTaggedModeOption(string(p.TaggedVLANMode)),
-			Description: p.Description,
+			PortNumber:       a.nextAvailablePortNumber(equipment),
+			Enabled:          !p.Disabled,
+			Name:             p.Name,
+			PortType:         p.PortType,
+			Speed:            p.Speed,
+			PoE:              p.PoE,
+			LAGMode:          normalizeLagModeOption(p.LAGMode),
+			TaggedMode:       normalizeTaggedModeOption(string(p.TaggedVLANMode)),
+			DestinationNotes: p.DestinationNotes,
 		}
 		if p.LAGGroup > 0 {
 			vals.LAGGroup = strconv.Itoa(p.LAGGroup)
@@ -433,22 +448,41 @@ func (a *App) portFocusKeyPress(p *domain.Port, event *tcell.EventKey) *tcell.Ev
 			custom = append(custom, strconv.Itoa(vlanID))
 		}
 		vals.TaggedVLANIDs = strings.Join(custom, ",")
+		if p.LAGGroup > 0 && p.LAGGroup == p.Number() {
+			vals.LAGGroup = strconv.Itoa(p.Number())
+			vals.NativeVLANID = ""
+			vals.TaggedMode = TaggedModeNoneOption
+			vals.TaggedVLANIDs = ""
+		}
 
 		a.showPortDialog("*add_port*", fmt.Sprintf("Copy Port %s in %s", p.ID, equipment.DisplayName), vals,
+			equipment,
 			"",
 			func(result portDialogValues) {
-				a.AddPort(result.PortNumber, result.Name, result.PortType, result.Speed, result.PoE,
+				a.AddPort(result.PortNumber, result.Enabled, result.Name, result.PortType, result.Speed, result.PoE,
 					result.LAGGroup, result.LAGMode, result.NativeVLANID, result.TaggedMode,
-					result.TaggedVLANIDs, result.Description)
+					result.TaggedVLANIDs, result.DestinationNotes)
 			},
 		)
 		return nil
 	case 'c':
+		if p.Disabled {
+			a.setStatus("Cannot connect a disabled port")
+			return nil
+		}
+		type connectCandidate struct {
+			port          *domain.Port
+			equipmentName string
+		}
+		candidates := []connectCandidate{}
 		options := []string{}
 		paths := []string{}
 		for _, item := range a.Catalog.All() {
 			otherPort, ok := item.(*domain.Port)
 			if !ok || otherPort.GetPath() == p.GetPath() {
+				continue
+			}
+			if otherPort.Disabled {
 				continue
 			}
 			if otherPort.ConnectedTo != "" {
@@ -457,12 +491,34 @@ func (a *App) portFocusKeyPress(p *domain.Port, event *tcell.EventKey) *tcell.Ev
 			if otherPort.GetParentPath() == p.GetParentPath() {
 				continue
 			}
-			options = append(options, domain.RenderPortLink(a.Catalog, otherPort.GetPath()))
-			paths = append(paths, otherPort.GetPath())
+			equipmentName := ""
+			parent := a.Catalog.Get(otherPort.GetParentPath())
+			if equipment, ok := parent.(*domain.Equipment); ok {
+				equipmentName = equipment.DisplayName
+			}
+			candidates = append(candidates, connectCandidate{
+				port:          otherPort,
+				equipmentName: equipmentName,
+			})
 		}
-		if len(options) == 0 {
+		if len(candidates) == 0 {
 			a.setStatus("No available ports to connect")
 			return nil
+		}
+		slices.SortStableFunc(candidates, func(a, b connectCandidate) int {
+			nameCompare := strings.Compare(strings.ToLower(a.equipmentName), strings.ToLower(b.equipmentName))
+			if nameCompare != 0 {
+				return nameCompare
+			}
+			numberCompare := a.port.Number() - b.port.Number()
+			if numberCompare != 0 {
+				return numberCompare
+			}
+			return strings.Compare(a.port.GetPath(), b.port.GetPath())
+		})
+		for _, candidate := range candidates {
+			options = append(options, domain.RenderPortLink(a.Catalog, candidate.port.GetPath()))
+			paths = append(paths, candidate.port.GetPath())
 		}
 		a.showConnectPortDialog(p.DisplayID(), options, paths)
 		return nil

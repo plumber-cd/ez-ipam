@@ -277,17 +277,18 @@ func (e *Equipment) Compare(other Item) int {
 // Port represents a port on a piece of equipment.
 type Port struct {
 	Base
-	Name           string         `json:"name,omitempty"`
-	PortType       string         `json:"port_type"`
-	Speed          string         `json:"speed"`
-	PoE            string         `json:"poe,omitempty"`
-	LAGGroup       int            `json:"lag_group,omitempty"`
-	LAGMode        string         `json:"lag_mode,omitempty"`
-	NativeVLANID   int            `json:"native_vlan_id,omitempty"`
-	TaggedVLANMode TaggedVLANMode `json:"tagged_vlan_mode,omitempty"`
-	TaggedVLANIDs  []int          `json:"tagged_vlan_ids,omitempty"`
-	ConnectedTo    string         `json:"connected_to,omitempty"`
-	Description    string         `json:"description,omitempty"`
+	Disabled         bool           `json:"disabled,omitempty"`
+	Name             string         `json:"name,omitempty"`
+	PortType         string         `json:"port_type"`
+	Speed            string         `json:"speed"`
+	PoE              string         `json:"poe,omitempty"`
+	LAGGroup         int            `json:"lag_group,omitempty"`
+	LAGMode          string         `json:"lag_mode,omitempty"`
+	NativeVLANID     int            `json:"native_vlan_id,omitempty"`
+	TaggedVLANMode   TaggedVLANMode `json:"tagged_vlan_mode,omitempty"`
+	TaggedVLANIDs    []int          `json:"tagged_vlan_ids,omitempty"`
+	ConnectedTo      string         `json:"connected_to,omitempty"`
+	DestinationNotes string         `json:"destination_notes,omitempty"`
 }
 
 // Number returns the numeric port number from the ID.
@@ -302,10 +303,14 @@ func (p *Port) Number() int {
 func (p *Port) DisplayID() string {
 	typeSpeed := strings.TrimSpace(strings.Join([]string{p.PortType, p.PoE, p.Speed}, " "))
 	typeSpeed = strings.Join(strings.Fields(typeSpeed), " ")
-	if p.Name != "" {
-		return fmt.Sprintf("%s: %s (%s)", p.ID, p.Name, typeSpeed)
+	disabledMarker := ""
+	if p.Disabled {
+		disabledMarker = " (disabled)"
 	}
-	return fmt.Sprintf("%s (%s)", p.ID, typeSpeed)
+	if p.Name != "" {
+		return fmt.Sprintf("%s%s: %s (%s)", p.ID, disabledMarker, p.Name, typeSpeed)
+	}
+	return fmt.Sprintf("%s%s (%s)", p.ID, disabledMarker, typeSpeed)
 }
 
 func (p *Port) Compare(other Item) int {

@@ -235,6 +235,9 @@ func RenderMarkdown(catalog *domain.Catalog) (string, error) {
 			if strings.TrimSpace(port.Name) != "" {
 				portName = port.Name
 			}
+			if port.Disabled {
+				portName = "[disabled]"
+			}
 			var portTypeParts []string
 			for _, part := range []string{port.PortType, port.Speed, port.PoE} {
 				if strings.TrimSpace(part) != "" {
@@ -242,39 +245,44 @@ func RenderMarkdown(catalog *domain.Catalog) (string, error) {
 				}
 			}
 			portType := strings.Join(portTypeParts, "\n")
-			tagged := "-"
-			switch port.TaggedVLANMode {
-			case domain.TaggedVLANModeAllowAll:
-				tagged = "Allow All"
-			case domain.TaggedVLANModeBlockAll:
-				tagged = "Block All"
-			case domain.TaggedVLANModeCustom:
-				values := make([]string, 0, len(port.TaggedVLANIDs))
-				for _, vlanID := range port.TaggedVLANIDs {
-					values = append(values, catalog.RenderVLANID(vlanID))
-				}
-				tagged = strings.Join(values, "\n")
-			}
-			destinationParts := []string{}
-			if port.ConnectedTo != "" {
-				destinationParts = append(destinationParts, domain.RenderPortLink(catalog, port.ConnectedTo))
-			}
-			if port.Description != "" {
-				destinationParts = append(destinationParts, port.Description)
-			}
+			networks := "-"
 			destination := "-"
-			if len(destinationParts) > 0 {
-				destination = strings.Join(destinationParts, "\n")
-			}
-			networkLines := []string{
-				fmt.Sprintf("Native: %s", catalog.RenderVLANID(port.NativeVLANID)),
-				fmt.Sprintf("Tagged: %s", tagged),
+			if !port.Disabled {
+				nativeVLANID, taggedMode, taggedVLANIDs := catalog.GetEffectivePortVLANSettings(port)
+				tagged := "-"
+				switch taggedMode {
+				case domain.TaggedVLANModeAllowAll:
+					tagged = "Allow All"
+				case domain.TaggedVLANModeBlockAll:
+					tagged = "Block All"
+				case domain.TaggedVLANModeCustom:
+					values := make([]string, 0, len(taggedVLANIDs))
+					for _, vlanID := range taggedVLANIDs {
+						values = append(values, catalog.RenderVLANID(vlanID))
+					}
+					tagged = strings.Join(values, "\n")
+				}
+				destinationParts := []string{}
+				if port.ConnectedTo != "" {
+					destinationParts = append(destinationParts, domain.RenderPortLink(catalog, port.ConnectedTo))
+				}
+				if port.DestinationNotes != "" {
+					destinationParts = append(destinationParts, port.DestinationNotes)
+				}
+				if len(destinationParts) > 0 {
+					destination = strings.Join(destinationParts, "\n")
+				}
+				networkLines := []string{
+					fmt.Sprintf("Native: %s", catalog.RenderVLANID(nativeVLANID)),
+					fmt.Sprintf("Tagged: %s", tagged),
+				}
+				networks = strings.Join(networkLines, "\n")
 			}
 			rows = append(rows, map[string]string{
 				"Number":      markdownCode(port.ID),
 				"Name":        markdownTableCell(portName),
 				"Type":        markdownTableCell(portType),
-				"Networks":    markdownTableCell(strings.Join(networkLines, "\n")),
+				"Networks":    markdownTableCell(networks),
 				"Destination": markdownTableCell(destination),
 			})
 		}

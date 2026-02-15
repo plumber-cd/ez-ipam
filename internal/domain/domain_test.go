@@ -582,6 +582,9 @@ func TestPortValidate(t *testing.T) {
 		wantErr bool
 	}{
 		{"valid", &Port{Base: Base{ID: "1", ParentPath: eq.GetPath()}, PortType: "RJ45", Speed: "1G"}, false},
+		{"valid_disabled_physical_only", &Port{Base: Base{ID: "2", ParentPath: eq.GetPath()}, Disabled: true, PortType: "RJ45", Speed: "1G", PoE: "PoE+", DestinationNotes: "catalogued only"}, false},
+		{"disabled_with_name", &Port{Base: Base{ID: "3", ParentPath: eq.GetPath()}, Disabled: true, Name: "uplink", PortType: "RJ45", Speed: "1G"}, true},
+		{"disabled_with_tagged_mode", &Port{Base: Base{ID: "4", ParentPath: eq.GetPath()}, Disabled: true, PortType: "RJ45", Speed: "1G", TaggedVLANMode: TaggedVLANModeAllowAll}, true},
 		{"invalid_id", &Port{Base: Base{ID: "abc", ParentPath: eq.GetPath()}, PortType: "RJ45", Speed: "1G"}, true},
 		{"zero_id", &Port{Base: Base{ID: "0", ParentPath: eq.GetPath()}, PortType: "RJ45", Speed: "1G"}, true},
 		{"no_type", &Port{Base: Base{ID: "1", ParentPath: eq.GetPath()}, Speed: "1G"}, true},
@@ -632,6 +635,11 @@ func TestPortDisplayID(t *testing.T) {
 	p3 := &Port{Base: Base{ID: "2"}, PortType: "SFP+", PoE: "PoE+", Speed: "10G"}
 	if got := p3.DisplayID(); got != "2 (SFP+ PoE+ 10G)" {
 		t.Errorf("DisplayID() = %q, want \"2 (SFP+ PoE+ 10G)\"", got)
+	}
+
+	p4 := &Port{Base: Base{ID: "3"}, PortType: "RJ45", Speed: "1G", Disabled: true}
+	if got := p4.DisplayID(); got != "3 (disabled) (RJ45 1G)" {
+		t.Errorf("DisplayID() = %q, want \"3 (disabled) (RJ45 1G)\"", got)
 	}
 }
 

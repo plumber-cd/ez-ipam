@@ -124,32 +124,52 @@ func getTextFromInputFieldIfPresent(form *tview.Form, label string) string {
 	return inputField.GetText()
 }
 
-func getTextFromTextAreaIfPresent(form *tview.Form) string {
-	formItem, ok := getFormItemByLabelIfPresent(form, "Description")
+func getTextFromTextAreaIfPresent(form *tview.Form, label string) string {
+	formItem, ok := getFormItemByLabelIfPresent(form, label)
 	if !ok {
 		return ""
 	}
 	textArea, ok := formItem.(*hintedTextArea)
 	if !ok {
-		panic("Failed to cast Description text area")
+		panic("Failed to cast " + label + " text area")
 	}
 	return textArea.GetText()
 }
 
-func getDropDownOptionIfPresent(form *tview.Form, label, fallback string) string {
+func getSearchableDropdownValue(form *tview.Form, label, fallback string) string {
 	formItem, ok := getFormItemByLabelIfPresent(form, label)
 	if !ok {
 		return fallback
 	}
-	dropdown, ok := formItem.(*tview.DropDown)
-	if !ok {
-		panic("Failed to cast " + label + " dropdown")
+	if dropdown, ok := formItem.(*tview.DropDown); ok {
+		_, value := dropdown.GetCurrentOption()
+		value = strings.TrimSpace(value)
+		if value == "" {
+			return fallback
+		}
+		return value
 	}
-	_, option := dropdown.GetCurrentOption()
-	if option == "" {
+	searchable, ok := formItem.(*searchableDropdown)
+	if !ok {
+		return getTextFromInputFieldIfPresent(form, label)
+	}
+	value := strings.TrimSpace(searchable.GetText())
+	if value == "" {
 		return fallback
 	}
-	return option
+	return value
+}
+
+func getCheckboxValueIfPresent(form *tview.Form, label string, fallback bool) bool {
+	formItem, ok := getFormItemByLabelIfPresent(form, label)
+	if !ok {
+		return fallback
+	}
+	checkbox, ok := formItem.(*tview.Checkbox)
+	if !ok {
+		panic("Failed to cast " + label + " checkbox")
+	}
+	return checkbox.IsChecked()
 }
 
 func normalizeLagModeOption(value string) string {
@@ -166,29 +186,21 @@ func normalizeTaggedModeOption(value string) string {
 	return value
 }
 
-func findOptionIndex(options []string, value string) int {
-	for i, option := range options {
-		if option == value {
-			return i
-		}
-	}
-	return 0
-}
-
 // capturePortFormValues reads all port form fields and returns them as a value struct.
 func capturePortFormValues(form *tview.Form) portDialogValues {
 	return portDialogValues{
-		PortNumber:    getTextFromInputFieldIfPresent(form, "Port Number"),
-		Name:          getTextFromInputFieldIfPresent(form, "Name"),
-		PortType:      getTextFromInputFieldIfPresent(form, "Port Type"),
-		Speed:         getTextFromInputFieldIfPresent(form, "Speed"),
-		PoE:           getTextFromInputFieldIfPresent(form, "PoE"),
-		LAGMode:       normalizeLagModeOption(getDropDownOptionIfPresent(form, "LAG Mode", LagModeDisabledOption)),
-		LAGGroup:      getTextFromInputFieldIfPresent(form, "LAG Group"),
-		NativeVLANID:  parseVLANIDFromDropdownOption(getDropDownOptionIfPresent(form, "Native VLAN ID", NoneVLANOption)),
-		TaggedMode:    normalizeTaggedModeOption(getDropDownOptionIfPresent(form, "Tagged VLAN Mode", TaggedModeNoneOption)),
-		TaggedVLANIDs: collectCheckedVLANIDsFromForm(form),
-		Description:   getTextFromTextAreaIfPresent(form),
+		PortNumber:       getTextFromInputFieldIfPresent(form, "Port Number"),
+		Enabled:          getCheckboxValueIfPresent(form, "Enabled", true),
+		Name:             getTextFromInputFieldIfPresent(form, "Name"),
+		PortType:         getTextFromInputFieldIfPresent(form, "Port Type"),
+		Speed:            getTextFromInputFieldIfPresent(form, "Speed"),
+		PoE:              getTextFromInputFieldIfPresent(form, "PoE"),
+		LAGMode:          normalizeLagModeOption(getSearchableDropdownValue(form, "LAG Mode", LagModeDisabledOption)),
+		LAGGroup:         parseLAGGroupFromDropdownOption(getSearchableDropdownValue(form, "LAG Group", "")),
+		NativeVLANID:     parseVLANIDFromDropdownOption(getSearchableDropdownValue(form, "Native VLAN ID", NoneVLANOption)),
+		TaggedMode:       normalizeTaggedModeOption(getSearchableDropdownValue(form, "Tagged VLAN Mode", TaggedModeNoneOption)),
+		TaggedVLANIDs:    collectCheckedVLANIDsFromForm(form),
+		DestinationNotes: getTextFromTextAreaIfPresent(form, "Destination Notes"),
 	}
 }
 
@@ -264,30 +276,29 @@ func (a *App) getVLANOptions() []vlanOption {
 	return options
 }
 
-// getVLANDropdownOptions returns a dropdown option list with <none> as the first entry.
+// getVLANDropdownOptions returns all selectable VLAN dropdown options.
 func (a *App) getVLANDropdownOptions() []string {
 	vlans := a.getVLANOptions()
-	options := make([]string, 0, len(vlans)+1)
-	options = append(options, NoneVLANOption)
+	options := make([]string, 0, len(vlans))
 	for _, v := range vlans {
 		options = append(options, v.label)
 	}
 	return options
 }
 
-// findVLANDropdownIndex finds the dropdown index for a given VLAN ID string.
-func findVLANDropdownIndex(options []string, vlanIDStr string) int {
+// findVLANDropdownOption finds the matching dropdown option for a VLAN ID string.
+func findVLANDropdownOption(options []string, vlanIDStr string) string {
 	vlanIDStr = strings.TrimSpace(vlanIDStr)
 	if vlanIDStr == "" {
-		return 0
+		return ""
 	}
-	for i, option := range options {
+	for _, option := range options {
 		parts := strings.SplitN(option, " ", 2)
 		if len(parts) > 0 && parts[0] == vlanIDStr {
-			return i
+			return option
 		}
 	}
-	return 0
+	return ""
 }
 
 // parseVLANIDFromDropdownOption extracts the VLAN ID string from a dropdown option.
@@ -301,6 +312,54 @@ func parseVLANIDFromDropdownOption(option string) string {
 		return parts[0]
 	}
 	return ""
+}
+
+// getLAGGroupDropdownOptions returns Self plus existing LAG master ports.
+func (a *App) getLAGGroupDropdownOptions(parent *domain.Equipment, currentPortNumber string) []string {
+	options := []string{LagGroupSelfOption}
+	for _, child := range a.Catalog.GetChildren(parent) {
+		port, ok := child.(*domain.Port)
+		if !ok || port.ID == currentPortNumber {
+			continue
+		}
+		// Only existing masters are valid member targets.
+		if strings.TrimSpace(port.LAGMode) == "" || port.LAGGroup != port.Number() || port.Disabled {
+			continue
+		}
+		if strings.TrimSpace(port.Name) != "" {
+			options = append(options, port.ID+": "+port.Name)
+			continue
+		}
+		options = append(options, port.ID)
+	}
+	return options
+}
+
+// findLAGGroupDropdownOption finds the matching dropdown option for a lag group value.
+func findLAGGroupDropdownOption(options []string, lagGroupStr string) string {
+	lagGroupStr = strings.TrimSpace(lagGroupStr)
+	if lagGroupStr == "" || strings.EqualFold(lagGroupStr, "self") {
+		return LagGroupSelfOption
+	}
+	for _, option := range options {
+		if parseLAGGroupFromDropdownOption(option) == lagGroupStr {
+			return option
+		}
+	}
+	return LagGroupSelfOption
+}
+
+// parseLAGGroupFromDropdownOption extracts "self" or port number from dropdown option.
+func parseLAGGroupFromDropdownOption(option string) string {
+	option = strings.TrimSpace(option)
+	if option == "" {
+		return ""
+	}
+	if option == LagGroupSelfOption {
+		return "self"
+	}
+	parts := strings.SplitN(option, ":", 2)
+	return strings.TrimSpace(parts[0])
 }
 
 // getZoneNames returns all zone display names from the catalog.
@@ -320,27 +379,26 @@ func (a *App) getZoneNames() []string {
 	return names
 }
 
-// getZoneDropdownOptions returns a dropdown option list with <none> as first entry.
+// getZoneDropdownOptions returns all selectable zone dropdown options.
 func (a *App) getZoneDropdownOptions() []string {
 	names := a.getZoneNames()
-	options := make([]string, 0, len(names)+1)
-	options = append(options, NoneVLANOption)
+	options := make([]string, 0, len(names))
 	options = append(options, names...)
 	return options
 }
 
-// findZoneDropdownIndex finds the dropdown index for a given zone name.
-func findZoneDropdownIndex(options []string, zoneName string) int {
+// findZoneDropdownOption finds the matching dropdown option for a zone name.
+func findZoneDropdownOption(options []string, zoneName string) string {
 	zoneName = strings.TrimSpace(zoneName)
 	if zoneName == "" {
-		return 0
+		return ""
 	}
-	for i, option := range options {
+	for _, option := range options {
 		if option == zoneName {
-			return i
+			return option
 		}
 	}
-	return 0
+	return ""
 }
 
 // parseZoneFromDropdownOption returns zone name or "" for <none>.

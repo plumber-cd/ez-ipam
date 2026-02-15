@@ -208,6 +208,30 @@ func (p *Port) Validate(c *Catalog) error {
 	if strings.TrimSpace(p.Speed) == "" {
 		return fmt.Errorf("speed must be set for port %s", p.ID)
 	}
+	if p.Disabled {
+		if strings.TrimSpace(p.Name) != "" {
+			return fmt.Errorf("name must be empty for disabled port %s", p.ID)
+		}
+		if p.LAGGroup != 0 {
+			return fmt.Errorf("LAG group must be empty for disabled port %s", p.ID)
+		}
+		if strings.TrimSpace(p.LAGMode) != "" {
+			return fmt.Errorf("LAG mode must be empty for disabled port %s", p.ID)
+		}
+		if p.NativeVLANID != 0 {
+			return fmt.Errorf("native VLAN ID must be empty for disabled port %s", p.ID)
+		}
+		if p.TaggedVLANMode != TaggedVLANModeNone {
+			return fmt.Errorf("tagged VLAN mode must be empty for disabled port %s", p.ID)
+		}
+		if len(p.TaggedVLANIDs) > 0 {
+			return fmt.Errorf("tagged VLAN IDs must be empty for disabled port %s", p.ID)
+		}
+		if strings.TrimSpace(p.ConnectedTo) != "" {
+			return fmt.Errorf("connected_to must be empty for disabled port %s", p.ID)
+		}
+		return nil
+	}
 
 	if p.LAGGroup > 0 && strings.TrimSpace(p.LAGMode) == "" {
 		return fmt.Errorf("LAG mode must be set when LAG group is specified for port %s", p.ID)

@@ -1,6 +1,8 @@
+destination_notes: Clients
 id: "2"
 name: LAN-A
-native_vlan_id: 233
+native_vlan_id: 147
 parent: Equipment -> Router-Topaz
 port_type: RJ45
 speed: 2.5GbE
+tagged_vlan_mode: AllowAll

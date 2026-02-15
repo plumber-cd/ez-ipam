@@ -172,7 +172,10 @@ func RenderPortLink(c *Catalog, connectedTo string) string {
 	}
 	number := port.Number()
 	if strings.TrimSpace(port.Name) != "" {
-		return fmt.Sprintf("%s Port %d (%s)", equipment.DisplayName, number, port.Name)
+		defaultName := fmt.Sprintf("Port %d", number)
+		if port.Name != defaultName {
+			return fmt.Sprintf("%s Port %d (%s)", equipment.DisplayName, number, port.Name)
+		}
 	}
 	return fmt.Sprintf("%s Port %d", equipment.DisplayName, number)
 }

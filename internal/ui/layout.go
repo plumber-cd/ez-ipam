@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"slices"
 	"strconv"
 	"strings"
 
@@ -493,6 +494,9 @@ func (a *App) wireDialogFormKeys(form *tview.Form, onCancel func()) {
 
 		switch event.Key() {
 		case tcell.KeyEscape:
+			if sd, ok := focusedFormItem.(*searchableDropdown); ok && sd.isOpen {
+				return event
+			}
 			onCancel()
 			return nil
 		case tcell.KeyCtrlE:
@@ -509,6 +513,9 @@ func (a *App) wireDialogFormKeys(form *tview.Form, onCancel func()) {
 			return nil
 		case tcell.KeyEnter:
 			if formItemIndex >= 0 {
+				if _, ok := focusedFormItem.(*searchableDropdown); ok {
+					return event
+				}
 				if _, ok := focusedFormItem.(*hintedTextArea); ok {
 					return event
 				}
@@ -536,39 +543,102 @@ func (a *App) dismissDialog(pageName string) {
 // showPortDialog creates a fresh port dialog. Dropdown callbacks are set after
 // all fields are added so that tview's initial SetCurrentOption does not trigger
 // a cascading rebuild.
-func (a *App) showPortDialog(pageName, title string, vals portDialogValues, focusLabel string, onSave func(portDialogValues)) {
+func (a *App) showPortDialog(pageName, title string, vals portDialogValues, parent *domain.Equipment, focusLabel string, onSave func(portDialogValues)) {
 	a.Pages.RemovePage(pageName)
 
 	form := tview.NewForm().SetButtonsAlign(tview.AlignCenter)
 
+	if vals.PortNumber == "" && !vals.Enabled {
+		vals.Enabled = true
+	}
 	vals.LAGMode = normalizeLagModeOption(vals.LAGMode)
 	vals.TaggedMode = normalizeTaggedModeOption(vals.TaggedMode)
-	if vals.LAGMode == LagModeDisabledOption {
+	if !vals.Enabled {
+		vals.Name = ""
+		vals.LAGMode = LagModeDisabledOption
 		vals.LAGGroup = ""
-	}
-	if vals.TaggedMode != string(domain.TaggedVLANModeCustom) {
+		vals.NativeVLANID = ""
+		vals.TaggedMode = TaggedModeNoneOption
 		vals.TaggedVLANIDs = ""
+	} else {
+		if vals.LAGMode == LagModeDisabledOption {
+			vals.LAGGroup = ""
+		} else {
+			if vals.LAGGroup == vals.PortNumber && strings.TrimSpace(vals.PortNumber) != "" {
+				vals.LAGGroup = "self"
+			}
+			if strings.TrimSpace(vals.LAGGroup) == "" {
+				vals.LAGGroup = "self"
+			}
+		}
+		if vals.TaggedMode != string(domain.TaggedVLANModeCustom) {
+			vals.TaggedVLANIDs = ""
+		}
 	}
+	isLagMember := vals.Enabled && vals.LAGMode != LagModeDisabledOption && vals.LAGGroup != "" && !strings.EqualFold(vals.LAGGroup, "self")
 
 	form.AddInputField("Port Number", vals.PortNumber, FormFieldWidth, nil, nil)
-	form.AddInputField("Name", vals.Name, FormFieldWidth, nil, nil)
+	form.AddCheckbox("Enabled", vals.Enabled, nil)
+	if vals.Enabled {
+		form.AddInputField("Name", vals.Name, FormFieldWidth, nil, nil)
+	}
 	form.AddInputField("Port Type", vals.PortType, FormFieldWidth, nil, nil)
 	form.AddInputField("Speed", vals.Speed, FormFieldWidth, nil, nil)
 	form.AddInputField("PoE", vals.PoE, FormFieldWidth, nil, nil)
-	form.AddDropDown("LAG Mode", LagModeOptions, findOptionIndex(LagModeOptions, vals.LAGMode), nil)
-	if vals.LAGMode != LagModeDisabledOption {
-		form.AddInputField("LAG Group", vals.LAGGroup, FormFieldWidth, nil, nil)
-	}
-	nativeVLANOptions := a.getVLANDropdownOptions()
-	form.AddDropDown("Native VLAN ID", nativeVLANOptions, findVLANDropdownIndex(nativeVLANOptions, vals.NativeVLANID), nil)
-	form.AddDropDown("Tagged VLAN Mode", TaggedModeOptions, findOptionIndex(TaggedModeOptions, vals.TaggedMode), nil)
-	if vals.TaggedMode == string(domain.TaggedVLANModeCustom) {
-		taggedSet := parseVLANIDSet(vals.TaggedVLANIDs)
-		for _, v := range a.getVLANOptions() {
-			form.AddCheckbox(v.label, taggedSet[v.id], nil)
+	if vals.Enabled {
+		lagModeIndex := slices.Index(LagModeOptions, vals.LAGMode)
+		if lagModeIndex < 0 {
+			lagModeIndex = 0
+		}
+		form.AddDropDown("LAG Mode", LagModeOptions, lagModeIndex, nil)
+		lagModeItem := getFormItemByLabel(form, "LAG Mode")
+		lagModeDropdown := lagModeItem.(*tview.DropDown)
+		lagModeDropdown.SetSelectedFunc(func(option string, _ int) {
+			newVals := capturePortFormValues(form)
+			newVals.LAGMode = normalizeLagModeOption(option)
+			a.showPortDialog(pageName, title, newVals, parent, "LAG Mode", onSave)
+		})
+		if vals.LAGMode != LagModeDisabledOption {
+			lagGroupOptions := a.getLAGGroupDropdownOptions(parent, vals.PortNumber)
+			lagGroupCurrent := findLAGGroupDropdownOption(lagGroupOptions, vals.LAGGroup)
+			lagGroupIndex := slices.Index(lagGroupOptions, lagGroupCurrent)
+			if lagGroupIndex < 0 {
+				lagGroupIndex = 0
+			}
+			form.AddDropDown("LAG Group", lagGroupOptions, lagGroupIndex, nil)
+			lagGroupItem := getFormItemByLabel(form, "LAG Group")
+			lagGroupDropdown := lagGroupItem.(*tview.DropDown)
+			lagGroupDropdown.SetSelectedFunc(func(option string, _ int) {
+				newVals := capturePortFormValues(form)
+				newVals.LAGGroup = parseLAGGroupFromDropdownOption(option)
+				a.showPortDialog(pageName, title, newVals, parent, "LAG Group", onSave)
+			})
+		}
+		if !isLagMember {
+			nativeVLANOptions := a.getVLANDropdownOptions()
+			nativeCurrent := findVLANDropdownOption(nativeVLANOptions, vals.NativeVLANID)
+			form.AddFormItem(newSearchableDropdown("Native VLAN ID", nativeVLANOptions, nativeCurrent, true, nil))
+			taggedModeIndex := slices.Index(TaggedModeOptions, vals.TaggedMode)
+			if taggedModeIndex < 0 {
+				taggedModeIndex = 0
+			}
+			form.AddDropDown("Tagged VLAN Mode", TaggedModeOptions, taggedModeIndex, nil)
+			taggedModeItem := getFormItemByLabel(form, "Tagged VLAN Mode")
+			taggedModeDropdown := taggedModeItem.(*tview.DropDown)
+			taggedModeDropdown.SetSelectedFunc(func(option string, _ int) {
+				newVals := capturePortFormValues(form)
+				newVals.TaggedMode = normalizeTaggedModeOption(option)
+				a.showPortDialog(pageName, title, newVals, parent, "Tagged VLAN Mode", onSave)
+			})
+			if vals.TaggedMode == string(domain.TaggedVLANModeCustom) {
+				taggedSet := parseVLANIDSet(vals.TaggedVLANIDs)
+				for _, v := range a.getVLANOptions() {
+					form.AddCheckbox(v.label, taggedSet[v.id], nil)
+				}
+			}
 		}
 	}
-	form.AddFormItem(newHintedTextArea("Description", vals.Description, FormFieldWidth, 3, descriptionHint))
+	form.AddFormItem(newHintedTextArea("Destination Notes", vals.DestinationNotes, FormFieldWidth, 3, descriptionHint))
 
 	cancel := func() {
 		a.dismissDialog(pageName)
@@ -581,21 +651,12 @@ func (a *App) showPortDialog(pageName, title string, vals portDialogValues, focu
 	})
 	form.AddButton("Cancel", cancel)
 
-	// Set dropdown callbacks now that all fields are in place.
-	lagItem := getFormItemByLabel(form, "LAG Mode")
-	lagDropdown := lagItem.(*tview.DropDown)
-	lagDropdown.SetSelectedFunc(func(option string, _ int) {
+	enabledItem := getFormItemByLabel(form, "Enabled")
+	enabledCheckbox := enabledItem.(*tview.Checkbox)
+	enabledCheckbox.SetChangedFunc(func(checked bool) {
 		newVals := capturePortFormValues(form)
-		newVals.LAGMode = normalizeLagModeOption(option)
-		a.showPortDialog(pageName, title, newVals, "LAG Mode", onSave)
-	})
-
-	tagItem := getFormItemByLabel(form, "Tagged VLAN Mode")
-	tagDropdown := tagItem.(*tview.DropDown)
-	tagDropdown.SetSelectedFunc(func(option string, _ int) {
-		newVals := capturePortFormValues(form)
-		newVals.TaggedMode = normalizeTaggedModeOption(option)
-		a.showPortDialog(pageName, title, newVals, "Tagged VLAN Mode", onSave)
+		newVals.Enabled = checked
+		a.showPortDialog(pageName, title, newVals, parent, "Enabled", onSave)
 	})
 
 	form.SetBorder(true).SetTitle(title)
@@ -624,7 +685,8 @@ func (a *App) showVLANDialog(pageName, title string, vals vlanDialogValues, show
 	form.AddInputField("Name", vals.Name, FormFieldWidth, nil, nil)
 	form.AddFormItem(newHintedTextArea("Description", vals.Description, FormFieldWidth, 3, descriptionHint))
 	zoneOptions := a.getZoneDropdownOptions()
-	form.AddDropDown("Zone", zoneOptions, findZoneDropdownIndex(zoneOptions, vals.SelectedZone), nil)
+	zoneCurrent := findZoneDropdownOption(zoneOptions, vals.SelectedZone)
+	form.AddFormItem(newSearchableDropdown("Zone", zoneOptions, zoneCurrent, true, nil))
 
 	cancel := func() { a.dismissDialog(pageName) }
 
@@ -632,8 +694,8 @@ func (a *App) showVLANDialog(pageName, title string, vals vlanDialogValues, show
 		result := vlanDialogValues{
 			VLANIDText:   getTextFromInputFieldIfPresent(form, "VLAN ID"),
 			Name:         getTextFromInputFieldIfPresent(form, "Name"),
-			Description:  getTextFromTextAreaIfPresent(form),
-			SelectedZone: parseZoneFromDropdownOption(getDropDownOptionIfPresent(form, "Zone", NoneVLANOption)),
+			Description:  getTextFromTextAreaIfPresent(form, "Description"),
+			SelectedZone: parseZoneFromDropdownOption(getSearchableDropdownValue(form, "Zone", NoneVLANOption)),
 		}
 		onSave(result)
 		a.dismissDialog(pageName)
@@ -674,7 +736,7 @@ func (a *App) showZoneDialog(pageName, title string, vals zoneDialogValues, onSa
 	form.AddButton("Save", func() {
 		result := zoneDialogValues{
 			Name:          getTextFromInputFieldIfPresent(form, "Name"),
-			Description:   getTextFromTextAreaIfPresent(form),
+			Description:   getTextFromTextAreaIfPresent(form, "Description"),
 			SelectedVLANs: vals.SelectedVLANs,
 		}
 		onSave(result)
@@ -700,7 +762,8 @@ func (a *App) showNetworkAllocDialog(pageName, title string, vals networkAllocDi
 
 	form.AddInputField("Name", vals.Name, FormFieldWidth, nil, nil)
 	form.AddFormItem(newHintedTextArea("Description", vals.Description, FormFieldWidth, 3, descriptionHint))
-	form.AddDropDown("VLAN ID", vlanOptions, findVLANDropdownIndex(vlanOptions, vals.VLANID), nil)
+	vlanCurrent := findVLANDropdownOption(vlanOptions, vals.VLANID)
+	form.AddFormItem(newSearchableDropdown("VLAN ID", vlanOptions, vlanCurrent, true, nil))
 	if showChildPrefix {
 		form.AddInputField("Child Prefix Len", vals.ChildPrefixLen, FormFieldWidth, nil, nil)
 	}
@@ -710,8 +773,8 @@ func (a *App) showNetworkAllocDialog(pageName, title string, vals networkAllocDi
 	form.AddButton("Save", func() {
 		result := networkAllocDialogValues{
 			Name:        getTextFromInputFieldIfPresent(form, "Name"),
-			Description: getTextFromTextAreaIfPresent(form),
-			VLANID:      parseVLANIDFromDropdownOption(getDropDownOptionIfPresent(form, "VLAN ID", NoneVLANOption)),
+			Description: getTextFromTextAreaIfPresent(form, "Description"),
+			VLANID:      parseVLANIDFromDropdownOption(getSearchableDropdownValue(form, "VLAN ID", NoneVLANOption)),
 		}
 		if showChildPrefix {
 			result.ChildPrefixLen = getTextFromInputFieldIfPresent(form, "Child Prefix Len")
@@ -738,45 +801,35 @@ func (a *App) showSummarizeDialog(candidates []*domain.Network, fromIndex, toInd
 	for _, c := range candidates {
 		options = append(options, c.DisplayID())
 	}
+	indexByOption := make(map[string]int, len(options))
+	for i, option := range options {
+		if _, exists := indexByOption[option]; !exists {
+			indexByOption[option] = i
+		}
+	}
 
 	fromIdx := fromIndex
 	toIdx := toIndex
 
 	form := tview.NewForm().SetButtonsAlign(tview.AlignCenter)
-	form.AddDropDown("From", options, fromIdx, func(option string, optionIndex int) {
-		if optionIndex >= 0 {
-			fromIdx = optionIndex
+	fromCurrent := options[fromIdx]
+	toCurrent := options[toIdx]
+	form.AddFormItem(newSearchableDropdown("From", options, fromCurrent, false, func(option string, _ int) {
+		if idx, ok := indexByOption[option]; ok {
+			fromIdx = idx
 		}
-	})
-	form.AddDropDown("To", options, toIdx, func(option string, optionIndex int) {
-		if optionIndex >= 0 {
-			toIdx = optionIndex
+	}))
+	form.AddFormItem(newSearchableDropdown("To", options, toCurrent, false, func(option string, _ int) {
+		if idx, ok := indexByOption[option]; ok {
+			toIdx = idx
 		}
-	})
+	}))
 	form.AddButton("Summarize", func() {
 		a.SummarizeNetworkSelection(candidates, fromIdx, toIdx)
 		a.dismissDialog(pageName)
 	})
 	form.AddButton("Cancel", func() {
 		a.dismissDialog(pageName)
-	})
-
-	// Suppress rune keys in dropdowns to prevent accidental typing.
-	fromItem := getFormItemByLabel(form, "From")
-	fromDropdown := fromItem.(*tview.DropDown)
-	fromDropdown.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyRune {
-			return nil
-		}
-		return event
-	})
-	toItem := getFormItemByLabel(form, "To")
-	toDropdown := toItem.(*tview.DropDown)
-	toDropdown.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyRune {
-			return nil
-		}
-		return event
 	})
 
 	form.SetBorder(true).SetTitle("Summarize in " + parentDisplayID)
@@ -792,18 +845,34 @@ func (a *App) showConnectPortDialog(portDisplayID string, options []string, path
 	const pageName = "*connect_port*"
 	a.Pages.RemovePage(pageName)
 
-	selection := 0
+	indexByOption := make(map[string]int, len(options))
+	for i, option := range options {
+		if _, exists := indexByOption[option]; !exists {
+			indexByOption[option] = i
+		}
+	}
+	selection := ""
+	selectedOption := ""
 
 	form := tview.NewForm().SetButtonsAlign(tview.AlignCenter)
-	form.AddDropDown("Target", options, 0, func(option string, optionIndex int) {
-		if optionIndex >= 0 {
-			selection = optionIndex
+	form.AddFormItem(newSearchableDropdown("Target", options, selectedOption, false, func(option string, _ int) {
+		if optionIndex, ok := indexByOption[option]; ok && optionIndex >= 0 && optionIndex < len(paths) {
+			selection = paths[optionIndex]
 		}
-	})
+	}))
 	form.AddButton("Connect", func() {
-		if selection >= 0 && selection < len(paths) {
-			a.ConnectPort(paths[selection])
+		if selection == "" {
+			selectedText := strings.TrimSpace(getSearchableDropdownValue(form, "Target", ""))
+			if optionIndex, ok := indexByOption[selectedText]; ok && optionIndex >= 0 && optionIndex < len(paths) {
+				selection = paths[optionIndex]
+			}
 		}
+		if selection == "" {
+			a.dismissDialog(pageName)
+			a.setStatus("Error connecting Port: select a target")
+			return
+		}
+		a.ConnectPort(selection)
 		a.dismissDialog(pageName)
 	})
 	form.AddButton("Cancel", func() {

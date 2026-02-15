@@ -293,6 +293,11 @@ func (a *App) renderEquipment(e *domain.Equipment) {
 func (a *App) renderPort(p *domain.Port) {
 	details := new(strings.Builder)
 	fmt.Fprintf(details, "Port Number          : %s\n", p.ID)
+	if p.Disabled {
+		details.WriteString("Enabled              : No\n")
+	} else {
+		details.WriteString("Enabled              : Yes\n")
+	}
 	if p.Name == "" {
 		details.WriteString("Name                 : <none>\n")
 	} else {
@@ -315,30 +320,35 @@ func (a *App) renderPort(p *domain.Port) {
 	} else {
 		details.WriteString("LAG Mode             : <none>\n")
 	}
-	fmt.Fprintf(details, "Native VLAN          : %s\n", a.Catalog.RenderVLANID(p.NativeVLANID))
-	switch p.TaggedVLANMode {
+	nativeVLANID, taggedMode, taggedVLANIDs := a.Catalog.GetEffectivePortVLANSettings(p)
+	inheritSuffix := ""
+	if p.LAGGroup > 0 && p.LAGGroup != p.Number() {
+		inheritSuffix = fmt.Sprintf(" [via LAG master port %d]", p.LAGGroup)
+	}
+	fmt.Fprintf(details, "Native VLAN          : %s%s\n", a.Catalog.RenderVLANID(nativeVLANID), inheritSuffix)
+	switch taggedMode {
 	case domain.TaggedVLANModeAllowAll:
-		details.WriteString("Tagged VLANs         : Allow All\n")
+		details.WriteString("Tagged VLANs         : Allow All" + inheritSuffix + "\n")
 	case domain.TaggedVLANModeBlockAll:
-		details.WriteString("Tagged VLANs         : Block All\n")
+		details.WriteString("Tagged VLANs         : Block All" + inheritSuffix + "\n")
 	case domain.TaggedVLANModeCustom:
-		custom := make([]string, 0, len(p.TaggedVLANIDs))
-		for _, vlanID := range p.TaggedVLANIDs {
+		custom := make([]string, 0, len(taggedVLANIDs))
+		for _, vlanID := range taggedVLANIDs {
 			custom = append(custom, a.Catalog.RenderVLANID(vlanID))
 		}
-		fmt.Fprintf(details, "Tagged VLANs         : Custom (%s)\n", strings.Join(custom, ", "))
+		fmt.Fprintf(details, "Tagged VLANs         : Custom (%s)%s\n", strings.Join(custom, ", "), inheritSuffix)
 	default:
-		details.WriteString("Tagged VLANs         : <none>\n")
+		details.WriteString("Tagged VLANs         : <none>" + inheritSuffix + "\n")
 	}
 	if p.ConnectedTo != "" {
 		fmt.Fprintf(details, "Connected To         : %s\n", domain.RenderPortLink(a.Catalog, p.ConnectedTo))
 	} else {
 		details.WriteString("Connected To         : <none>\n")
 	}
-	if p.Description != "" {
-		fmt.Fprintf(details, "Description          : %s\n", p.Description)
+	if p.DestinationNotes != "" {
+		fmt.Fprintf(details, "Destination Notes    : %s\n", p.DestinationNotes)
 	} else {
-		details.WriteString("Description          : <none>\n")
+		details.WriteString("Destination Notes    : <none>\n")
 	}
 
 	a.DetailsPanel.Clear()

@@ -1,4 +1,4 @@
-description: Endpoint A
+destination_notes: Endpoint A
 id: "3"
 lag_group: 3
 lag_mode: 802.3ad
