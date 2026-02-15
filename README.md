@@ -1,6 +1,6 @@
 # EZ-IPAM
 
-A lightweight, local-first IP Address Management tool. No database, no web server, no infrastructure -- just a single binary that stores everything as Git-friendly YAML files.
+A lightweight, local-first IP Address Management tool. No database, no web server, no infrastructure - just a single binary that stores everything as Git-friendly YAML files.
 
 ![Demo](./demo.gif)
 
@@ -10,34 +10,34 @@ Planning and documenting network address space shouldn't require deploying infra
 
 Tools like [NetBox](https://github.com/netbox-community/netbox) and [phpIPAM](https://phpipam.net/) are powerful, but they need a database, a web server, Redis, and real deployment effort. Visual subnet calculators like [davidc.net/subnets.html](https://www.davidc.net/sites/default/subnets/subnets.html) and [visualsubnetcalc.com](https://visualsubnetcalc.com/) are great for quick math, but they don't persist state and only let you annotate leaf subnets. Spreadsheets work until they don't.
 
-EZ-IPAM fills the gap: a single binary you run locally that manages hierarchical network planning with full state persistence -- and you can commit it all to Git.
+EZ-IPAM fills the gap: a single binary you run locally that manages hierarchical network planning with full state persistence - and you can commit it all to Git.
 
 ### Design Principles
 
-- **Local-first** -- runs on your machine, works offline, no external services
-- **Git-friendly** -- state is stored as individual YAML files in `.ez-ipam/`, designed for minimal merge conflicts
-- **Zero dependencies** -- single binary, no database, no Redis, no web server
-- **Read without the tool** -- generates a human-readable [`EZ-IPAM.md`](./EZ-IPAM.md) report, browsable on GitHub or any markdown viewer
-- **Comments everywhere** -- annotate any level of the network hierarchy, not just leaf subnets
+- **Local-first** - runs on your machine, works offline, no external services
+- **Git-friendly** - state is stored as individual YAML files in `.ez-ipam/`, designed for minimal merge conflicts
+- **Zero dependencies** - single binary, no database, no Redis, no web server
+- **Read without the tool** - generates a human-readable [`EZ-IPAM.md`](./EZ-IPAM.md) report, browsable on GitHub or any markdown viewer
+- **Comments everywhere** - annotate any level of the network hierarchy, not just leaf subnets
 
 ## Features
 
 ### Network Management
 - **Hierarchical subnet planning** with IPv4 and IPv6 support
 - **Three allocation modes**: Subnet Container (holds child networks), Host Pool (reservable IPs), and Unallocated
-- **Split and summarize** -- break down CIDRs into smaller subnets or merge contiguous unallocated ranges back together
+- **Split and summarize** - break down CIDRs into smaller subnets or merge contiguous unallocated ranges back together
 - **IP reservations** with hostname, MAC address, and description
 
 ### Infrastructure Documentation
-- **VLANs** -- track VLAN IDs with names and descriptions
-- **Security Zones** -- group VLANs into logical trust zones
-- **Equipment** -- document routers, switches, and other network devices
-- **Ports** -- full port configuration including native/tagged VLANs, LAG groups, PoE, speed, and port-to-port connections
-- **WiFi SSIDs** -- track wireless network names
-- **DNS Records** -- A records, aliases to reserved IPs, MX, TXT, and more
+- **VLANs** - track VLAN IDs with names and descriptions
+- **Security Zones** - group VLANs into logical trust zones
+- **Equipment** - document routers, switches, and other network devices
+- **Ports** - full port configuration including native/tagged VLANs, LAG groups, PoE, speed, and port-to-port connections
+- **WiFi SSIDs** - track wireless network names
+- **DNS Records** - A records, aliases to reserved IPs, MX, TXT, and more
 
 ### UX
-- Terminal UI built with [tview](https://github.com/rivo/tview) -- keyboard-driven, fast, works over SSH
+- Terminal UI built with [tview](https://github.com/rivo/tview) - keyboard-driven, fast, works over SSH
 - Context-sensitive keyboard shortcuts (press `?` for help)
 - External editor support (`Ctrl+E`) for long descriptions via `$EDITOR`
 - Fuzzy search for connecting ports and selecting items
@@ -128,8 +128,8 @@ This repository itself contains a `.ez-ipam` folder and [`EZ-IPAM.md`](./EZ-IPAM
 This project was inspired by:
 
 - [davidc.net/subnets.html](https://www.davidc.net/sites/default/subnets/subnets.html) by David C
-- [Visual Subnet Calculator](https://visualsubnetcalc.com/) -- the successor to subnets.html
-- [tview](https://github.com/rivo/tview) -- the excellent Go TUI framework that made this possible
+- [Visual Subnet Calculator](https://visualsubnetcalc.com/) - the successor to subnets.html
+- [tview](https://github.com/rivo/tview) - the excellent Go TUI framework that made this possible
 
 ## Contributing
 
