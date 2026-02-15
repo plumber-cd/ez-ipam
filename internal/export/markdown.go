@@ -205,11 +205,9 @@ func RenderMarkdown(catalog *domain.Catalog) (string, error) {
 				recordValue = formatDNSAliasValue(ip)
 			}
 			valueCell = markdownTableCell(defaultIfEmpty(recordValue, "-"))
-		} else {
-			if strings.TrimSpace(recordValue) != "" {
-				// Keep normal DNS record values copy-friendly in the report.
-				valueCell = markdownCode(recordValue)
-			}
+		} else if strings.TrimSpace(recordValue) != "" {
+			// Keep normal DNS record values copy-friendly in the report.
+			valueCell = markdownCode(recordValue)
 		}
 		dnsRows = append(dnsRows, map[string]string{
 			"FQDN":        markdownCode(record.ID),
