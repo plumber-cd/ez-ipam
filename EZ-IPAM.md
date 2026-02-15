@@ -9,8 +9,8 @@
 
 | Zone | VLANs | Description |
 |------|-------|-------------|
-| `Zone-Blue` | 318 (Segment-Gamma) | Demo trust zone blue |
-| `Zone-Red` | 147 (Segment-Alpha), 233 (Segment-Beta) | Demo trust zone red |
+| `Zone-Blue` | 147 (Segment-Alpha)<br>233 (Segment-Beta)<br>318 (Segment-Gamma) | Demo trust zone blue |
+| `Zone-Red` | 147 (Segment-Alpha)<br>233 (Segment-Beta)<br>318 (Segment-Gamma) | Demo trust zone red |
 ## VLANs
 
 | VLAN ID | Name | Description |
@@ -177,20 +177,20 @@
 
 | Port | Name | Type | Networks | Destination |
 |------|------|------|----------|-------------|
-| `1` | WAN | RJ45 2.5GbE | Native: Default Tagged: Block All | Uplink |
-| `2` | LAN-A | RJ45 2.5GbE | Native: 147 (Segment-Alpha) Tagged: Allow All | Clients |
-| `3` | - | RJ45 2.5GbE | Native: Default Tagged: - | - |
+| `1` | WAN | RJ45<br>2.5GbE | Native: 233 (Segment-Beta)<br>Tagged: - | - |
+| `2` | LAN-A | RJ45<br>2.5GbE | Native: 233 (Segment-Beta)<br>Tagged: - | - |
+| `3` | - | RJ45<br>2.5GbE | Native: <none><br>Tagged: - | - |
 ### Switch-Cobalt (Model-X)
 
 > Synthetic demo switch
 
 | Port | Name | Type | Networks | Destination |
 |------|------|------|----------|-------------|
-| `1` | SFP+ 1 | SFP+ 10GbE | Native: Default Tagged: Allow All | Trunk uplink |
-| `2` | SFP+ 2 | SFP+ 10GbE | Native: Default Tagged: Allow All | Trunk peer |
-| `3` | Port 3 | RJ45 PoE+ 2.5GbE | Native: 233 (Segment-Beta) Tagged: Block All | Endpoint A |
-| `4` | Port 4 | RJ45 PoE+ 2.5GbE | Native: 233 (Segment-Beta) Tagged: Block All | Endpoint B |
-| `5` | - | RJ45 2.5GbE | Native: Default Tagged: - | - |
+| `1` | SFP+ 1 | SFP+<br>10GbE | Native: 147 (Segment-Alpha)<br>Tagged: - | - |
+| `2` | SFP+ 2 | SFP+<br>10GbE | Native: 147 (Segment-Alpha)<br>Tagged: - | - |
+| `3` | Port 3Endpoint A | RJ45<br>2.5GbE<br>PoE+ | Native: 233 (Segment-Beta)<br>Tagged: Block All | - |
+| `4` | Port 4Endpoint B | RJ45<br>2.5GbE<br>PoE+ | Native: 233 (Segment-Beta)<br>Tagged: Block All | - |
+| `5` | - | RJ45<br>2.5GbE | Native: <none><br>Tagged: - | - |
 
 ## Detailed Networks
 

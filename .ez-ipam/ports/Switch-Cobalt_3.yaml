@@ -1,8 +1,7 @@
-description: Endpoint A
 id: "3"
 lag_group: 3
 lag_mode: 802.3ad
-name: Port 3
+name: Port 3Endpoint A
 native_vlan_id: 233
 parent: Equipment -> Switch-Cobalt
 poe: PoE+

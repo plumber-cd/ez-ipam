@@ -4,69 +4,29 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/plumber-cd/ez-ipam/internal/domain"
+	"github.com/plumber-cd/ez-ipam/internal/store"
 )
 
-func currentFocusID() string {
-	done := make(chan string, 1)
-	app.QueueUpdateDraw(func() {
-		if currentMenuFocus == nil {
-			done <- ""
-			return
-		}
-		done <- currentMenuFocus.GetID()
-	})
-	return <-done
+func runAppUpdate(h *TestHarness, fn func()) {
+	fn()
+	h.WaitForDraw()
 }
 
-func currentKeys() ([]string, []string) {
-	done := make(chan struct {
-		menu  []string
-		focus []string
-	}, 1)
-	app.QueueUpdateDraw(func() {
-		menuCopy := append([]string{}, currentMenuItemKeys...)
-		focusCopy := append([]string{}, currentFocusKeys...)
-		done <- struct {
-			menu  []string
-			focus []string
-		}{menu: menuCopy, focus: focusCopy}
-	})
-	v := <-done
-	return v.menu, v.focus
-}
-
-func currentStatusText() string {
-	done := make(chan string, 1)
-	app.QueueUpdateDraw(func() {
-		done <- statusLine.GetText(true)
-	})
-	return <-done
-}
-
-func focusMatches(id string) bool {
-	return strings.HasPrefix(currentFocusID(), id)
-}
-
-func moveFocusToID(t *testing.T, h *TestHarness, id string) {
+func mustAtoi(t *testing.T, value string) int {
 	t.Helper()
-	for i := 0; i < 40; i++ {
-		h.PressRune('k')
+	i, err := strconv.Atoi(value)
+	if err != nil {
+		t.Fatalf("invalid integer %q: %v", value, err)
 	}
-	if focusMatches(id) {
-		return
-	}
-	for i := 0; i < 200; i++ {
-		if focusMatches(id) {
-			return
-		}
-		h.PressRune('j')
-	}
-	t.Fatalf("could not focus item %q; current=%q", id, currentFocusID())
+	return i
 }
 
 func addNetworkViaDialog(h *TestHarness, cidr string) {
@@ -88,9 +48,11 @@ func allocateSubnetsFocused(h *TestHarness, name, description, vlanID, prefix st
 	h.TypeText(name)
 	h.PressTab()
 	h.TypeText(description)
-	h.PressTab()
-	h.TypeText(vlanID)
-	h.PressTab()
+	h.PressTab() // VLAN dropdown
+	if strings.TrimSpace(vlanID) != "" {
+		h.SelectDropdownOption("VLAN ID", strings.TrimSpace(vlanID))
+	}
+	h.PressTab() // Child Prefix Len
 	h.TypeText(prefix)
 	h.PressEnter()
 }
@@ -101,9 +63,11 @@ func allocateHostsFocused(h *TestHarness, name, description, vlanID string) {
 	h.TypeText(name)
 	h.PressTab()
 	h.TypeText(description)
-	h.PressTab()
-	h.TypeText(vlanID)
-	h.PressTab()
+	h.PressTab() // VLAN dropdown
+	if strings.TrimSpace(vlanID) != "" {
+		h.SelectDropdownOption("VLAN ID", strings.TrimSpace(vlanID))
+	}
+	h.PressTab() // Save button
 	h.PressEnter()
 }
 
@@ -113,9 +77,11 @@ func updateAllocationFocused(h *TestHarness, nameSuffix, descriptionSuffix, vlan
 	h.TypeText(nameSuffix)
 	h.PressTab()
 	h.TypeText(descriptionSuffix)
-	h.PressTab()
-	h.TypeText(vlanID)
-	h.PressTab()
+	h.PressTab() // VLAN dropdown
+	if strings.TrimSpace(vlanID) != "" {
+		h.SelectDropdownOption("VLAN ID", strings.TrimSpace(vlanID))
+	}
+	h.PressTab() // Save button
 	h.PressEnter()
 }
 
@@ -134,7 +100,7 @@ func reserveIPFromCurrentNetwork(h *TestHarness, ip, name, description string) {
 func navigateToVLANs(t *testing.T, h *TestHarness) {
 	t.Helper()
 	h.PressBackspace()
-	moveFocusToID(t, h, "VLANs")
+	h.MoveFocusToID(t, "VLANs")
 	h.PressEnter()
 	h.AssertScreenContains("│VLANs")
 }
@@ -142,22 +108,22 @@ func navigateToVLANs(t *testing.T, h *TestHarness) {
 func navigateToSSIDs(t *testing.T, h *TestHarness) {
 	t.Helper()
 	h.PressBackspace()
-	moveFocusToID(t, h, "WiFi SSIDs")
+	h.MoveFocusToID(t, "WiFi SSIDs")
 	h.PressEnter()
 	h.AssertScreenContains("│WiFi SSIDs")
 }
 
 func navigateToNetworksRoot(t *testing.T, h *TestHarness) {
 	t.Helper()
-	for i := 0; i < 16; i++ {
+	for range 16 {
 		h.PressBackspace()
 	}
-	moveFocusToID(t, h, "Networks")
+	h.MoveFocusToID(t, "Networks")
 	h.PressEnter()
 	h.AssertScreenContains("│Networks")
 }
 
-func addVLANViaDialog(h *TestHarness, id, name, description string) {
+func addVLANViaDialog(h *TestHarness, id, name, description, zone string) {
 	h.PressRune('v')
 	h.AssertScreenContains("Add VLAN")
 	h.TypeText(id)
@@ -165,7 +131,11 @@ func addVLANViaDialog(h *TestHarness, id, name, description string) {
 	h.TypeText(name)
 	h.PressTab()
 	h.TypeText(description)
-	h.PressTab()
+	h.PressTab() // Zone dropdown
+	if strings.TrimSpace(zone) != "" {
+		h.SelectDropdownOption("Zone", strings.TrimSpace(zone))
+	}
+	h.PressTab() // Save button
 	h.PressEnter()
 }
 
@@ -181,20 +151,20 @@ func addSSIDViaDialog(h *TestHarness, id, description string) {
 
 func navigateToZones(t *testing.T, h *TestHarness) {
 	t.Helper()
-	for i := 0; i < 16; i++ {
+	for range 16 {
 		h.PressBackspace()
 	}
-	moveFocusToID(t, h, "Zones")
+	h.MoveFocusToID(t, "Zones")
 	h.PressEnter()
 	h.AssertScreenContains("│Zones")
 }
 
 func navigateToEquipmentRoot(t *testing.T, h *TestHarness) {
 	t.Helper()
-	for i := 0; i < 16; i++ {
+	for range 16 {
 		h.PressBackspace()
 	}
-	moveFocusToID(t, h, "Equipment")
+	h.MoveFocusToID(t, "Equipment")
 	h.PressEnter()
 	h.AssertScreenContains("│Equipment")
 }
@@ -205,10 +175,21 @@ func addZoneViaDialog(h *TestHarness, name, description, vlanIDs string) {
 	h.TypeText(name)
 	h.PressTab()
 	h.TypeText(description)
-	h.PressTab()
-	h.TypeText(vlanIDs)
-	h.PressTab()
-	h.PressEnter()
+	requested := strings.TrimSpace(vlanIDs)
+	if requested != "" {
+		parts := strings.Split(requested, ",")
+		for range parts {
+			h.PressTab()
+			h.ToggleCheckbox()
+		}
+	}
+	for range 8 {
+		h.PressTab()
+		h.PressEnter()
+		if !strings.Contains(h.GetScreenText(), "Add Zone") {
+			return
+		}
+	}
 }
 
 func addEquipmentViaDialog(h *TestHarness, name, model, description string) {
@@ -235,20 +216,58 @@ func addPortViaDialog(h *TestHarness, number, name, portType, speed, poe, lagGro
 	h.TypeText(speed)
 	h.PressTab()
 	h.TypeText(poe)
-	h.PressTab()
-	h.TypeText(lagGroup)
-	h.PressTab()
-	h.TypeText(lagMode)
-	h.PressTab()
-	h.TypeText(nativeVLAN)
-	h.PressTab()
-	h.TypeText(taggedMode)
-	h.PressTab()
-	h.TypeText(taggedVLANIDs)
-	h.PressTab()
+	h.PressTab() // LAG Mode dropdown
+	if strings.TrimSpace(lagMode) != "" {
+		// LAG mode dropdown rebuilds the dialog when changed; drive it with keys.
+		h.PressEnter()
+		h.PressDown() // Disabled -> 802.3ad
+		h.PressEnter()
+		// Re-opened dialog resets focus to first field; move to LAG Group and fill it.
+		for range 6 {
+			h.PressTab()
+		}
+		h.TypeText(lagGroup)
+		h.PressTab()
+	} else {
+		// Native VLAN dropdown
+	}
+	if strings.TrimSpace(nativeVLAN) != "" {
+		h.SelectDropdownOption("Native VLAN ID", nativeVLAN)
+	}
+	h.PressTab() // Tagged VLAN Mode dropdown
+	if strings.TrimSpace(taggedMode) != "" {
+		h.PressEnter()
+		switch strings.TrimSpace(taggedMode) {
+		case "AllowAll":
+			h.PressDown()
+		case "BlockAll":
+			h.PressDown()
+			h.PressDown()
+		case "Custom":
+			h.PressDown()
+			h.PressDown()
+			h.PressDown()
+		}
+		h.PressEnter()
+		if strings.EqualFold(strings.TrimSpace(taggedMode), "Custom") && strings.TrimSpace(taggedVLANIDs) != "" {
+			for _, vlan := range strings.Split(taggedVLANIDs, ",") {
+				if strings.TrimSpace(vlan) == "" {
+					continue
+				}
+				h.PressTab()
+				h.ToggleCheckbox()
+			}
+		}
+	}
+	h.PressTab() // Description textarea
 	h.TypeText(description)
-	h.PressTab()
-	h.PressEnter()
+	for range 10 {
+		h.PressTab()
+		h.PressEnter()
+		if !strings.Contains(h.GetScreenText(), "Add Port") {
+			return
+		}
+	}
 }
 
 func updateFocusedIPReservation(h *TestHarness, nameSuffix, descriptionSuffix string) {
@@ -267,6 +286,17 @@ func assertPrimaryCancelVisible(t *testing.T, h *TestHarness, primary string) {
 	h.AssertScreenContains("Cancel")
 }
 
+func stepSnapshot(h *TestHarness, entity string, step *int, description string) {
+	clean := strings.ToLower(strings.TrimSpace(description))
+	clean = strings.ReplaceAll(clean, " ", "_")
+	clean = strings.ReplaceAll(clean, "/", "_")
+	clean = strings.ReplaceAll(clean, "-", "_")
+	clean = strings.ReplaceAll(clean, "__", "_")
+	name := fmt.Sprintf("%s_%02d_%s", entity, *step, clean)
+	h.AssertGoldenSnapshot(name)
+	*step = *step + 1
+}
+
 func TestInitialStateAndGolden(t *testing.T) {
 	h := NewTestHarness(t)
 	h.AssertScreenContains("Home")
@@ -278,7 +308,7 @@ func TestInitialStateAndGolden(t *testing.T) {
 func TestVimNavigationAndKeysLineContext(t *testing.T) {
 	h := NewTestHarness(t)
 	h.NavigateToNetworks()
-	menuKeys, _ := currentKeys()
+	menuKeys, _ := h.CurrentKeys()
 	if len(menuKeys) != 1 || menuKeys[0] != "<n> New Network" {
 		t.Fatalf("unexpected menu keys: %#v", menuKeys)
 	}
@@ -286,40 +316,40 @@ func TestVimNavigationAndKeysLineContext(t *testing.T) {
 	addNetworkViaDialog(h, "10.0.0.0/24")
 	addNetworkViaDialog(h, "10.0.1.0/24")
 
-	moveFocusToID(t, h, "10.0.0.0/24")
-	_, focusKeys := currentKeys()
+	h.MoveFocusToID(t, "10.0.0.0/24")
+	_, focusKeys := h.CurrentKeys()
 	if !strings.Contains(strings.Join(focusKeys, " | "), "<a> Allocate Subnet Container") {
 		t.Fatalf("expected allocation keys on unallocated network, got %#v", focusKeys)
 	}
 	h.PressRune('j')
-	if !focusMatches("10.0.1.0/24") {
-		t.Fatalf("expected focus on 10.0.1.0/24, got %q", currentFocusID())
+	if !h.FocusMatches("10.0.1.0/24") {
+		t.Fatalf("expected focus on 10.0.1.0/24, got %q", h.CurrentFocusID())
 	}
 	h.PressRune('k')
-	if !focusMatches("10.0.0.0/24") {
-		t.Fatalf("expected focus back on 10.0.0.0/24, got %q", currentFocusID())
+	if !h.FocusMatches("10.0.0.0/24") {
+		t.Fatalf("expected focus back on 10.0.0.0/24, got %q", h.CurrentFocusID())
 	}
 	h.PressRune('l')
 	h.AssertScreenContains("10.0.0.0/24")
 	h.PressRune('h')
 	h.AssertScreenContains("│Networks")
 
-	moveFocusToID(t, h, "10.0.0.0/24")
+	h.MoveFocusToID(t, "10.0.0.0/24")
 	allocateHostsFocused(h, "Web", "Tier", "")
 	h.AssertScreenContains("Allocated network")
 	h.PressEnter()
-	menuKeys, _ = currentKeys()
+	menuKeys, _ = h.CurrentKeys()
 	if !strings.Contains(strings.Join(menuKeys, " | "), "<r> Reserve IP") {
 		t.Fatalf("expected reserve key on hosts network, got %#v", menuKeys)
 	}
 	reserveIPFromCurrentNetwork(h, "10.0.0.1", "gw", "gateway")
 	h.AssertScreenContains("Reserved IP")
-	_, focusKeys = currentKeys()
+	_, focusKeys = h.CurrentKeys()
 	if !strings.Contains(strings.Join(focusKeys, " | "), "<u> Update Reservation") {
 		t.Fatalf("expected ip reservation keys, got %#v", focusKeys)
 	}
 
-	moveFocusToID(t, h, "10.0.0.1 (gw)")
+	h.MoveFocusToID(t, "10.0.0.1 (gw)")
 	h.PressBackspace()
 	h.AssertScreenContains("│Networks")
 }
@@ -367,31 +397,31 @@ func TestSplitNetworkBranches(t *testing.T) {
 		h := NewTestHarness(t)
 		h.NavigateToNetworks()
 		addNetworkViaDialog(h, "10.0.0.0/24")
-		moveFocusToID(t, h, "10.0.0.0/24")
+		h.MoveFocusToID(t, "10.0.0.0/24")
 		return h
 	}
 
 	t.Run("invalid_prefix_input", func(t *testing.T) {
 		h := setup(t)
 		splitFocusedNetwork(h, "bad")
-		if !strings.Contains(currentStatusText(), "Invalid prefix length") {
-			t.Fatalf("expected invalid prefix error, got %q", currentStatusText())
+		if !strings.Contains(h.CurrentStatusText(), "Invalid prefix length") {
+			t.Fatalf("expected invalid prefix error, got %q", h.CurrentStatusText())
 		}
 	})
 
 	t.Run("prefix_too_small", func(t *testing.T) {
 		h := setup(t)
 		splitFocusedNetwork(h, "23")
-		if !strings.Contains(currentStatusText(), "Error splitting network") {
-			t.Fatalf("expected split error, got %q", currentStatusText())
+		if !strings.Contains(h.CurrentStatusText(), "Error splitting network") {
+			t.Fatalf("expected split error, got %q", h.CurrentStatusText())
 		}
 	})
 
 	t.Run("prefix_too_large", func(t *testing.T) {
 		h := setup(t)
 		splitFocusedNetwork(h, "33")
-		if !strings.Contains(currentStatusText(), "Error splitting network") {
-			t.Fatalf("expected split error, got %q", currentStatusText())
+		if !strings.Contains(h.CurrentStatusText(), "Error splitting network") {
+			t.Fatalf("expected split error, got %q", h.CurrentStatusText())
 		}
 	})
 
@@ -408,7 +438,7 @@ func TestSummarizeNetwork(t *testing.T) {
 	h.NavigateToNetworks()
 	addNetworkViaDialog(h, "10.0.0.0/25")
 	addNetworkViaDialog(h, "10.0.0.128/25")
-	moveFocusToID(t, h, "10.0.0.0/25")
+	h.MoveFocusToID(t, "10.0.0.0/25")
 
 	h.PressRune('S')
 	h.AssertScreenContains("Summarize in Networks")
@@ -424,7 +454,7 @@ func TestDeleteNetworkBranches(t *testing.T) {
 		h := NewTestHarness(t)
 		h.NavigateToNetworks()
 		addNetworkViaDialog(h, "10.0.0.0/24")
-		moveFocusToID(t, h, "10.0.0.0/24")
+		h.MoveFocusToID(t, "10.0.0.0/24")
 
 		h.PressRune('D')
 		h.AssertScreenContains("Delete 10.0.0.0/24")
@@ -443,9 +473,9 @@ func TestDeleteNetworkBranches(t *testing.T) {
 		h := NewTestHarness(t)
 		h.NavigateToNetworks()
 		addNetworkViaDialog(h, "10.0.0.0/24")
-		moveFocusToID(t, h, "10.0.0.0/24")
+		h.MoveFocusToID(t, "10.0.0.0/24")
 		splitFocusedNetwork(h, "25")
-		moveFocusToID(t, h, "10.0.0.0/25")
+		h.MoveFocusToID(t, "10.0.0.0/25")
 
 		h.PressRune('D')
 		h.AssertScreenNotContains("Delete 10.0.0.0/25?")
@@ -459,7 +489,7 @@ func TestAllocateSubnetsBranches(t *testing.T) {
 		h := NewTestHarness(t)
 		h.NavigateToNetworks()
 		addNetworkViaDialog(h, "10.0.0.0/24")
-		moveFocusToID(t, h, "10.0.0.0/24")
+		h.MoveFocusToID(t, "10.0.0.0/24")
 		return h
 	}
 
@@ -472,8 +502,8 @@ func TestAllocateSubnetsBranches(t *testing.T) {
 	t.Run("invalid_prefix", func(t *testing.T) {
 		h := setup(t)
 		allocateSubnetsFocused(h, "Prod", "desc", "", "bad")
-		if !strings.Contains(currentStatusText(), "Invalid subnet prefix length") {
-			t.Fatalf("expected invalid subnet prefix error, got %q", currentStatusText())
+		if !strings.Contains(h.CurrentStatusText(), "Invalid subnet prefix length") {
+			t.Fatalf("expected invalid subnet prefix error, got %q", h.CurrentStatusText())
 		}
 	})
 
@@ -488,7 +518,7 @@ func TestAllocateHostsBranches(t *testing.T) {
 	h := NewTestHarness(t)
 	h.NavigateToNetworks()
 	addNetworkViaDialog(h, "192.168.1.0/24")
-	moveFocusToID(t, h, "192.168.1.0/24")
+	h.MoveFocusToID(t, "192.168.1.0/24")
 
 	allocateHostsFocused(h, "", "", "")
 	h.AssertStatusContains("Error allocating network")
@@ -501,7 +531,7 @@ func TestUpdateAllocationAndDeallocate(t *testing.T) {
 	h := NewTestHarness(t)
 	h.NavigateToNetworks()
 	addNetworkViaDialog(h, "10.0.0.0/24")
-	moveFocusToID(t, h, "10.0.0.0/24")
+	h.MoveFocusToID(t, "10.0.0.0/24")
 	allocateHostsFocused(h, "Web", "servers", "")
 
 	updateAllocationFocused(h, "-2", " updated", "")
@@ -524,7 +554,7 @@ func TestReserveUpdateUnreserveIPBranches(t *testing.T) {
 	h := NewTestHarness(t)
 	h.NavigateToNetworks()
 	addNetworkViaDialog(h, "192.168.1.0/24")
-	moveFocusToID(t, h, "192.168.1.0/24")
+	h.MoveFocusToID(t, "192.168.1.0/24")
 	allocateHostsFocused(h, "Office", "LAN", "")
 	h.PressEnter()
 
@@ -542,7 +572,7 @@ func TestReserveUpdateUnreserveIPBranches(t *testing.T) {
 	reserveIPFromCurrentNetwork(h, "fd00::1", "x", "y")
 	h.AssertStatusContains("Error reserving IP")
 
-	moveFocusToID(t, h, "192.168.1.1 (gateway)")
+	h.MoveFocusToID(t, "192.168.1.1 (gateway)")
 	updateFocusedIPReservation(h, "-1", " updated")
 	h.AssertStatusContains("Updated IP reservation")
 	h.AssertScreenContains("192.168.1.1 (gateway-1)")
@@ -564,26 +594,26 @@ func TestAddVLANBranches(t *testing.T) {
 	h := NewTestHarness(t)
 	navigateToVLANs(t, h)
 
-	addVLANViaDialog(h, "100", "Management", "infra management")
+	addVLANViaDialog(h, "100", "Management", "infra management", "")
 	h.AssertStatusContains("Added VLAN")
 
-	addVLANViaDialog(h, "0", "Invalid", "bad")
+	addVLANViaDialog(h, "0", "Invalid", "bad", "")
 	h.AssertStatusContains("Error adding VLAN")
-	addVLANViaDialog(h, "4095", "Invalid", "bad")
+	addVLANViaDialog(h, "4095", "Invalid", "bad", "")
 	h.AssertStatusContains("Error adding VLAN")
-	addVLANViaDialog(h, "bad", "Invalid", "bad")
+	addVLANViaDialog(h, "bad", "Invalid", "bad", "")
 	h.AssertStatusContains("Error adding VLAN")
-	addVLANViaDialog(h, "101", "", "missing name")
+	addVLANViaDialog(h, "101", "", "missing name", "")
 	h.AssertStatusContains("Error adding VLAN")
-	addVLANViaDialog(h, "100", "Duplicate", "dup")
+	addVLANViaDialog(h, "100", "Duplicate", "dup", "")
 	h.AssertStatusContains("Error adding VLAN")
 }
 
 func TestUpdateAndDeleteVLAN(t *testing.T) {
 	h := NewTestHarness(t)
 	navigateToVLANs(t, h)
-	addVLANViaDialog(h, "200", "Users", "user segment")
-	moveFocusToID(t, h, "200 (Users)")
+	addVLANViaDialog(h, "200", "Users", "user segment", "")
+	h.MoveFocusToID(t, "200 (Users)")
 
 	h.PressRune('u')
 	h.AssertScreenContains("Update VLAN")
@@ -591,6 +621,7 @@ func TestUpdateAndDeleteVLAN(t *testing.T) {
 	h.PressTab()
 	h.TypeText(" updated")
 	h.PressTab()
+	h.PressTab() // Zone dropdown -> Save button
 	h.PressEnter()
 	h.AssertStatusContains("Updated VLAN")
 	h.AssertScreenContains("200 (Users-2)")
@@ -623,7 +654,7 @@ func TestUpdateAndDeleteSSID(t *testing.T) {
 	h := NewTestHarness(t)
 	navigateToSSIDs(t, h)
 	addSSIDViaDialog(h, "Home-IoT", "IoT devices")
-	moveFocusToID(t, h, "Home-IoT")
+	h.MoveFocusToID(t, "Home-IoT")
 
 	h.PressRune('u')
 	h.AssertScreenContains("Update WiFi SSID")
@@ -647,58 +678,58 @@ func TestUpdateAndDeleteSSID(t *testing.T) {
 func TestNetworkVLANAssignment(t *testing.T) {
 	h := NewTestHarness(t)
 	navigateToVLANs(t, h)
-	addVLANViaDialog(h, "300", "Servers", "servers vlan")
+	addVLANViaDialog(h, "300", "Servers", "servers vlan", "")
 
 	navigateToNetworksRoot(t, h)
 	addNetworkViaDialog(h, "10.50.0.0/24")
-	moveFocusToID(t, h, "10.50.0.0/24")
+	h.MoveFocusToID(t, "10.50.0.0/24")
 	allocateHostsFocused(h, "Servers", "pool", "300")
 	h.AssertStatusContains("Allocated network")
 	h.AssertScreenContains("300 (Servers)")
 
 	addNetworkViaDialog(h, "10.51.0.0/24")
-	moveFocusToID(t, h, "10.51.0.0/24")
-	allocateHostsFocused(h, "Invalid", "pool", "999")
-	h.AssertStatusContains("Error allocating network")
+	h.MoveFocusToID(t, "10.51.0.0/24")
+	allocateHostsFocused(h, "NoVLAN", "pool", "")
+	h.AssertStatusContains("Allocated network")
 }
 
 func TestVLANCrossReference(t *testing.T) {
 	h := NewTestHarness(t)
 	navigateToVLANs(t, h)
-	addVLANViaDialog(h, "400", "Apps", "application vlan")
+	addVLANViaDialog(h, "400", "Apps", "application vlan", "")
 
 	navigateToNetworksRoot(t, h)
 	addNetworkViaDialog(h, "10.60.0.0/24")
-	moveFocusToID(t, h, "10.60.0.0/24")
+	h.MoveFocusToID(t, "10.60.0.0/24")
 	allocateHostsFocused(h, "Apps", "pool", "400")
 	h.AssertStatusContains("Allocated network")
 
 	h.PressBackspace()
 	navigateToVLANs(t, h)
-	moveFocusToID(t, h, "400 (Apps)")
+	h.MoveFocusToID(t, "400 (Apps)")
 	h.AssertScreenContains("10.60.0.0/24")
 }
 
 func TestZonesAndVLANCascade(t *testing.T) {
 	h := NewTestHarness(t)
 	navigateToVLANs(t, h)
-	addVLANViaDialog(h, "101", "Main", "main vlan")
+	addVLANViaDialog(h, "101", "Main", "main vlan", "")
 	h.AssertStatusContains("Added VLAN")
 
 	navigateToZones(t, h)
 	addZoneViaDialog(h, "Main", "trusted clients", "101")
 	h.AssertStatusContains("Added Zone")
-	moveFocusToID(t, h, "Main")
+	h.MoveFocusToID(t, "Main")
 	h.AssertScreenContains("101 (Main)")
 
 	navigateToVLANs(t, h)
-	moveFocusToID(t, h, "101 (Main)")
+	h.MoveFocusToID(t, "101 (Main)")
 	h.PressRune('D')
 	h.ConfirmModal()
 	h.AssertStatusContains("Deleted VLAN")
 
 	navigateToZones(t, h)
-	moveFocusToID(t, h, "Main")
+	h.MoveFocusToID(t, "Main")
 	h.AssertScreenContains("Associated VLANs")
 	h.AssertScreenContains("<none>")
 }
@@ -710,7 +741,7 @@ func TestEquipmentPortAndConnections(t *testing.T) {
 	addEquipmentViaDialog(h, "Lab", "USW-Enterprise-8-PoE", "lab switch")
 	h.AssertStatusContains("Added Equipment")
 
-	moveFocusToID(t, h, "Gateway (UCG-Fiber)")
+	h.MoveFocusToID(t, "Gateway (UCG-Fiber)")
 	h.PressEnter()
 	addPortViaDialog(h, "1", "WAN1", "RJ45", "2.5GbE", "", "", "", "", "", "", "uplink")
 	h.AssertStatusContains("Added Port")
@@ -718,7 +749,7 @@ func TestEquipmentPortAndConnections(t *testing.T) {
 	h.AssertStatusContains("Added Port")
 
 	h.PressBackspace()
-	moveFocusToID(t, h, "Lab (USW-Enterprise-8-PoE)")
+	h.MoveFocusToID(t, "Lab (USW-Enterprise-8-PoE)")
 	h.PressEnter()
 	addPortViaDialog(h, "1", "SFP+ 1", "SFP+", "10GbE", "", "", "", "", "", "", "")
 	h.AssertStatusContains("Added Port")
@@ -726,9 +757,9 @@ func TestEquipmentPortAndConnections(t *testing.T) {
 	h.AssertStatusContains("Error adding Port")
 
 	h.PressBackspace()
-	moveFocusToID(t, h, "Gateway (UCG-Fiber)")
+	h.MoveFocusToID(t, "Gateway (UCG-Fiber)")
 	h.PressEnter()
-	moveFocusToID(t, h, "1: WAN1")
+	h.MoveFocusToID(t, "1: WAN1")
 	h.PressRune('c')
 	h.AssertScreenContains("Connect")
 	h.PressTab()
@@ -744,21 +775,21 @@ func TestEquipmentPortAndConnections(t *testing.T) {
 func TestMarkdownIncludesZonesAndEquipment(t *testing.T) {
 	h := NewTestHarness(t)
 	navigateToVLANs(t, h)
-	addVLANViaDialog(h, "104", "Servers", "servers vlan")
+	addVLANViaDialog(h, "104", "Servers", "servers vlan", "")
 
 	navigateToZones(t, h)
 	addZoneViaDialog(h, "Servers", "server zone", "104")
 
 	navigateToEquipmentRoot(t, h)
 	addEquipmentViaDialog(h, "Servers", "USW-Aggregation", "agg switch")
-	moveFocusToID(t, h, "Servers (USW-Aggregation)")
+	h.MoveFocusToID(t, "Servers (USW-Aggregation)")
 	h.PressEnter()
 	addPortViaDialog(h, "1", "SFP+ 1", "SFP+", "10GbE", "", "", "", "104", "BlockAll", "", "proxmox uplink")
 
 	h.PressCtrl('s')
 	h.AssertStatusContains("Saved to .ez-ipam/ and EZ-IPAM.md")
 
-	mdBytes, err := os.ReadFile(filepath.Join(h.workDir, markdownFileName))
+	mdBytes, err := os.ReadFile(filepath.Join(h.workDir, store.MarkdownFileName))
 	if err != nil {
 		t.Fatalf("read markdown: %v", err)
 	}
@@ -785,10 +816,10 @@ func TestSaveLoadAndQuit(t *testing.T) {
 		h.PressCtrl('s')
 		h.AssertStatusContains("Saved to .ez-ipam/ and EZ-IPAM.md")
 
-		if _, err := os.Stat(filepath.Join(h.workDir, dataDirName, networksDirName)); err != nil {
+		if _, err := os.Stat(filepath.Join(h.workDir, store.DataDirName, "networks")); err != nil {
 			t.Fatalf("networks dir missing: %v", err)
 		}
-		mdBytes, err := os.ReadFile(filepath.Join(h.workDir, markdownFileName))
+		mdBytes, err := os.ReadFile(filepath.Join(h.workDir, store.MarkdownFileName))
 		if err != nil {
 			t.Fatalf("read markdown: %v", err)
 		}
@@ -841,13 +872,308 @@ func TestSaveLoadAndQuit(t *testing.T) {
 	})
 }
 
+func TestHomeNavigation(t *testing.T) {
+	h := NewTestHarness(t)
+	step := 1
+	stepSnapshot(h, "home", &step, "initial_home")
+
+	h.NavigateToNetworks()
+	stepSnapshot(h, "home", &step, "networks_folder")
+	h.PressBackspace()
+
+	h.MoveFocusToID(t, "VLANs")
+	h.PressEnter()
+	stepSnapshot(h, "home", &step, "vlans_folder")
+	h.PressBackspace()
+
+	h.MoveFocusToID(t, "WiFi SSIDs")
+	h.PressEnter()
+	stepSnapshot(h, "home", &step, "ssids_folder")
+	h.PressBackspace()
+
+	h.MoveFocusToID(t, "Zones")
+	h.PressEnter()
+	stepSnapshot(h, "home", &step, "zones_folder")
+	h.PressBackspace()
+
+	h.MoveFocusToID(t, "Equipment")
+	h.PressEnter()
+	stepSnapshot(h, "home", &step, "equipment_folder")
+	h.PressBackspace()
+}
+
+func TestNetworksLifecycle(t *testing.T) {
+	h := NewTestHarness(t)
+	step := 1
+	h.NavigateToNetworks()
+	stepSnapshot(h, "networks", &step, "folder_empty")
+
+	h.PressRune('n')
+	stepSnapshot(h, "networks", &step, "add_dialog")
+	h.PressEscape()
+
+	addNetworkViaDialog(h, "10.0.0.0/24")
+	stepSnapshot(h, "networks", &step, "added_ipv4")
+	addNetworkViaDialog(h, "fd00::/64")
+	stepSnapshot(h, "networks", &step, "added_ipv6")
+
+	h.MoveFocusToID(t, "10.0.0.0/24")
+	h.PressRune('s')
+	stepSnapshot(h, "networks", &step, "split_dialog")
+	h.PressEscape()
+	splitFocusedNetwork(h, "25")
+	stepSnapshot(h, "networks", &step, "split_into_25")
+
+	h.MoveFocusToID(t, "10.0.0.0/25")
+	h.PressRune('S')
+	stepSnapshot(h, "networks", &step, "summarize_dialog")
+	h.PressTab()
+	h.PressTab()
+	h.PressEnter()
+	stepSnapshot(h, "networks", &step, "summarized_to_24")
+
+	h.MoveFocusToID(t, "10.0.0.0/24")
+	h.PressRune('a')
+	stepSnapshot(h, "networks", &step, "allocate_subnets_dialog")
+	h.PressEscape()
+	allocateSubnetsFocused(h, "Prod", "subnets", "", "25")
+	stepSnapshot(h, "networks", &step, "allocated_subnets")
+
+	h.PressRune('u')
+	stepSnapshot(h, "networks", &step, "update_dialog")
+	h.PressEscape()
+	updateAllocationFocused(h, "-new", " metadata", "")
+	stepSnapshot(h, "networks", &step, "updated_metadata")
+
+	h.PressRune('d')
+	stepSnapshot(h, "networks", &step, "deallocate_confirm")
+	h.CancelModal()
+	stepSnapshot(h, "networks", &step, "deallocate_cancel")
+	h.PressRune('d')
+	h.ConfirmModal()
+	stepSnapshot(h, "networks", &step, "deallocated")
+
+	allocateHostsFocused(h, "Hosts", "pool", "")
+	stepSnapshot(h, "networks", &step, "allocated_hosts")
+	h.PressEnter()
+	h.PressRune('r')
+	stepSnapshot(h, "networks", &step, "reserve_ip_dialog")
+	h.PressEscape()
+	reserveIPFromCurrentNetwork(h, "10.0.0.1", "gw", "gateway")
+	stepSnapshot(h, "networks", &step, "ip_reserved")
+
+	h.MoveFocusToID(t, "10.0.0.1 (gw)")
+	h.PressRune('u')
+	stepSnapshot(h, "networks", &step, "update_ip_dialog")
+	h.PressEscape()
+	updateFocusedIPReservation(h, "-x", " updated")
+	stepSnapshot(h, "networks", &step, "ip_updated")
+
+	h.PressRune('R')
+	stepSnapshot(h, "networks", &step, "unreserve_confirm")
+	h.CancelModal()
+	stepSnapshot(h, "networks", &step, "unreserve_cancel")
+	h.PressRune('R')
+	h.ConfirmModal()
+	stepSnapshot(h, "networks", &step, "ip_unreserved")
+}
+
+func TestNetworksNegative(t *testing.T) {
+	h := NewTestHarness(t)
+	step := 1
+	h.NavigateToNetworks()
+
+	addNetworkViaDialog(h, "not-a-cidr")
+	stepSnapshot(h, "networks_negative", &step, "invalid_cidr")
+	addNetworkViaDialog(h, "10.0.0.1/24")
+	stepSnapshot(h, "networks_negative", &step, "host_not_network")
+	addNetworkViaDialog(h, "10.0.0.0/24")
+	addNetworkViaDialog(h, "10.0.0.0/24")
+	stepSnapshot(h, "networks_negative", &step, "duplicate_network")
+	addNetworkViaDialog(h, "10.0.0.128/25")
+	stepSnapshot(h, "networks_negative", &step, "overlap_network")
+
+	h.MoveFocusToID(t, "10.0.0.0/24")
+	splitFocusedNetwork(h, "bad")
+	stepSnapshot(h, "networks_negative", &step, "split_invalid_prefix")
+	h.PressEscape()
+	allocateSubnetsFocused(h, "", "", "", "25")
+	stepSnapshot(h, "networks_negative", &step, "allocate_empty_name")
+	allocateHostsFocused(h, "", "", "")
+	stepSnapshot(h, "networks_negative", &step, "allocate_hosts_empty_name")
+}
+
+func TestVLANsLifecycleAndNegative(t *testing.T) {
+	h := NewTestHarness(t)
+	step := 1
+	navigateToVLANs(t, h)
+	stepSnapshot(h, "vlans", &step, "folder_empty")
+
+	h.PressRune('v')
+	stepSnapshot(h, "vlans", &step, "add_dialog")
+	h.PressEscape()
+
+	addVLANViaDialog(h, "100", "Management", "infra", "")
+	stepSnapshot(h, "vlans", &step, "added_100")
+	addVLANViaDialog(h, "200", "Users", "clients", "")
+	stepSnapshot(h, "vlans", &step, "added_200")
+
+	h.MoveFocusToID(t, "200 (Users)")
+	h.PressRune('u')
+	stepSnapshot(h, "vlans", &step, "update_dialog")
+	h.PressEscape()
+	h.PressRune('u')
+	h.TypeText("-new")
+	h.PressTab()
+	h.TypeText(" updated")
+	h.PressTab()
+	h.PressTab() // Zone dropdown -> Save button
+	h.PressEnter()
+	stepSnapshot(h, "vlans", &step, "updated")
+
+	h.PressRune('D')
+	stepSnapshot(h, "vlans", &step, "delete_confirm")
+	h.CancelModal()
+	stepSnapshot(h, "vlans", &step, "delete_cancel")
+
+	addVLANViaDialog(h, "0", "Invalid", "bad", "")
+	stepSnapshot(h, "vlans_negative", &step, "id_0")
+	addVLANViaDialog(h, "4095", "Invalid", "bad", "")
+	stepSnapshot(h, "vlans_negative", &step, "id_4095")
+	addVLANViaDialog(h, "bad", "Invalid", "bad", "")
+	stepSnapshot(h, "vlans_negative", &step, "id_non_numeric")
+	addVLANViaDialog(h, "100", "Duplicate", "bad", "")
+	stepSnapshot(h, "vlans_negative", &step, "duplicate_id")
+}
+
+func TestSSIDsLifecycleAndNegative(t *testing.T) {
+	h := NewTestHarness(t)
+	step := 1
+	navigateToSSIDs(t, h)
+	stepSnapshot(h, "ssids", &step, "folder_empty")
+
+	h.PressRune('w')
+	stepSnapshot(h, "ssids", &step, "add_dialog")
+	h.PressEscape()
+
+	addSSIDViaDialog(h, "Home-IoT", "devices")
+	stepSnapshot(h, "ssids", &step, "added")
+
+	h.MoveFocusToID(t, "Home-IoT")
+	h.PressRune('u')
+	stepSnapshot(h, "ssids", &step, "update_dialog")
+	h.PressEscape()
+	h.PressRune('u')
+	h.TypeText(" updated")
+	h.PressTab()
+	h.PressEnter()
+	stepSnapshot(h, "ssids", &step, "updated")
+
+	h.PressRune('D')
+	stepSnapshot(h, "ssids", &step, "delete_confirm")
+	h.CancelModal()
+	stepSnapshot(h, "ssids", &step, "delete_cancel")
+
+	addSSIDViaDialog(h, "", "bad")
+	stepSnapshot(h, "ssids_negative", &step, "empty_id")
+	addSSIDViaDialog(h, "Home-IoT", "dup")
+	stepSnapshot(h, "ssids_negative", &step, "duplicate_id")
+}
+
+func TestZonesEquipmentPortsLifecycleAndNegative(t *testing.T) {
+	h := NewTestHarness(t)
+	step := 1
+	navigateToVLANs(t, h)
+	addVLANViaDialog(h, "101", "Main", "main", "")
+	addVLANViaDialog(h, "102", "Guest", "guest", "")
+
+	navigateToZones(t, h)
+	stepSnapshot(h, "zones", &step, "folder_empty")
+	addZoneViaDialog(h, "Trusted", "trusted clients", "101")
+	stepSnapshot(h, "zones", &step, "added_with_vlan")
+	addZoneViaDialog(h, "", "invalid", "")
+	stepSnapshot(h, "zones_negative", &step, "empty_name")
+
+	navigateToEquipmentRoot(t, h)
+	stepSnapshot(h, "equipment", &step, "folder_empty")
+	addEquipmentViaDialog(h, "Gateway", "UCG", "edge")
+	stepSnapshot(h, "equipment", &step, "added_gateway")
+	addEquipmentViaDialog(h, "", "Model", "bad")
+	stepSnapshot(h, "equipment_negative", &step, "empty_name")
+	addEquipmentViaDialog(h, "NoModel", "", "bad")
+	stepSnapshot(h, "equipment_negative", &step, "empty_model")
+
+	addEquipmentViaDialog(h, "Switch", "USW", "agg")
+	h.MoveFocusToID(t, "Gateway (UCG)")
+	h.PressEnter()
+	addPortViaDialog(h, "1", "WAN1", "RJ45", "2.5GbE", "", "", "", "", "", "", "uplink")
+	stepSnapshot(h, "ports", &step, "added_port")
+	addPortViaDialog(h, "1", "WAN1-dup", "RJ45", "2.5GbE", "", "", "", "", "", "", "dup")
+	stepSnapshot(h, "ports_negative", &step, "duplicate_port_number")
+}
+
+func TestCrossReferencesAndPersistence(t *testing.T) {
+	h := NewTestHarness(t)
+	step := 1
+	navigateToVLANs(t, h)
+	addVLANViaDialog(h, "300", "Servers", "srv", "")
+	stepSnapshot(h, "crossref", &step, "vlan_added")
+
+	navigateToNetworksRoot(t, h)
+	addNetworkViaDialog(h, "10.60.0.0/24")
+	h.MoveFocusToID(t, "10.60.0.0/24")
+	allocateHostsFocused(h, "Servers", "pool", "300")
+	stepSnapshot(h, "crossref", &step, "network_allocated_with_vlan")
+
+	navigateToVLANs(t, h)
+	h.MoveFocusToID(t, "300 (Servers)")
+	stepSnapshot(h, "crossref", &step, "vlan_shows_network")
+
+	h.PressCtrl('s')
+	stepSnapshot(h, "persistence", &step, "saved_status")
+
+	h.Close()
+	h2 := NewTestHarnessInDir(t, h.workDir)
+	navigateToVLANs(t, h2)
+	h2.MoveFocusToID(t, "300 (Servers)")
+	stepSnapshot(h2, "persistence", &step, "loaded_state")
+}
+
+func TestQuitAndDialogEscape(t *testing.T) {
+	h := NewTestHarness(t)
+	step := 1
+	h.NavigateToNetworks()
+	addNetworkViaDialog(h, "10.0.0.0/24")
+	h.MoveFocusToID(t, "10.0.0.0/24")
+
+	h.PressRune('n')
+	stepSnapshot(h, "escape", &step, "add_network_dialog")
+	h.PressEscape()
+	stepSnapshot(h, "escape", &step, "after_add_network_escape")
+
+	h.PressRune('a')
+	stepSnapshot(h, "escape", &step, "allocate_subnets_dialog")
+	h.PressEscape()
+	stepSnapshot(h, "escape", &step, "after_allocate_escape")
+
+	h.PressRune('A')
+	stepSnapshot(h, "escape", &step, "allocate_hosts_dialog")
+	h.PressEscape()
+	stepSnapshot(h, "escape", &step, "after_hosts_escape")
+
+	h.PressRune('q')
+	stepSnapshot(h, "quit", &step, "quit_modal")
+	h.CancelModal()
+	stepSnapshot(h, "quit", &step, "quit_cancel")
+}
+
 func TestGoldenDialogsAndScreens(t *testing.T) {
 	h := NewTestHarness(t)
 	h.NavigateToNetworks()
 	addNetworkViaDialog(h, "10.0.0.0/24")
 	addNetworkViaDialog(h, "fd00::/64")
 
-	moveFocusToID(t, h, "10.0.0.0/24")
+	h.MoveFocusToID(t, "10.0.0.0/24")
 	h.AssertGoldenSnapshot("g02_s01_network_details_ipv4")
 
 	h.PressRune('n')
@@ -861,7 +1187,7 @@ func TestGoldenDialogsAndScreens(t *testing.T) {
 	h.PressEscape()
 
 	addNetworkViaDialog(h, "10.0.1.0/24")
-	moveFocusToID(t, h, "10.0.0.0/24")
+	h.MoveFocusToID(t, "10.0.0.0/24")
 	h.PressRune('S')
 	assertPrimaryCancelVisible(t, h, "Summarize")
 	h.AssertGoldenSnapshot("g02_s04_summarize_network_dialog")
@@ -900,7 +1226,7 @@ func TestGoldenDialogsAndScreens(t *testing.T) {
 	h.PressEscape()
 
 	reserveIPFromCurrentNetwork(h, "10.0.0.1", "gw", "gateway")
-	moveFocusToID(t, h, "10.0.0.1 (gw)")
+	h.MoveFocusToID(t, "10.0.0.1 (gw)")
 	h.AssertGoldenSnapshot("g02_s12_ip_details")
 
 	h.PressRune('u')
@@ -913,7 +1239,7 @@ func TestGoldenDialogsAndScreens(t *testing.T) {
 	h.CancelModal()
 
 	h.PressBackspace()
-	moveFocusToID(t, h, "fd00::/64")
+	h.MoveFocusToID(t, "fd00::/64")
 	h.AssertGoldenSnapshot("g02_s15_network_details_ipv6")
 
 	h.PressRune('a')
@@ -941,9 +1267,9 @@ func TestDemoState(t *testing.T) {
 	routerName := "Router-Topaz"
 
 	navigateToVLANs(t, h)
-	addVLANViaDialog(h, fmt.Sprintf("%d", vlanA), "Segment-Alpha", "Synthetic demo segment alpha")
-	addVLANViaDialog(h, fmt.Sprintf("%d", vlanB), "Segment-Beta", "Synthetic demo segment beta")
-	addVLANViaDialog(h, fmt.Sprintf("%d", vlanC), "Segment-Gamma", "Synthetic demo segment gamma")
+	addVLANViaDialog(h, fmt.Sprintf("%d", vlanA), "Segment-Alpha", "Synthetic demo segment alpha", "")
+	addVLANViaDialog(h, fmt.Sprintf("%d", vlanB), "Segment-Beta", "Synthetic demo segment beta", "")
+	addVLANViaDialog(h, fmt.Sprintf("%d", vlanC), "Segment-Gamma", "Synthetic demo segment gamma", "")
 
 	navigateToZones(t, h)
 	addZoneViaDialog(h, "Zone-Red", "Demo trust zone red", fmt.Sprintf("%d,%d", vlanA, vlanB))
@@ -958,14 +1284,14 @@ func TestDemoState(t *testing.T) {
 	addEquipmentViaDialog(h, switchName, "Model-X", "Synthetic demo switch")
 	addEquipmentViaDialog(h, routerName, "Model-Y", "Synthetic demo router")
 
-	moveFocusToID(t, h, routerName)
+	h.MoveFocusToID(t, routerName)
 	h.PressEnter()
 	addPortViaDialog(h, "1", "WAN", "RJ45", "2.5GbE", "", "", "", "", "BlockAll", "", "Uplink")
 	addPortViaDialog(h, "2", "LAN-A", "RJ45", "2.5GbE", "", "", "", fmt.Sprintf("%d", vlanA), "AllowAll", "", "Clients")
 	addPortViaDialog(h, "3", "", "RJ45", "2.5GbE", "", "", "", "", "", "", "")
 	h.PressBackspace()
 
-	moveFocusToID(t, h, switchName)
+	h.MoveFocusToID(t, switchName)
 	h.PressEnter()
 	addPortViaDialog(h, "1", "SFP+ 1", "SFP+", "10GbE", "", "", "", "", "AllowAll", "", "Trunk uplink")
 	addPortViaDialog(h, "2", "SFP+ 2", "SFP+", "10GbE", "", "", "", "", "AllowAll", "", "Trunk peer")
@@ -977,17 +1303,17 @@ func TestDemoState(t *testing.T) {
 	navigateToNetworksRoot(t, h)
 
 	addNetworkViaDialog(h, "10.0.0.0/10")
-	moveFocusToID(t, h, "10.0.0.0/10")
+	h.MoveFocusToID(t, "10.0.0.0/10")
 	allocateSubnetsFocused(h, "Cloud", "Cloud supernet", "", "11")
 	h.PressEnter()
 
-	cloudHalves, err := splitNetwork("10.0.0.0/10", 11)
+	cloudHalves, err := domain.SplitNetwork("10.0.0.0/10", 11)
 	if err != nil || len(cloudHalves) != 2 {
 		t.Fatalf("split cloud /10 into /11 failed: %v", err)
 	}
-	moveFocusToID(t, h, cloudHalves[0])
+	h.MoveFocusToID(t, cloudHalves[0])
 	splitFocusedNetwork(h, "12")
-	moveFocusToID(t, h, cloudHalves[1])
+	h.MoveFocusToID(t, cloudHalves[1])
 	splitFocusedNetwork(h, "12")
 
 	providers := []struct {
@@ -1000,74 +1326,74 @@ func TestDemoState(t *testing.T) {
 	}
 
 	for _, provider := range providers {
-		moveFocusToID(t, h, provider.cidr)
+		h.MoveFocusToID(t, provider.cidr)
 		allocateSubnetsFocused(h, provider.name, provider.name+" provider block", "", "13")
 		h.PressEnter()
 
-		provider13s, err := splitNetwork(provider.cidr, 13)
+		provider13s, err := domain.SplitNetwork(provider.cidr, 13)
 		if err != nil || len(provider13s) != 2 {
 			t.Fatalf("split %s into /13 failed: %v", provider.cidr, err)
 		}
-		moveFocusToID(t, h, provider13s[0])
+		h.MoveFocusToID(t, provider13s[0])
 		splitFocusedNetwork(h, "14")
 
-		regions, err := splitNetwork(provider13s[0], 14)
+		regions, err := domain.SplitNetwork(provider13s[0], 14)
 		if err != nil || len(regions) != 2 {
 			t.Fatalf("split %s into /14 failed: %v", provider13s[0], err)
 		}
 		for regionIdx, region := range regions {
 			regionName := fmt.Sprintf("%s region-%d", provider.name, regionIdx+1)
-			moveFocusToID(t, h, region)
+			h.MoveFocusToID(t, region)
 			allocateSubnetsFocused(h, regionName, "Regional address space", "", "15")
 			h.PressEnter()
 
-			region15s, err := splitNetwork(region, 15)
+			region15s, err := domain.SplitNetwork(region, 15)
 			if err != nil || len(region15s) != 2 {
 				t.Fatalf("split %s into /15 failed: %v", region, err)
 			}
-			moveFocusToID(t, h, region15s[0])
+			h.MoveFocusToID(t, region15s[0])
 			splitFocusedNetwork(h, "16")
 
-			vpcs, err := splitNetwork(region15s[0], 16)
+			vpcs, err := domain.SplitNetwork(region15s[0], 16)
 			if err != nil || len(vpcs) != 2 {
 				t.Fatalf("split %s into /16 failed: %v", region15s[0], err)
 			}
-			moveFocusToID(t, h, vpcs[0])
+			h.MoveFocusToID(t, vpcs[0])
 			allocateSubnetsFocused(h, "Primary VPC", "Regional primary VPC", "", "17")
 			h.PressEnter()
 
-			vpc17s, err := splitNetwork(vpcs[0], 17)
+			vpc17s, err := domain.SplitNetwork(vpcs[0], 17)
 			if err != nil || len(vpc17s) != 2 {
 				t.Fatalf("split %s into /17 failed: %v", vpcs[0], err)
 			}
-			moveFocusToID(t, h, vpc17s[0])
+			h.MoveFocusToID(t, vpc17s[0])
 			splitFocusedNetwork(h, "18")
-			moveFocusToID(t, h, vpc17s[1])
+			h.MoveFocusToID(t, vpc17s[1])
 			splitFocusedNetwork(h, "18")
 
-			left18s, err := splitNetwork(vpc17s[0], 18)
+			left18s, err := domain.SplitNetwork(vpc17s[0], 18)
 			if err != nil || len(left18s) != 2 {
 				t.Fatalf("split %s into /18 failed: %v", vpc17s[0], err)
 			}
-			right18s, err := splitNetwork(vpc17s[1], 18)
+			right18s, err := domain.SplitNetwork(vpc17s[1], 18)
 			if err != nil || len(right18s) != 2 {
 				t.Fatalf("split %s into /18 failed: %v", vpc17s[1], err)
 			}
-			subnetTypes := append(left18s, right18s...)
+			subnetTypes := slices.Concat(left18s, right18s)
 			if len(subnetTypes) < 3 {
 				t.Fatalf("expected at least 3 subnet type blocks in %s", vpcs[0])
 			}
 			typeNames := []string{"Public", "Private", "Backend"}
-			for i := 0; i < 3; i++ {
-				moveFocusToID(t, h, subnetTypes[i])
+			for i := range 3 {
+				h.MoveFocusToID(t, subnetTypes[i])
 				allocateSubnetsFocused(h, typeNames[i], typeNames[i]+" subnet type", "", "19")
 				h.PressEnter()
 
-				azs, err := splitNetwork(subnetTypes[i], 19)
+				azs, err := domain.SplitNetwork(subnetTypes[i], 19)
 				if err != nil || len(azs) != 2 {
 					t.Fatalf("split %s into /19 failed: %v", subnetTypes[i], err)
 				}
-				moveFocusToID(t, h, azs[0])
+				h.MoveFocusToID(t, azs[0])
 				allocateHostsFocused(h, "AZ-a", "Availability zone A", "")
 				h.PressEnter()
 				base := strings.Split(azs[0], "/")[0]
@@ -1078,7 +1404,7 @@ func TestDemoState(t *testing.T) {
 				prefix3 := strings.Join(octets[:3], ".")
 				reserveIPFromCurrentNetwork(h, prefix3+".1", "gateway", "Default gateway")
 				h.PressBackspace()
-				moveFocusToID(t, h, azs[1])
+				h.MoveFocusToID(t, azs[1])
 				allocateHostsFocused(h, "AZ-b", "Availability zone B", "")
 				h.PressBackspace()
 			}
@@ -1090,40 +1416,40 @@ func TestDemoState(t *testing.T) {
 
 	navigateToNetworksRoot(t, h)
 	addNetworkViaDialog(h, "192.168.0.0/16")
-	moveFocusToID(t, h, "192.168.0.0/16")
+	h.MoveFocusToID(t, "192.168.0.0/16")
 	allocateSubnetsFocused(h, "Home", "Home supernet with VLAN segments", "", "17")
 	h.PressEnter()
 
 	activeCIDR := "192.168.0.0/17"
 	for prefix := 18; prefix <= 22; prefix++ {
-		moveFocusToID(t, h, activeCIDR)
+		h.MoveFocusToID(t, activeCIDR)
 		splitFocusedNetwork(h, fmt.Sprintf("%d", prefix))
-		childCIDRs, err := splitNetwork(activeCIDR, prefix)
+		childCIDRs, err := domain.SplitNetwork(activeCIDR, prefix)
 		if err != nil {
 			t.Fatalf("split %s into /%d: %v", activeCIDR, prefix, err)
 		}
 		activeCIDR = childCIDRs[0]
 	}
-	moveFocusToID(t, h, activeCIDR)
+	h.MoveFocusToID(t, activeCIDR)
 	splitFocusedNetwork(h, "24")
 
-	homeCIDRs, err := splitNetwork(activeCIDR, 24)
+	homeCIDRs, err := domain.SplitNetwork(activeCIDR, 24)
 	if err != nil || len(homeCIDRs) < 3 {
 		t.Fatalf("split home into /24 failed: %v", err)
 	}
-	moveFocusToID(t, h, homeCIDRs[0])
+	h.MoveFocusToID(t, homeCIDRs[0])
 	allocateHostsFocused(h, "Home Infra", "Routers and servers", fmt.Sprintf("%d", vlanA))
 	h.PressEnter()
 	reserveIPFromCurrentNetwork(h, "192.168.0.1", "gateway", "Default gateway")
 	reserveIPFromCurrentNetwork(h, "192.168.0.10", "nas", "NAS")
 	h.PressBackspace()
-	moveFocusToID(t, h, homeCIDRs[1])
+	h.MoveFocusToID(t, homeCIDRs[1])
 	allocateHostsFocused(h, "Home Users", "Laptops and phones", fmt.Sprintf("%d", vlanB))
 	h.PressEnter()
 	reserveIPFromCurrentNetwork(h, "192.168.1.1", "gateway", "Default gateway")
 	reserveIPFromCurrentNetwork(h, "192.168.1.50", "printer", "Office printer")
 	h.PressBackspace()
-	moveFocusToID(t, h, homeCIDRs[2])
+	h.MoveFocusToID(t, homeCIDRs[2])
 	allocateHostsFocused(h, "Home IoT", "Cameras and sensors", fmt.Sprintf("%d", vlanC))
 	h.PressEnter()
 	reserveIPFromCurrentNetwork(h, "192.168.2.1", "gateway", "Default gateway")
@@ -1132,35 +1458,35 @@ func TestDemoState(t *testing.T) {
 
 	navigateToNetworksRoot(t, h)
 	addNetworkViaDialog(h, "fd42::/56")
-	moveFocusToID(t, h, "fd42::/56")
+	h.MoveFocusToID(t, "fd42::/56")
 	allocateSubnetsFocused(h, "Home IPv6", "Home IPv6 supernet", "", "57")
 	h.PressEnter()
 
 	activeV6CIDR := "fd42::/57"
 	for prefix := 58; prefix <= 63; prefix++ {
-		moveFocusToID(t, h, activeV6CIDR)
+		h.MoveFocusToID(t, activeV6CIDR)
 		splitFocusedNetwork(h, fmt.Sprintf("%d", prefix))
-		childCIDRs, err := splitNetwork(activeV6CIDR, prefix)
+		childCIDRs, err := domain.SplitNetwork(activeV6CIDR, prefix)
 		if err != nil {
 			t.Fatalf("split %s into /%d: %v", activeV6CIDR, prefix, err)
 		}
 		activeV6CIDR = childCIDRs[0]
 	}
-	moveFocusToID(t, h, activeV6CIDR)
+	h.MoveFocusToID(t, activeV6CIDR)
 	splitFocusedNetwork(h, "64")
 
-	homeV6CIDRs, err := splitNetwork(activeV6CIDR, 64)
+	homeV6CIDRs, err := domain.SplitNetwork(activeV6CIDR, 64)
 	if err != nil || len(homeV6CIDRs) < 2 {
 		t.Fatalf("split home IPv6 into /64 failed: %v", err)
 	}
-	moveFocusToID(t, h, homeV6CIDRs[0])
+	h.MoveFocusToID(t, homeV6CIDRs[0])
 	allocateHostsFocused(h, "Home Infra v6", "Routers and servers v6", "")
 	h.PressEnter()
 	base0 := strings.Split(homeV6CIDRs[0], "/")[0]
 	reserveIPFromCurrentNetwork(h, strings.Replace(base0, "::", "::1", 1), "gateway-v6", "Default gateway IPv6")
 	reserveIPFromCurrentNetwork(h, strings.Replace(base0, "::", "::53", 1), "dns-v6", "Resolver IPv6")
 	h.PressBackspace()
-	moveFocusToID(t, h, homeV6CIDRs[1])
+	h.MoveFocusToID(t, homeV6CIDRs[1])
 	allocateHostsFocused(h, "Home Users v6", "Laptops and phones v6", "")
 	h.PressEnter()
 	base1 := strings.Split(homeV6CIDRs[1], "/")[0]

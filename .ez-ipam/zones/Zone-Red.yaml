@@ -5,3 +5,4 @@ parent: Zones
 vlan_ids:
 - 147
 - 233
+- 318

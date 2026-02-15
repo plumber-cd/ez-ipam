@@ -22,4 +22,4 @@
 ║                        ║│65536 subnets, current limit is 1024 due to         │
 ║                        ║│performance issues                                  │
 ╚════════════════════════╝└────────────────────────────────────────────────────┘
- <enter>/<double-click> Open | <backspace> Back | <q> Quit | <ctrl+s> Save |    
+ <q> Quit | <ctrl+s> Save | <n> New Network | <a> Allocate Subnet Container |   

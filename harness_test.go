@@ -11,14 +11,17 @@ import (
 	"time"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/plumber-cd/ez-ipam/internal/ui"
 )
 
 var updateGolden = flag.Bool("update", false, "update golden snapshot files")
 
+// sentinelSyncKey must match the key checked in App.SetInputCapture.
 const sentinelSyncKey = tcell.KeyF63
 
 type TestHarness struct {
 	t       *testing.T
+	App     *ui.App
 	screen  tcell.SimulationScreen
 	repoDir string
 	workDir string
@@ -42,22 +45,22 @@ func NewTestHarnessInDir(t *testing.T, dir string) *TestHarness {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatalf("mkdir work dir: %v", err)
 	}
-	if err := os.Chdir(dir); err != nil {
-		t.Fatalf("chdir work dir: %v", err)
-	}
 
-	resetState()
-	setupApp()
+	application, err := ui.New(dir)
+	if err != nil {
+		t.Fatalf("init app: %v", err)
+	}
 
 	screen := tcell.NewSimulationScreen("UTF-8")
 	if err := screen.Init(); err != nil {
 		t.Fatalf("init simulation screen: %v", err)
 	}
 	screen.SetSize(80, 25)
-	app.SetScreen(screen)
+	application.TviewApp.SetScreen(screen)
 
 	h := &TestHarness{
 		t:       t,
+		App:     application,
 		screen:  screen,
 		repoDir: oldDir,
 		workDir: dir,
@@ -67,7 +70,7 @@ func NewTestHarnessInDir(t *testing.T, dir string) *TestHarness {
 	t.Cleanup(h.Close)
 
 	go func() {
-		h.runErr <- app.Run()
+		h.runErr <- application.Run()
 	}()
 
 	h.WaitForDraw()
@@ -76,8 +79,8 @@ func NewTestHarnessInDir(t *testing.T, dir string) *TestHarness {
 
 func (h *TestHarness) Close() {
 	h.once.Do(func() {
-		if app != nil {
-			app.Stop()
+		if h.App != nil {
+			h.App.Stop()
 		}
 		select {
 		case err := <-h.runErr:
@@ -86,13 +89,12 @@ func (h *TestHarness) Close() {
 			}
 		case <-time.After(2 * time.Second):
 		}
-		_ = os.Chdir(h.oldDir)
 	})
 }
 
 func (h *TestHarness) WaitForDraw() {
 	done := make(chan struct{})
-	app.QueueUpdateDraw(func() {
+	h.App.TviewApp.QueueUpdateDraw(func() {
 		close(done)
 	})
 	select {
@@ -103,32 +105,25 @@ func (h *TestHarness) WaitForDraw() {
 }
 
 func (h *TestHarness) PressKey(key tcell.Key, r rune, mod tcell.ModMask) {
+	// Set up the sentinel channel on the event loop goroutine to avoid races.
+	ready := make(chan struct{})
 	done := make(chan struct{})
-	oldCapture := app.GetInputCapture()
-	var once sync.Once
-	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == sentinelSyncKey {
-			once.Do(func() {
-				close(done)
-			})
-			return nil
-		}
-		if oldCapture != nil {
-			return oldCapture(event)
-		}
-		return event
+	h.App.TviewApp.QueueUpdate(func() {
+		h.App.SentinelCh = done
+		close(ready)
 	})
+	<-ready
 
+	// Inject the key followed by a sentinel. Both go into the screen event
+	// channel, so they are processed in order by the event loop.
 	h.screen.InjectKey(key, r, mod)
 	h.screen.InjectKey(sentinelSyncKey, 0, tcell.ModNone)
 
 	select {
 	case <-done:
 	case <-time.After(2 * time.Second):
-		app.SetInputCapture(oldCapture)
 		h.t.Fatalf("timed out waiting for key processing")
 	}
-	app.SetInputCapture(oldCapture)
 }
 
 func (h *TestHarness) InjectKeyNoWait(key tcell.Key, r rune, mod tcell.ModMask) {
@@ -159,6 +154,14 @@ func (h *TestHarness) PressBackspace() {
 
 func (h *TestHarness) PressTab() {
 	h.PressKey(tcell.KeyTab, 0, tcell.ModNone)
+}
+
+func (h *TestHarness) PressUp() {
+	h.PressKey(tcell.KeyUp, 0, tcell.ModNone)
+}
+
+func (h *TestHarness) PressDown() {
+	h.PressKey(tcell.KeyDown, 0, tcell.ModNone)
 }
 
 func (h *TestHarness) PressCtrl(r rune) {
@@ -209,8 +212,8 @@ func (h *TestHarness) WaitForExit(timeout time.Duration) error {
 func (h *TestHarness) GetScreenText() string {
 	cells, width, height := h.screen.GetContents()
 	var sb strings.Builder
-	for row := 0; row < height; row++ {
-		for col := 0; col < width; col++ {
+	for row := range height {
+		for col := range width {
 			cell := cells[row*width+col]
 			if len(cell.Runes) > 0 && cell.Runes[0] != 0 {
 				sb.WriteRune(cell.Runes[0])
@@ -262,9 +265,40 @@ func (h *TestHarness) AssertScreenNotContains(substr string) {
 	}
 }
 
+func (h *TestHarness) AssertScreenNotContainsAny(substrs ...string) {
+	h.t.Helper()
+	text := h.GetScreenText()
+	for _, substr := range substrs {
+		if strings.Contains(text, substr) {
+			h.DumpScreen()
+			h.t.Fatalf("screen unexpectedly contains %q", substr)
+		}
+	}
+}
+
 func (h *TestHarness) AssertStatusContains(substr string) {
 	h.t.Helper()
 	h.AssertScreenContains(substr)
+}
+
+func (h *TestHarness) PressPageUp() {
+	h.PressCtrl('u')
+}
+
+func (h *TestHarness) PressPageDown() {
+	h.PressCtrl('d')
+}
+
+func (h *TestHarness) AssertNoModal() {
+	h.t.Helper()
+	done := make(chan bool, 1)
+	h.App.TviewApp.QueueUpdateDraw(func() {
+		name, _ := h.App.Pages.GetFrontPage()
+		done <- name == "*main*"
+	})
+	if !<-done {
+		h.t.Fatalf("expected no modal/dialog overlay; front page is not main")
+	}
 }
 
 func (h *TestHarness) AssertGoldenSnapshot(name string) {
@@ -299,7 +333,7 @@ func renderLineDiff(expected, actual string) string {
 	if len(act) > max {
 		max = len(act)
 	}
-	for i := 0; i < max; i++ {
+	for i := range max {
 		var e, a string
 		if i < len(exp) {
 			e = exp[i]
@@ -316,10 +350,10 @@ func renderLineDiff(expected, actual string) string {
 
 func (h *TestHarness) SaveDemoArtifactsToRepo() {
 	h.t.Helper()
-	srcData := filepath.Join(h.workDir, dataDirName)
-	srcMD := filepath.Join(h.workDir, markdownFileName)
-	dstData := filepath.Join(h.repoDir, dataDirName)
-	dstMD := filepath.Join(h.repoDir, markdownFileName)
+	srcData := filepath.Join(h.workDir, ".ez-ipam")
+	srcMD := filepath.Join(h.workDir, "EZ-IPAM.md")
+	dstData := filepath.Join(h.repoDir, ".ez-ipam")
+	dstMD := filepath.Join(h.repoDir, "EZ-IPAM.md")
 
 	if err := os.RemoveAll(dstData); err != nil {
 		h.t.Fatalf("remove old data dir: %v", err)
@@ -337,6 +371,85 @@ func (h *TestHarness) SaveDemoArtifactsToRepo() {
 	if err := os.WriteFile(dstMD, md, 0o644); err != nil {
 		h.t.Fatalf("write markdown: %v", err)
 	}
+}
+
+// CurrentFocusID returns the DisplayID of the currently focused item (thread-safe).
+func (h *TestHarness) CurrentFocusID() string {
+	done := make(chan string, 1)
+	h.App.TviewApp.QueueUpdateDraw(func() {
+		if h.App.CurrentFocus == nil {
+			done <- ""
+			return
+		}
+		done <- h.App.CurrentFocus.DisplayID()
+	})
+	return <-done
+}
+
+// CurrentKeys returns current menu and focus key lists (thread-safe).
+func (h *TestHarness) CurrentKeys() ([]string, []string) {
+	type result struct {
+		menu  []string
+		focus []string
+	}
+	done := make(chan result, 1)
+	h.App.TviewApp.QueueUpdateDraw(func() {
+		menuCopy := append([]string{}, h.App.CurrentMenuItemKeys...)
+		focusCopy := append([]string{}, h.App.CurrentFocusKeys...)
+		done <- result{menu: menuCopy, focus: focusCopy}
+	})
+	v := <-done
+	return v.menu, v.focus
+}
+
+// CurrentStatusText returns the current status line text (thread-safe).
+func (h *TestHarness) CurrentStatusText() string {
+	done := make(chan string, 1)
+	h.App.TviewApp.QueueUpdateDraw(func() {
+		done <- h.App.StatusLine.GetText(true)
+	})
+	return <-done
+}
+
+// FocusMatches checks whether the current focus starts with the given id.
+func (h *TestHarness) FocusMatches(id string) bool {
+	return strings.HasPrefix(h.CurrentFocusID(), id)
+}
+
+// MoveFocusToID scrolls up then down until the named item is focused, or fails.
+func (h *TestHarness) MoveFocusToID(t *testing.T, id string) {
+	t.Helper()
+	for range 40 {
+		h.PressRune('k')
+	}
+	if h.FocusMatches(id) {
+		return
+	}
+	for range 200 {
+		if h.FocusMatches(id) {
+			return
+		}
+		h.PressRune('j')
+	}
+	t.Fatalf("could not focus item %q; current=%q", id, h.CurrentFocusID())
+}
+
+func (h *TestHarness) SelectDropdownOption(label string, optionContains string) {
+	h.t.Helper()
+	if strings.TrimSpace(optionContains) == "" {
+		return
+	}
+	done := make(chan bool, 1)
+	h.App.TviewApp.QueueUpdateDraw(func() {
+		done <- h.App.SelectDialogDropdownOption(label, optionContains)
+	})
+	if !<-done {
+		h.t.Fatalf("dropdown %q option containing %q not found", label, optionContains)
+	}
+}
+
+func (h *TestHarness) ToggleCheckbox() {
+	h.PressRune(' ')
 }
 
 func copyDir(src, dst string) error {

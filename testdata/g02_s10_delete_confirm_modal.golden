@@ -22,4 +22,4 @@
 │                        │┌───────────────────────Status───────────────────────┐
 │                        ││Allocated network: Networks -> 10.0.0.0/24          │
 └────────────────────────┘└────────────────────────────────────────────────────┘
- <enter>/<double-click> Open | <backspace> Back | <q> Quit | <ctrl+s> Save |    
+ <q> Quit | <ctrl+s> Save | <n> New Network | <u> Update Metadata | <d>         

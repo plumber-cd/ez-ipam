@@ -4,19 +4,19 @@
                                                                                 
                                                                                 
                                                                                 
-         ╔═══════════════Update Metadata for 10.0.0.0/24══════════════╗         
-         ║                                                            ║         
-         ║ Name        Hosts                                          ║         
-         ║                                                            ║         
-         ║ Description desc                                           ║         
-         ║                                                            ║         
-         ║                                                            ║         
-         ║                                                            ║         
-         ║ VLAN ID                                                    ║         
-         ║                                                            ║         
-         ║                      Save     Cancel                       ║         
-         ║                                                            ║         
-         ╚════════════════════════════════════════════════════════════╝         
+           ╔═════════════Update Metadata for 10.0.0.0/24════════════╗           
+           ║                                                        ║           
+           ║ Name        Hosts                                      ║           
+           ║                                                        ║           
+           ║ Description desc                                       ║           
+           ║                                                        ║           
+           ║             Ctrl+E: edit in $EDITOR                    ║           
+           ║                                                        ║           
+           ║ VLAN ID     <none>                                     ║           
+           ║                                                        ║           
+           ║                    Save     Cancel                     ║           
+           ║                                                        ║           
+           ╚════════════════════════════════════════════════════════╝           
                                                                                 
                                                                                 
                                                                                 

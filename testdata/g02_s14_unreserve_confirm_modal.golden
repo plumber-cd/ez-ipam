@@ -22,4 +22,4 @@
 │                        │┌───────────────────────Status───────────────────────┐
 │                        ││Reserved IP: Networks -> 10.0.0.0/24 -> 10.0.0.1    │
 └────────────────────────┘└────────────────────────────────────────────────────┘
- <enter>/<double-click> Open | <backspace> Back | <q> Quit | <ctrl+s> Save |    
+ <q> Quit | <ctrl+s> Save | <r> Reserve IP | <u> Update Reservation | <R>       
